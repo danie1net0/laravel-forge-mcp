@@ -2,10 +2,7 @@
 . "$(dirname "$0")/common.sh"
 
 # Verifica se é merge
-git merge HEAD &> /dev/null
-IS_MERGE_PROCESS=$?
-
-if [ $IS_MERGE_PROCESS -ne 0 ]; then
+if git rev-parse -q --verify MERGE_HEAD > /dev/null 2>&1; then
     exit 0
 fi
 
