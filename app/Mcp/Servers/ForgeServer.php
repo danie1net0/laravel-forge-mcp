@@ -102,6 +102,13 @@ class ForgeServer extends Server
         \App\Mcp\Tools\Servers\GetServerTool::class,
         \App\Mcp\Tools\Sites\ListSitesTool::class,
         \App\Mcp\Tools\Sites\GetSiteTool::class,
+        \App\Mcp\Tools\Certificates\ListCertificatesTool::class,
+        \App\Mcp\Tools\Databases\ListDatabasesTool::class,
+        \App\Mcp\Tools\Jobs\ListScheduledJobsTool::class,
+        \App\Mcp\Tools\Daemons\ListDaemonsTool::class,
+        \App\Mcp\Tools\Deployments\GetDeploymentLogTool::class,
+        \App\Mcp\Tools\Deployments\GetDeploymentScriptTool::class,
+        \App\Mcp\Tools\Firewall\ListFirewallRulesTool::class,
     ];
 
     /**
