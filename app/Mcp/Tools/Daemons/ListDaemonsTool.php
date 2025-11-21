@@ -73,7 +73,7 @@ class ListDaemonsTool extends Tool
         return [
             'server_id' => $schema->integer()
                 ->description('The unique ID of the Forge server')
-                ->minimum(1)
+                ->min(1)
                 ->required(),
         ];
     }
