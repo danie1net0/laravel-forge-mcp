@@ -5,11 +5,12 @@ declare(strict_types=1);
 namespace App\Mcp\Tools\Databases;
 
 use App\Services\ForgeService;
+use Exception;
 use Illuminate\JsonSchema\JsonSchema;
-use Laravel\Mcp\Server\Tools\Annotations\IsReadOnly;
+use Laravel\Forge\Resources\Database;
 use Laravel\Mcp\{Request, Response};
 use Laravel\Mcp\Server\Tool;
-use Exception;
+use Laravel\Mcp\Server\Tools\Annotations\IsReadOnly;
 
 #[IsReadOnly]
 class ListDatabasesTool extends Tool
@@ -40,7 +41,7 @@ class ListDatabasesTool extends Tool
         try {
             $databases = $forge->listDatabases($serverId);
 
-            $formatted = array_map(fn ($db) => [
+            $formatted = array_map(fn (Database $db): array => [
                 'id' => $db->id,
                 'name' => $db->name,
                 'status' => $db->status ?? null,

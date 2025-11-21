@@ -4,12 +4,17 @@ declare(strict_types=1);
 
 use App\Mcp\Prompts\DeployApplicationPrompt;
 use App\Mcp\Resources\{DeploymentGuidelinesResource, ForgeApiDocsResource};
-use App\Mcp\Tools\Sites\{GetSiteTool, ListSitesTool};
-use App\Mcp\Tools\Servers\{GetServerTool, ListServersTool};
-use Laravel\Forge\Resources\{Server, Site};
-use App\Mcp\Tools\Deployments\{DeploySiteTool, GetDeploymentLogTool, GetDeploymentScriptTool};
 use App\Mcp\Servers\ForgeServer;
+use App\Mcp\Tools\Certificates\{ListCertificatesTool, ObtainLetsEncryptCertificateTool};
+use App\Mcp\Tools\Daemons\ListDaemonsTool;
+use App\Mcp\Tools\Databases\ListDatabasesTool;
+use App\Mcp\Tools\Deployments\{DeploySiteTool, GetDeploymentLogTool, GetDeploymentScriptTool};
+use App\Mcp\Tools\Firewall\ListFirewallRulesTool;
+use App\Mcp\Tools\Jobs\ListScheduledJobsTool;
+use App\Mcp\Tools\Servers\{GetServerTool, ListServersTool, RebootServerTool};
+use App\Mcp\Tools\Sites\{GetSiteTool, ListSitesTool};
 use App\Services\ForgeService;
+use Laravel\Forge\Resources\{Certificate, Daemon, Database, FirewallRule, Job, Server, Site};
 
 beforeEach(function (): void {
     config(['services.forge.api_token' => 'test-token']);
@@ -277,5 +282,223 @@ describe('Prompts', function (): void {
             ->assertSee('Deployment Guide')
             ->assertSee('123')
             ->assertSee('456');
+    });
+});
+
+describe('ListCertificatesTool', function (): void {
+    it('requires server_id and site_id parameters', function (): void {
+        $response = ForgeServer::tool(ListCertificatesTool::class, []);
+
+        $response->assertHasErrors();
+    });
+
+    it('lists certificates successfully', function (): void {
+        $mockCert = new Certificate([
+            'id' => 1,
+            'domain' => 'example.com',
+            'type' => 'letsencrypt',
+            'status' => 'installed',
+            'active' => true,
+            'existing' => false,
+            'createdAt' => '2024-01-01T00:00:00Z',
+        ]);
+
+        $this->mock(ForgeService::class, function ($mock) use ($mockCert): void {
+            $mock->shouldReceive('listCertificates')->with(1, 1)->once()->andReturn([$mockCert]);
+        });
+
+        $response = ForgeServer::tool(ListCertificatesTool::class, [
+            'server_id' => 1,
+            'site_id' => 1,
+        ]);
+
+        $response
+            ->assertOk()
+            ->assertSee('example.com')
+            ->assertSee('letsencrypt');
+    });
+});
+
+describe('ListDatabasesTool', function (): void {
+    it('requires server_id parameter', function (): void {
+        $response = ForgeServer::tool(ListDatabasesTool::class, []);
+
+        $response->assertHasErrors();
+    });
+
+    it('lists databases successfully', function (): void {
+        $mockDb = new Database([
+            'id' => 1,
+            'name' => 'forge',
+            'status' => 'installed',
+            'createdAt' => '2024-01-01T00:00:00Z',
+        ]);
+
+        $this->mock(ForgeService::class, function ($mock) use ($mockDb): void {
+            $mock->shouldReceive('listDatabases')->with(1)->once()->andReturn([$mockDb]);
+        });
+
+        $response = ForgeServer::tool(ListDatabasesTool::class, [
+            'server_id' => 1,
+        ]);
+
+        $response
+            ->assertOk()
+            ->assertSee('forge');
+    });
+});
+
+describe('ListScheduledJobsTool', function (): void {
+    it('requires server_id parameter', function (): void {
+        $response = ForgeServer::tool(ListScheduledJobsTool::class, []);
+
+        $response->assertHasErrors();
+    });
+
+    it('lists scheduled jobs successfully', function (): void {
+        $mockJob = new Job([
+            'id' => 1,
+            'command' => 'php artisan schedule:run',
+            'user' => 'forge',
+            'frequency' => 'minutely',
+            'cron' => '* * * * *',
+            'status' => 'installed',
+            'createdAt' => '2024-01-01T00:00:00Z',
+        ]);
+
+        $this->mock(ForgeService::class, function ($mock) use ($mockJob): void {
+            $mock->shouldReceive('listJobs')->with(1)->once()->andReturn([$mockJob]);
+        });
+
+        $response = ForgeServer::tool(ListScheduledJobsTool::class, [
+            'server_id' => 1,
+        ]);
+
+        $response
+            ->assertOk()
+            ->assertSee('schedule:run');
+    });
+});
+
+describe('ListDaemonsTool', function (): void {
+    it('requires server_id parameter', function (): void {
+        $response = ForgeServer::tool(ListDaemonsTool::class, []);
+
+        $response->assertHasErrors();
+    });
+
+    it('lists daemons successfully', function (): void {
+        $mockDaemon = new Daemon([
+            'id' => 1,
+            'command' => 'php artisan horizon',
+            'user' => 'forge',
+            'directory' => '/home/forge/example.com',
+            'processes' => 1,
+            'startsecs' => 1,
+            'status' => 'installed',
+            'createdAt' => '2024-01-01T00:00:00Z',
+        ]);
+
+        $this->mock(ForgeService::class, function ($mock) use ($mockDaemon): void {
+            $mock->shouldReceive('listDaemons')->with(1)->once()->andReturn([$mockDaemon]);
+        });
+
+        $response = ForgeServer::tool(ListDaemonsTool::class, [
+            'server_id' => 1,
+        ]);
+
+        $response
+            ->assertOk()
+            ->assertSee('horizon');
+    });
+});
+
+describe('ListFirewallRulesTool', function (): void {
+    it('requires server_id parameter', function (): void {
+        $response = ForgeServer::tool(ListFirewallRulesTool::class, []);
+
+        $response->assertHasErrors();
+    });
+
+    it('lists firewall rules successfully', function (): void {
+        $mockRule = new FirewallRule([
+            'id' => 1,
+            'name' => 'SSH',
+            'port' => '22',
+            'type' => 'allow',
+            'ipAddress' => null,
+            'status' => 'installed',
+            'createdAt' => '2024-01-01T00:00:00Z',
+        ]);
+
+        $this->mock(ForgeService::class, function ($mock) use ($mockRule): void {
+            $mock->shouldReceive('listFirewallRules')->with(1)->once()->andReturn([$mockRule]);
+        });
+
+        $response = ForgeServer::tool(ListFirewallRulesTool::class, [
+            'server_id' => 1,
+        ]);
+
+        $response
+            ->assertOk()
+            ->assertSee('SSH');
+    });
+});
+
+describe('RebootServerTool', function (): void {
+    it('requires server_id parameter', function (): void {
+        $response = ForgeServer::tool(RebootServerTool::class, []);
+
+        $response->assertHasErrors();
+    });
+
+    it('reboots server successfully', function (): void {
+        $this->mock(ForgeService::class, function ($mock): void {
+            $mock->shouldReceive('rebootServer')->with(1)->once();
+        });
+
+        $response = ForgeServer::tool(RebootServerTool::class, [
+            'server_id' => 1,
+        ]);
+
+        $response
+            ->assertOk()
+            ->assertSee('reboot');
+    });
+});
+
+describe('ObtainLetsEncryptCertificateTool', function (): void {
+    it('requires server_id, site_id and domains parameters', function (): void {
+        $response = ForgeServer::tool(ObtainLetsEncryptCertificateTool::class, []);
+
+        $response->assertHasErrors();
+    });
+
+    it('obtains certificate successfully', function (): void {
+        $mockCert = new Certificate([
+            'id' => 1,
+            'domain' => 'example.com',
+            'type' => 'letsencrypt',
+            'status' => 'installing',
+            'active' => false,
+            'createdAt' => '2024-01-01T00:00:00Z',
+        ]);
+
+        $this->mock(ForgeService::class, function ($mock) use ($mockCert): void {
+            $mock->shouldReceive('obtainLetsEncryptCertificate')
+                ->with(1, 1, ['domains' => ['example.com']])
+                ->once()
+                ->andReturn($mockCert);
+        });
+
+        $response = ForgeServer::tool(ObtainLetsEncryptCertificateTool::class, [
+            'server_id' => 1,
+            'site_id' => 1,
+            'domains' => ['example.com'],
+        ]);
+
+        $response
+            ->assertOk()
+            ->assertSee('initiated');
     });
 });

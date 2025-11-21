@@ -5,11 +5,12 @@ declare(strict_types=1);
 namespace App\Mcp\Tools\Sites;
 
 use App\Services\ForgeService;
+use Exception;
 use Illuminate\JsonSchema\JsonSchema;
-use Laravel\Mcp\Server\Tools\Annotations\IsReadOnly;
+use Laravel\Forge\Resources\Site;
 use Laravel\Mcp\{Request, Response};
 use Laravel\Mcp\Server\Tool;
-use Exception;
+use Laravel\Mcp\Server\Tools\Annotations\IsReadOnly;
 
 #[IsReadOnly]
 class ListSitesTool extends Tool
@@ -45,7 +46,7 @@ class ListSitesTool extends Tool
         try {
             $sites = $forge->listSites($serverId);
 
-            $formatted = array_map(fn ($site) => [
+            $formatted = array_map(fn (Site $site): array => [
                 'id' => $site->id,
                 'name' => $site->name,
                 'directory' => $site->directory,

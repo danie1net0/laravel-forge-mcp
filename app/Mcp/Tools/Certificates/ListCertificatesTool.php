@@ -5,11 +5,12 @@ declare(strict_types=1);
 namespace App\Mcp\Tools\Certificates;
 
 use App\Services\ForgeService;
+use Exception;
 use Illuminate\JsonSchema\JsonSchema;
-use Laravel\Mcp\Server\Tools\Annotations\IsReadOnly;
+use Laravel\Forge\Resources\Certificate;
 use Laravel\Mcp\{Request, Response};
 use Laravel\Mcp\Server\Tool;
-use Exception;
+use Laravel\Mcp\Server\Tools\Annotations\IsReadOnly;
 
 #[IsReadOnly]
 class ListCertificatesTool extends Tool
@@ -45,7 +46,7 @@ class ListCertificatesTool extends Tool
         try {
             $certificates = $forge->listCertificates($serverId, $siteId);
 
-            $formatted = array_map(fn ($cert) => [
+            $formatted = array_map(fn (Certificate $cert): array => [
                 'id' => $cert->id,
                 'domain' => $cert->domain ?? null,
                 'type' => $cert->type ?? null,
