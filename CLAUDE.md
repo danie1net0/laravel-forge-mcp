@@ -6,6 +6,16 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 This is a Laravel 12 application using PHP 8.2+ with a SQLite database by default. The application includes Laravel Telescope for debugging and monitoring, and uses Vite with Tailwind CSS 4 for frontend asset compilation.
 
+### Language Standards
+
+**IMPORTANT**: This project uses **English only** for all code, comments, commit messages, documentation, and user-facing text. This includes:
+- Commit messages (using Conventional Commits)
+- Code comments and documentation
+- Variable/function/class names
+- Test descriptions
+- API responses and error messages
+- User interface text
+
 ## Development Commands
 
 ### Initial Setup
@@ -130,46 +140,46 @@ php artisan cache:clear            # Clear application cache
 
 **IMPORTANT**: DO NOT add Claude Code credits or "Generated with Claude" messages to commits.
 
-Follow the CMC (Conventional Message Commit) standard in Portuguese:
+Follow the Conventional Commits standard in English:
 
 ### Structure
 ```
-<tipo>(<escopo>): <mensagem>
+<type>(<scope>): <message>
 ```
 
 ### Commit Types
-- `feat`: Nova funcionalidade
-- `fix`: Correção de bug
-- `docs`: Alterações na documentação
-- `style`: Formatação (não inclui alterações de código)
-- `refactor`: Refatoração de código
-- `test`: Adição ou correção de testes
-- `chore`: Alterações em arquivos de configuração, tarefas de build, etc.
-- `perf`: Melhorias de performance
-- `ci`: Alterações em configurações de CI
-- `build`: Alterações no sistema de build ou dependências externas
-- `revert`: Reversão de um commit anterior
+- `feat`: New feature
+- `fix`: Bug fix
+- `docs`: Documentation changes
+- `style`: Formatting (no code changes)
+- `refactor`: Code refactoring
+- `test`: Adding or correcting tests
+- `chore`: Configuration or build task changes
+- `perf`: Performance improvements
+- `ci`: CI configuration changes
+- `build`: Build system or external dependency changes
+- `revert`: Reverting a previous commit
 
 ### Scope (optional)
-Indica a parte do código alterada: módulo, componente ou arquivo.
-Exemplos: `auth`, `dashboard`, `usuario`, `api`
+Indicates the affected part of the code: module, component, or file.
+Examples: `auth`, `dashboard`, `user`, `api`
 
 ### Message Rules
-- Escrita em português
-- Use verbos no imperativo (adiciona, corrige, implementa)
-- Seja específico e conciso
-- Limite a 50 caracteres se possível
-- Não use ponto final
+- Written in English
+- Use imperative verbs (add, fix, implement)
+- Be specific and concise
+- Keep under 50 characters if possible
+- No period at the end
 
 ### Examples
 ```
-feat(auth): adiciona autenticação com Google
-fix(carrinho): corrige cálculo de desconto
-docs: atualiza instruções de instalação
-refactor(usuario): simplifica validação de formulário
-test(api): adiciona testes para rotas de pagamento
-chore: atualiza dependências de desenvolvimento
-perf(consulta): otimiza query do banco de dados
+feat(auth): add Google authentication
+fix(cart): fix discount calculation
+docs: update installation instructions
+refactor(user): simplify form validation
+test(api): add tests for payment routes
+chore: update development dependencies
+perf(query): optimize database query
 ```
 
 ===
@@ -186,10 +196,10 @@ This application is a Laravel application and its main Laravel ecosystems packag
 
 - php - 8.4.6
 - laravel/framework (LARAVEL) - v12
+- laravel/mcp (MCP) - v0
 - laravel/prompts (PROMPTS) - v0
 - laravel/telescope (TELESCOPE) - v5
 - larastan/larastan (LARASTAN) - v3
-- laravel/mcp (MCP) - v0
 - laravel/pint (PINT) - v1
 - laravel/sail (SAIL) - v1
 - pestphp/pest (PEST) - v4
@@ -288,6 +298,14 @@ protected function isAccessible(User $user, ?string $path = null): bool
 - Typically, keys in an Enum should be TitleCase. For example: `FavoritePerson`, `BestLake`, `Monthly`.
 
 
+=== herd rules ===
+
+## Laravel Herd
+
+- The application is served by Laravel Herd and will be available at: https?://[kebab-case-project-dir].test. Use the `get-absolute-url` tool to generate URLs for the user to ensure valid URLs.
+- You must not run any commands to make the site available via HTTP(s). It is _always_ available through Laravel Herd.
+
+
 === laravel/core rules ===
 
 ## Do Things the Laravel Way
@@ -354,6 +372,17 @@ protected function isAccessible(User $user, ?string $path = null): bool
 
 ### Models
 - Casts can and likely should be set in a `casts()` method on a model rather than the `$casts` property. Follow existing conventions from other models.
+
+
+=== mcp/core rules ===
+
+## Laravel MCP
+
+- MCP (Model Context Protocol) is very new. You must use the `search-docs` tool to get documentation for how to write and test Laravel MCP servers, tools, resources, and prompts effectively.
+- MCP servers need to be registered with a route or handle in `routes/ai.php`. Typically, they will be registered using `Mcp::web()` to register a HTTP streaming MCP server.
+- Servers are very testable - use the `search-docs` tool to find testing instructions.
+- Do not run `mcp:start`. This command hangs waiting for JSON RPC MCP requests.
+- Some MCP clients use Node, which has its own certificate store. If a user tries to connect to their web MCP server locally using https://, it could fail due to this reason. They will need to switch to http:// during local development.
 
 
 === pint/core rules ===
