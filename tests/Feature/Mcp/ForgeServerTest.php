@@ -37,12 +37,11 @@ describe('ListServersTool', function (): void {
         $mockServer = new Server([
             'id' => 1,
             'name' => 'test-server',
+            'type' => 'app',
             'ipAddress' => '192.168.1.1',
-            'provider' => 'digitalocean',
             'region' => 'nyc1',
             'size' => '1gb',
             'phpVersion' => '8.2',
-            'databaseType' => 'mysql',
             'isReady' => true,
             'createdAt' => '2024-01-01T00:00:00Z',
         ]);
@@ -56,10 +55,46 @@ describe('ListServersTool', function (): void {
         $response
             ->assertOk()
             ->assertSee('success')
-            ->assertSee('test-server');
+            ->assertSee('test-server')
+            ->assertSee('192.168.1.1')
+            ->assertSee('nyc1');
     });
 
-    it('handles errors gracefully', function (): void {
+    it('returns empty list when no servers exist', function (): void {
+        $this->mock(ForgeService::class, function ($mock): void {
+            $mock->shouldReceive('listServers')->once()->andReturn([]);
+        });
+
+        $response = ForgeServer::tool(ListServersTool::class, []);
+
+        $response
+            ->assertOk()
+            ->assertSee('"count": 0')
+            ->assertSee('"servers": []');
+    });
+
+    it('lists multiple servers', function (): void {
+        $servers = [
+            new Server(['id' => 1, 'name' => 'server-1', 'type' => 'app', 'ipAddress' => '1.1.1.1', 'isReady' => true]),
+            new Server(['id' => 2, 'name' => 'server-2', 'type' => 'web', 'ipAddress' => '2.2.2.2', 'isReady' => false]),
+            new Server(['id' => 3, 'name' => 'server-3', 'type' => 'database', 'ipAddress' => '3.3.3.3', 'isReady' => true]),
+        ];
+
+        $this->mock(ForgeService::class, function ($mock) use ($servers): void {
+            $mock->shouldReceive('listServers')->once()->andReturn($servers);
+        });
+
+        $response = ForgeServer::tool(ListServersTool::class, []);
+
+        $response
+            ->assertOk()
+            ->assertSee('"count": 3')
+            ->assertSee('server-1')
+            ->assertSee('server-2')
+            ->assertSee('server-3');
+    });
+
+    it('handles API errors gracefully', function (): void {
         $this->mock(ForgeService::class, function ($mock): void {
             $mock->shouldReceive('listServers')->once()->andThrow(new Exception('API Error'));
         });
@@ -68,13 +103,62 @@ describe('ListServersTool', function (): void {
 
         $response
             ->assertOk()
+            ->assertSee('"success": false')
             ->assertSee('API Error');
+    });
+
+    it('handles network timeout errors', function (): void {
+        $this->mock(ForgeService::class, function ($mock): void {
+            $mock->shouldReceive('listServers')->once()->andThrow(new Exception('Connection timed out'));
+        });
+
+        $response = ForgeServer::tool(ListServersTool::class, []);
+
+        $response
+            ->assertOk()
+            ->assertSee('Connection timed out');
+    });
+
+    it('handles authentication errors', function (): void {
+        $this->mock(ForgeService::class, function ($mock): void {
+            $mock->shouldReceive('listServers')->once()->andThrow(new Exception('Unauthorized: Invalid API token'));
+        });
+
+        $response = ForgeServer::tool(ListServersTool::class, []);
+
+        $response
+            ->assertOk()
+            ->assertSee('Unauthorized');
     });
 });
 
 describe('GetServerTool', function (): void {
     it('requires server_id parameter', function (): void {
         $response = ForgeServer::tool(GetServerTool::class, []);
+
+        $response->assertHasErrors();
+    });
+
+    it('rejects invalid server_id type', function (): void {
+        $response = ForgeServer::tool(GetServerTool::class, [
+            'server_id' => 'invalid',
+        ]);
+
+        $response->assertHasErrors();
+    });
+
+    it('rejects negative server_id', function (): void {
+        $response = ForgeServer::tool(GetServerTool::class, [
+            'server_id' => -1,
+        ]);
+
+        $response->assertHasErrors();
+    });
+
+    it('rejects zero server_id', function (): void {
+        $response = ForgeServer::tool(GetServerTool::class, [
+            'server_id' => 0,
+        ]);
 
         $response->assertHasErrors();
     });
@@ -106,8 +190,53 @@ describe('GetServerTool', function (): void {
 
         $response
             ->assertOk()
+            ->assertSee('"success": true')
             ->assertSee('test-server')
-            ->assertSee('192.168.1.1');
+            ->assertSee('192.168.1.1')
+            ->assertSee('10.0.0.1')
+            ->assertSee('nyc1')
+            ->assertSee('8.2');
+    });
+
+    it('handles server not found error', function (): void {
+        $this->mock(ForgeService::class, function ($mock): void {
+            $mock->shouldReceive('getServer')->with(999)->once()->andThrow(new Exception('Server not found'));
+        });
+
+        $response = ForgeServer::tool(GetServerTool::class, [
+            'server_id' => 999,
+        ]);
+
+        $response
+            ->assertOk()
+            ->assertSee('"success": false')
+            ->assertSee('Server not found');
+    });
+
+    it('returns server with network and tags', function (): void {
+        $mockServer = new Server([
+            'id' => 1,
+            'name' => 'networked-server',
+            'type' => 'app',
+            'ipAddress' => '192.168.1.1',
+            'isReady' => true,
+            'revoked' => false,
+            'network' => [2, 3, 4],
+            'tags' => [['id' => 1, 'name' => 'production']],
+        ]);
+
+        $this->mock(ForgeService::class, function ($mock) use ($mockServer): void {
+            $mock->shouldReceive('getServer')->with(1)->once()->andReturn($mockServer);
+        });
+
+        $response = ForgeServer::tool(GetServerTool::class, [
+            'server_id' => 1,
+        ]);
+
+        $response
+            ->assertOk()
+            ->assertSee('networked-server')
+            ->assertSee('production');
     });
 });
 
@@ -144,7 +273,59 @@ describe('ListSitesTool', function (): void {
 
         $response
             ->assertOk()
-            ->assertSee('example.com');
+            ->assertSee('example.com')
+            ->assertSee('main')
+            ->assertSee('php');
+    });
+
+    it('returns empty list when no sites exist', function (): void {
+        $this->mock(ForgeService::class, function ($mock): void {
+            $mock->shouldReceive('listSites')->with(1)->once()->andReturn([]);
+        });
+
+        $response = ForgeServer::tool(ListSitesTool::class, [
+            'server_id' => 1,
+        ]);
+
+        $response
+            ->assertOk()
+            ->assertSee('"count": 0');
+    });
+
+    it('lists multiple sites', function (): void {
+        $sites = [
+            new Site(['id' => 1, 'name' => 'site1.com', 'directory' => '/home/forge/site1.com']),
+            new Site(['id' => 2, 'name' => 'site2.com', 'directory' => '/home/forge/site2.com']),
+        ];
+
+        $this->mock(ForgeService::class, function ($mock) use ($sites): void {
+            $mock->shouldReceive('listSites')->with(1)->once()->andReturn($sites);
+        });
+
+        $response = ForgeServer::tool(ListSitesTool::class, [
+            'server_id' => 1,
+        ]);
+
+        $response
+            ->assertOk()
+            ->assertSee('"count": 2')
+            ->assertSee('site1.com')
+            ->assertSee('site2.com');
+    });
+
+    it('handles API errors gracefully', function (): void {
+        $this->mock(ForgeService::class, function ($mock): void {
+            $mock->shouldReceive('listSites')->with(1)->once()->andThrow(new Exception('Server not found'));
+        });
+
+        $response = ForgeServer::tool(ListSitesTool::class, [
+            'server_id' => 1,
+        ]);
+
+        $response
+            ->assertOk()
+            ->assertSee('"success": false')
+            ->assertSee('Server not found');
     });
 });
 
@@ -192,6 +373,20 @@ describe('GetSiteTool', function (): void {
 });
 
 describe('DeploySiteTool', function (): void {
+    it('requires server_id and site_id parameters', function (): void {
+        $response = ForgeServer::tool(DeploySiteTool::class, []);
+
+        $response->assertHasErrors();
+    });
+
+    it('requires site_id when server_id is provided', function (): void {
+        $response = ForgeServer::tool(DeploySiteTool::class, [
+            'server_id' => 1,
+        ]);
+
+        $response->assertHasErrors();
+    });
+
     it('deploys site successfully', function (): void {
         $this->mock(ForgeService::class, function ($mock): void {
             $mock->shouldReceive('deploySite')->with(1, 1)->once();
@@ -206,9 +401,46 @@ describe('DeploySiteTool', function (): void {
             ->assertOk()
             ->assertSee('Deployment triggered successfully');
     });
+
+    it('handles deployment errors', function (): void {
+        $this->mock(ForgeService::class, function ($mock): void {
+            $mock->shouldReceive('deploySite')->with(1, 1)->once()->andThrow(new Exception('Deployment already in progress'));
+        });
+
+        $response = ForgeServer::tool(DeploySiteTool::class, [
+            'server_id' => 1,
+            'site_id' => 1,
+        ]);
+
+        $response
+            ->assertOk()
+            ->assertSee('"success": false')
+            ->assertSee('Deployment already in progress');
+    });
+
+    it('handles site not found error', function (): void {
+        $this->mock(ForgeService::class, function ($mock): void {
+            $mock->shouldReceive('deploySite')->with(1, 999)->once()->andThrow(new Exception('Site not found'));
+        });
+
+        $response = ForgeServer::tool(DeploySiteTool::class, [
+            'server_id' => 1,
+            'site_id' => 999,
+        ]);
+
+        $response
+            ->assertOk()
+            ->assertSee('Site not found');
+    });
 });
 
 describe('GetDeploymentLogTool', function (): void {
+    it('requires server_id and site_id parameters', function (): void {
+        $response = ForgeServer::tool(GetDeploymentLogTool::class, []);
+
+        $response->assertHasErrors();
+    });
+
     it('gets deployment log successfully', function (): void {
         $this->mock(ForgeService::class, function ($mock): void {
             $mock->shouldReceive('siteDeploymentLog')
@@ -225,6 +457,44 @@ describe('GetDeploymentLogTool', function (): void {
         $response
             ->assertOk()
             ->assertSee('Deployment completed successfully');
+    });
+
+    it('handles empty deployment log', function (): void {
+        $this->mock(ForgeService::class, function ($mock): void {
+            $mock->shouldReceive('siteDeploymentLog')
+                ->with(1, 1)
+                ->once()
+                ->andReturn(null);
+        });
+
+        $response = ForgeServer::tool(GetDeploymentLogTool::class, [
+            'server_id' => 1,
+            'site_id' => 1,
+        ]);
+
+        $response
+            ->assertOk()
+            ->assertSee('"success": true')
+            ->assertSee('"log": null');
+    });
+
+    it('handles API errors', function (): void {
+        $this->mock(ForgeService::class, function ($mock): void {
+            $mock->shouldReceive('siteDeploymentLog')
+                ->with(1, 1)
+                ->once()
+                ->andThrow(new Exception('Failed to fetch log'));
+        });
+
+        $response = ForgeServer::tool(GetDeploymentLogTool::class, [
+            'server_id' => 1,
+            'site_id' => 1,
+        ]);
+
+        $response
+            ->assertOk()
+            ->assertSee('"success": false')
+            ->assertSee('Failed to fetch log');
     });
 });
 
@@ -452,6 +722,14 @@ describe('RebootServerTool', function (): void {
         $response->assertHasErrors();
     });
 
+    it('rejects invalid server_id', function (): void {
+        $response = ForgeServer::tool(RebootServerTool::class, [
+            'server_id' => 'invalid',
+        ]);
+
+        $response->assertHasErrors();
+    });
+
     it('reboots server successfully', function (): void {
         $this->mock(ForgeService::class, function ($mock): void {
             $mock->shouldReceive('rebootServer')->with(1)->once();
@@ -463,13 +741,52 @@ describe('RebootServerTool', function (): void {
 
         $response
             ->assertOk()
+            ->assertSee('"success": true')
             ->assertSee('reboot');
+    });
+
+    it('handles server not found error', function (): void {
+        $this->mock(ForgeService::class, function ($mock): void {
+            $mock->shouldReceive('rebootServer')->with(999)->once()->andThrow(new Exception('Server not found'));
+        });
+
+        $response = ForgeServer::tool(RebootServerTool::class, [
+            'server_id' => 999,
+        ]);
+
+        $response
+            ->assertOk()
+            ->assertSee('"success": false')
+            ->assertSee('Server not found');
+    });
+
+    it('handles permission denied error', function (): void {
+        $this->mock(ForgeService::class, function ($mock): void {
+            $mock->shouldReceive('rebootServer')->with(1)->once()->andThrow(new Exception('Permission denied'));
+        });
+
+        $response = ForgeServer::tool(RebootServerTool::class, [
+            'server_id' => 1,
+        ]);
+
+        $response
+            ->assertOk()
+            ->assertSee('Permission denied');
     });
 });
 
 describe('ObtainLetsEncryptCertificateTool', function (): void {
     it('requires server_id, site_id and domains parameters', function (): void {
         $response = ForgeServer::tool(ObtainLetsEncryptCertificateTool::class, []);
+
+        $response->assertHasErrors();
+    });
+
+    it('requires domains when server_id and site_id provided', function (): void {
+        $response = ForgeServer::tool(ObtainLetsEncryptCertificateTool::class, [
+            'server_id' => 1,
+            'site_id' => 1,
+        ]);
 
         $response->assertHasErrors();
     });
@@ -499,6 +816,125 @@ describe('ObtainLetsEncryptCertificateTool', function (): void {
 
         $response
             ->assertOk()
+            ->assertSee('"success": true')
             ->assertSee('initiated');
+    });
+
+    it('obtains certificate for multiple domains', function (): void {
+        $mockCert = new Certificate([
+            'id' => 1,
+            'domain' => 'example.com',
+            'type' => 'letsencrypt',
+            'status' => 'installing',
+            'active' => false,
+        ]);
+
+        $this->mock(ForgeService::class, function ($mock) use ($mockCert): void {
+            $mock->shouldReceive('obtainLetsEncryptCertificate')
+                ->with(1, 1, ['domains' => ['example.com', 'www.example.com']])
+                ->once()
+                ->andReturn($mockCert);
+        });
+
+        $response = ForgeServer::tool(ObtainLetsEncryptCertificateTool::class, [
+            'server_id' => 1,
+            'site_id' => 1,
+            'domains' => ['example.com', 'www.example.com'],
+        ]);
+
+        $response
+            ->assertOk()
+            ->assertSee('initiated');
+    });
+
+    it('handles DNS validation error', function (): void {
+        $this->mock(ForgeService::class, function ($mock): void {
+            $mock->shouldReceive('obtainLetsEncryptCertificate')
+                ->with(1, 1, ['domains' => ['invalid.example.com']])
+                ->once()
+                ->andThrow(new Exception('DNS validation failed'));
+        });
+
+        $response = ForgeServer::tool(ObtainLetsEncryptCertificateTool::class, [
+            'server_id' => 1,
+            'site_id' => 1,
+            'domains' => ['invalid.example.com'],
+        ]);
+
+        $response
+            ->assertOk()
+            ->assertSee('"success": false')
+            ->assertSee('DNS validation failed');
+    });
+
+    it('handles rate limit error', function (): void {
+        $this->mock(ForgeService::class, function ($mock): void {
+            $mock->shouldReceive('obtainLetsEncryptCertificate')
+                ->with(1, 1, ['domains' => ['example.com']])
+                ->once()
+                ->andThrow(new Exception('Rate limit exceeded'));
+        });
+
+        $response = ForgeServer::tool(ObtainLetsEncryptCertificateTool::class, [
+            'server_id' => 1,
+            'site_id' => 1,
+            'domains' => ['example.com'],
+        ]);
+
+        $response
+            ->assertOk()
+            ->assertSee('Rate limit exceeded');
+    });
+});
+
+describe('Prompts with edge cases', function (): void {
+    it('handles missing migration parameter', function (): void {
+        $response = ForgeServer::prompt(DeployApplicationPrompt::class, [
+            'server_id' => '123',
+            'site_id' => '456',
+        ]);
+
+        $response
+            ->assertOk()
+            ->assertSee('migrations will be executed');
+    });
+
+    it('handles run_migrations false', function (): void {
+        $response = ForgeServer::prompt(DeployApplicationPrompt::class, [
+            'server_id' => '123',
+            'site_id' => '456',
+            'run_migrations' => 'false',
+        ]);
+
+        $response
+            ->assertOk()
+            ->assertSee('migrations will NOT be run');
+    });
+});
+
+describe('Resources content validation', function (): void {
+    it('forge api docs contains all endpoints', function (): void {
+        $response = ForgeServer::resource(ForgeApiDocsResource::class);
+
+        $response
+            ->assertOk()
+            ->assertSee('GET /servers')
+            ->assertSee('POST /servers')
+            ->assertSee('sites')
+            ->assertSee('certificates')
+            ->assertSee('databases')
+            ->assertSee('Rate Limiting');
+    });
+
+    it('deployment guidelines contains best practices', function (): void {
+        $response = ForgeServer::resource(DeploymentGuidelinesResource::class);
+
+        $response
+            ->assertOk()
+            ->assertSee('Environment Configuration')
+            ->assertSee('Zero-Downtime')
+            ->assertSee('Rollback Strategy')
+            ->assertSee('Quick Deploy')
+            ->assertSee('git pull');
     });
 });
