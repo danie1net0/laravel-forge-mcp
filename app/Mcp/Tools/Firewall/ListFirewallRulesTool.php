@@ -5,11 +5,12 @@ declare(strict_types=1);
 namespace App\Mcp\Tools\Firewall;
 
 use App\Services\ForgeService;
+use Exception;
 use Illuminate\JsonSchema\JsonSchema;
-use Laravel\Mcp\Server\Tools\Annotations\IsReadOnly;
+use Laravel\Forge\Resources\FirewallRule;
 use Laravel\Mcp\{Request, Response};
 use Laravel\Mcp\Server\Tool;
-use Exception;
+use Laravel\Mcp\Server\Tools\Annotations\IsReadOnly;
 
 #[IsReadOnly]
 class ListFirewallRulesTool extends Tool
@@ -43,7 +44,7 @@ class ListFirewallRulesTool extends Tool
         try {
             $rules = $forge->listFirewallRules($serverId);
 
-            $formatted = array_map(fn ($rule) => [
+            $formatted = array_map(fn (FirewallRule $rule): array => [
                 'id' => $rule->id,
                 'name' => $rule->name ?? null,
                 'port' => $rule->port ?? null,

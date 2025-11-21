@@ -5,11 +5,12 @@ declare(strict_types=1);
 namespace App\Mcp\Tools\Jobs;
 
 use App\Services\ForgeService;
+use Exception;
 use Illuminate\JsonSchema\JsonSchema;
-use Laravel\Mcp\Server\Tools\Annotations\IsReadOnly;
+use Laravel\Forge\Resources\Job;
 use Laravel\Mcp\{Request, Response};
 use Laravel\Mcp\Server\Tool;
-use Exception;
+use Laravel\Mcp\Server\Tools\Annotations\IsReadOnly;
 
 #[IsReadOnly]
 class ListScheduledJobsTool extends Tool
@@ -42,7 +43,7 @@ class ListScheduledJobsTool extends Tool
         try {
             $jobs = $forge->listJobs($serverId);
 
-            $formatted = array_map(fn ($job) => [
+            $formatted = array_map(fn (Job $job): array => [
                 'id' => $job->id,
                 'command' => $job->command ?? null,
                 'user' => $job->user ?? null,

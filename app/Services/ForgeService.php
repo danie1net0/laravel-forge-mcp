@@ -14,6 +14,7 @@ class ForgeService
 
     public function __construct()
     {
+        /** @var string|null $token */
         $token = config('services.forge.api_token');
 
         if (! $token) {
@@ -23,6 +24,9 @@ class ForgeService
         $this->forge = new Forge($token);
     }
 
+    /**
+     * @return Server[]
+     */
     public function listServers(): array
     {
         return $this->forge->servers();
@@ -53,6 +57,9 @@ class ForgeService
         $this->forge->rebootServer($serverId);
     }
 
+    /**
+     * @return Site[]
+     */
     public function listSites(int $serverId): array
     {
         return $this->forge->sites($serverId);
@@ -113,6 +120,9 @@ class ForgeService
         $this->forge->installGitRepositoryOnSite($serverId, $siteId, $data);
     }
 
+    /**
+     * @return Certificate[]
+     */
     public function listCertificates(int $serverId, int $siteId): array
     {
         return $this->forge->certificates($serverId, $siteId);
@@ -138,6 +148,9 @@ class ForgeService
         $this->forge->deleteCertificate($serverId, $siteId, $certificateId);
     }
 
+    /**
+     * @return Database[]
+     */
     public function listDatabases(int $serverId): array
     {
         return $this->forge->databases($serverId);
@@ -188,6 +201,9 @@ class ForgeService
         $this->forge->deleteDatabaseUser($serverId, $userId);
     }
 
+    /**
+     * @return Job[]
+     */
     public function listJobs(int $serverId): array
     {
         return $this->forge->jobs($serverId);
@@ -208,6 +224,9 @@ class ForgeService
         $this->forge->deleteJob($serverId, $jobId);
     }
 
+    /**
+     * @return Daemon[]
+     */
     public function listDaemons(int $serverId): array
     {
         return $this->forge->daemons($serverId);
@@ -233,6 +252,9 @@ class ForgeService
         $this->forge->deleteDaemon($serverId, $daemonId);
     }
 
+    /**
+     * @return FirewallRule[]
+     */
     public function listFirewallRules(int $serverId): array
     {
         return $this->forge->firewallRules($serverId);

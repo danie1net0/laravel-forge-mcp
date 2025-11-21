@@ -5,11 +5,12 @@ declare(strict_types=1);
 namespace App\Mcp\Tools\Daemons;
 
 use App\Services\ForgeService;
+use Exception;
 use Illuminate\JsonSchema\JsonSchema;
-use Laravel\Mcp\Server\Tools\Annotations\IsReadOnly;
+use Laravel\Forge\Resources\Daemon;
 use Laravel\Mcp\{Request, Response};
 use Laravel\Mcp\Server\Tool;
-use Exception;
+use Laravel\Mcp\Server\Tools\Annotations\IsReadOnly;
 
 #[IsReadOnly]
 class ListDaemonsTool extends Tool
@@ -43,7 +44,7 @@ class ListDaemonsTool extends Tool
         try {
             $daemons = $forge->listDaemons($serverId);
 
-            $formatted = array_map(fn ($daemon) => [
+            $formatted = array_map(fn (Daemon $daemon): array => [
                 'id' => $daemon->id,
                 'command' => $daemon->command ?? null,
                 'user' => $daemon->user ?? null,

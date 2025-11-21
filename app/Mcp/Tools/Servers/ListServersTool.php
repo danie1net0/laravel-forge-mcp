@@ -5,11 +5,12 @@ declare(strict_types=1);
 namespace App\Mcp\Tools\Servers;
 
 use App\Services\ForgeService;
+use Exception;
 use Illuminate\JsonSchema\JsonSchema;
-use Laravel\Mcp\Server\Tools\Annotations\IsReadOnly;
+use Laravel\Forge\Resources\Server;
 use Laravel\Mcp\{Request, Response};
 use Laravel\Mcp\Server\Tool;
-use Exception;
+use Laravel\Mcp\Server\Tools\Annotations\IsReadOnly;
 
 #[IsReadOnly]
 class ListServersTool extends Tool
@@ -36,15 +37,14 @@ class ListServersTool extends Tool
         try {
             $servers = $forge->listServers();
 
-            $formatted = array_map(fn ($server) => [
+            $formatted = array_map(fn (Server $server): array => [
                 'id' => $server->id,
                 'name' => $server->name,
+                'type' => $server->type,
                 'ip_address' => $server->ipAddress,
-                'provider' => $server->provider,
                 'region' => $server->region,
                 'size' => $server->size,
                 'php_version' => $server->phpVersion,
-                'database_type' => $server->databaseType,
                 'is_ready' => $server->isReady,
                 'created_at' => $server->createdAt,
             ], $servers);
