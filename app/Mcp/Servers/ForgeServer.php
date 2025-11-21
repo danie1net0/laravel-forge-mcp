@@ -100,6 +100,8 @@ class ForgeServer extends Server
     protected array $tools = [
         \App\Mcp\Tools\Servers\ListServersTool::class,
         \App\Mcp\Tools\Servers\GetServerTool::class,
+        \App\Mcp\Tools\Sites\ListSitesTool::class,
+        \App\Mcp\Tools\Sites\GetSiteTool::class,
     ];
 
     /**
