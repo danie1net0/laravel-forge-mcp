@@ -108,18 +108,24 @@ class ForgeServer extends Server
         \App\Mcp\Tools\Daemons\ListDaemonsTool::class,
         \App\Mcp\Tools\Deployments\GetDeploymentLogTool::class,
         \App\Mcp\Tools\Deployments\GetDeploymentScriptTool::class,
+        \App\Mcp\Tools\Deployments\DeploySiteTool::class,
         \App\Mcp\Tools\Firewall\ListFirewallRulesTool::class,
+        \App\Mcp\Tools\Servers\RebootServerTool::class,
+        \App\Mcp\Tools\Certificates\ObtainLetsEncryptCertificateTool::class,
     ];
 
     /**
      * @var array<int, class-string<Resource>>
      */
     protected array $resources = [
+        \App\Mcp\Resources\ForgeApiDocsResource::class,
+        \App\Mcp\Resources\DeploymentGuidelinesResource::class,
     ];
 
     /**
      * @var array<int, class-string<Prompt>>
      */
     protected array $prompts = [
+        \App\Mcp\Prompts\DeployApplicationPrompt::class,
     ];
 }
