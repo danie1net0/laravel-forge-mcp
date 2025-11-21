@@ -7,7 +7,7 @@ namespace App\Mcp\Tools\Certificates;
 use App\Services\ForgeService;
 use Exception;
 use Illuminate\JsonSchema\JsonSchema;
-use Laravel\Mcp\Attributes\IsDestructive;
+use Laravel\Mcp\Server\Tools\Annotations\IsDestructive;
 use Laravel\Mcp\{Request, Response};
 use Laravel\Mcp\Server\Tool;
 

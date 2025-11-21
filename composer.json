@@ -67,8 +67,14 @@
             "@analyse",
             "@test"
         ],
-      "web-mcp": "php artisan mcp:inspector mcp/forge",
-      "local-mcp": "php artisan mcp:inspector forge",
+      "web-mcp": [
+        "Composer\\Config::disableProcessTimeout",
+        "php artisan mcp:inspector mcp/forge"
+      ],
+      "local-mcp": [
+        "Composer\\Config::disableProcessTimeout",
+        "php artisan mcp:inspector forge"
+      ],
         "post-autoload-dump": [
             "Illuminate\\Foundation\\ComposerScripts::postAutoloadDump",
             "@php artisan package:discover --ansi"
