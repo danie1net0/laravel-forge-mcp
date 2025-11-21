@@ -6,7 +6,7 @@ namespace App\Mcp\Tools\Jobs;
 
 use App\Services\ForgeService;
 use Illuminate\JsonSchema\JsonSchema;
-use Laravel\Mcp\Attributes\IsReadOnly;
+use Laravel\Mcp\Server\Tools\Annotations\IsReadOnly;
 use Laravel\Mcp\{Request, Response};
 use Laravel\Mcp\Server\Tool;
 use Exception;

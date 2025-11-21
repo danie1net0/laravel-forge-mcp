@@ -7,7 +7,7 @@ namespace App\Mcp\Tools\Deployments;
 use App\Services\ForgeService;
 use Illuminate\JsonSchema\JsonSchema;
 use Laravel\Mcp\{Request, Response};
-use Laravel\Mcp\Attributes\{IsIdempotent, IsReadOnly};
+use Laravel\Mcp\Server\Tools\Annotations\{IsIdempotent, IsReadOnly};
 use Laravel\Mcp\Server\Tool;
 use Exception;
 
