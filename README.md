@@ -26,7 +26,6 @@ This MCP server provides a comprehensive set of tools to manage Laravel Forge se
 git clone <repository-url>
 cd forge-mcp
 composer install
-npm install
 ```
 
 ### 2. Configure Environment
@@ -43,12 +42,6 @@ FORGE_API_TOKEN=your_forge_api_token_here
 ```
 
 Get your API token from [Forge Account Settings](https://forge.laravel.com/user-profile/api).
-
-### 3. Setup Database
-
-```bash
-php artisan migrate
-```
 
 ## MCP Server Configuration
 
@@ -81,8 +74,8 @@ List all servers in your Forge account.
 
 **Example:**
 ```
-Server: producao (ID: 943281)
-IP: 20.197.225.63
+Server: production (ID: 123456)
+IP: 192.0.2.100
 PHP: php84
 Status: ready
 ```
@@ -117,8 +110,8 @@ List all sites on a specific server.
 
 **Example:**
 ```
-Site: sandbox.escsolutions.ai (ID: 2803086)
-Repository: empresa-legal/empresa-legal (sandbox branch)
+Site: staging.example.com (ID: 789012)
+Repository: mycompany/myapp (staging branch)
 PHP: php84
 SSL: Secured
 Quick Deploy: Enabled
@@ -197,9 +190,9 @@ Obtain and install a free Let's Encrypt SSL certificate.
 **Example:**
 ```json
 {
-  "server_id": 943281,
-  "site_id": 2803086,
-  "domains": ["sandbox.escsolutions.ai", "www.sandbox.escsolutions.ai"]
+  "server_id": 123456,
+  "site_id": 789012,
+  "domains": ["staging.example.com", "www.staging.example.com"]
 }
 ```
 
@@ -250,7 +243,7 @@ List all daemon processes on a server.
 ```
 Daemon: php artisan horizon
 User: forge
-Directory: /home/forge/system.escsolutions.ai/
+Directory: /home/forge/staging.example.com/
 Status: installed
 ```
 
@@ -271,23 +264,23 @@ List all firewall rules on a server.
 
 ```php
 // List sites to find the site ID
-$sites = forge()->listSites(943281);
+$sites = forge()->listSites(123456);
 
 // Trigger deployment
-forge()->deploySite(943281, 2803086);
+forge()->deploySite(123456, 789012);
 
 // Check deployment log
-$log = forge()->getDeploymentLog(943281, 2803086);
+$log = forge()->getDeploymentLog(123456, 789012);
 ```
 
 ### Manage SSL Certificates
 
 ```php
 // List existing certificates
-$certs = forge()->listCertificates(943281, 2803086);
+$certs = forge()->listCertificates(123456, 789012);
 
 // Obtain Let's Encrypt certificate
-forge()->obtainLetsEncryptCertificate(943281, 2803086, [
+forge()->obtainLetsEncryptCertificate(123456, 789012, [
     'domains' => ['example.com', 'www.example.com']
 ]);
 ```
@@ -296,19 +289,19 @@ forge()->obtainLetsEncryptCertificate(943281, 2803086, [
 
 ```php
 // Get server details
-$server = forge()->getServer(943281);
+$server = forge()->getServer(123456);
 
 // List databases
-$databases = forge()->listDatabases(943281);
+$databases = forge()->listDatabases(123456);
 
 // List scheduled jobs
-$jobs = forge()->listScheduledJobs(943281);
+$jobs = forge()->listScheduledJobs(123456);
 
 // List daemons
-$daemons = forge()->listDaemons(943281);
+$daemons = forge()->listDaemons(123456);
 
 // List firewall rules
-$rules = forge()->listFirewallRules(943281);
+$rules = forge()->listFirewallRules(123456);
 ```
 
 ## Testing
