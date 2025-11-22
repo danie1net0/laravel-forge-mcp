@@ -45,12 +45,12 @@ class ListScheduledJobsTool extends Tool
 
             $formatted = array_map(fn (Job $job): array => [
                 'id' => $job->id,
-                'command' => $job->command ?? null,
-                'user' => $job->user ?? null,
-                'frequency' => $job->frequency ?? null,
-                'cron' => $job->cron ?? null,
-                'status' => $job->status ?? null,
-                'created_at' => $job->createdAt ?? null,
+                'command' => $job->command,
+                'user' => $job->user,
+                'frequency' => $job->frequency,
+                'cron' => $job->cron,
+                'status' => $job->status,
+                'created_at' => $job->createdAt,
             ], $jobs);
 
             return Response::text(json_encode([

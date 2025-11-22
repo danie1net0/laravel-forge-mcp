@@ -46,12 +46,11 @@ class ListFirewallRulesTool extends Tool
 
             $formatted = array_map(fn (FirewallRule $rule): array => [
                 'id' => $rule->id,
-                'name' => $rule->name ?? null,
-                'port' => $rule->port ?? null,
-                'type' => $rule->type ?? null,
-                'ip_address' => $rule->ipAddress ?? null,
-                'status' => $rule->status ?? null,
-                'created_at' => $rule->createdAt ?? null,
+                'name' => $rule->name,
+                'port' => $rule->port,
+                'ip_address' => $rule->ipAddress,
+                'status' => $rule->status,
+                'created_at' => $rule->createdAt,
             ], $rules);
 
             return Response::text(json_encode([

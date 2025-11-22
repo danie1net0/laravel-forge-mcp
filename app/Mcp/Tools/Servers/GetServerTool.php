@@ -57,8 +57,8 @@ class GetServerTool extends Tool
                 'php_version' => $server->phpVersion,
                 'is_ready' => $server->isReady,
                 'revoked' => $server->revoked,
-                'network' => $server->network ?? [],
-                'tags' => $server->tags ?? [],
+                'network' => $server->network,
+                'tags' => $server->tags,
                 'created_at' => $server->createdAt,
             ];
 

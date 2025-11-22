@@ -44,8 +44,8 @@ class ListDatabasesTool extends Tool
             $formatted = array_map(fn (Database $db): array => [
                 'id' => $db->id,
                 'name' => $db->name,
-                'status' => $db->status ?? null,
-                'created_at' => $db->createdAt ?? null,
+                'status' => $db->status,
+                'created_at' => $db->createdAt,
             ], $databases);
 
             return Response::text(json_encode([

@@ -46,13 +46,11 @@ class ListDaemonsTool extends Tool
 
             $formatted = array_map(fn (Daemon $daemon): array => [
                 'id' => $daemon->id,
-                'command' => $daemon->command ?? null,
-                'user' => $daemon->user ?? null,
-                'directory' => $daemon->directory ?? null,
-                'processes' => $daemon->processes ?? null,
-                'startsecs' => $daemon->startsecs ?? null,
-                'status' => $daemon->status ?? null,
-                'created_at' => $daemon->createdAt ?? null,
+                'command' => $daemon->command,
+                'user' => $daemon->user,
+                'directory' => $daemon->directory,
+                'status' => $daemon->status,
+                'created_at' => $daemon->createdAt,
             ], $daemons);
 
             return Response::text(json_encode([

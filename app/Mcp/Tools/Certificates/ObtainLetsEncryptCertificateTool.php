@@ -50,7 +50,7 @@ class ObtainLetsEncryptCertificateTool extends Tool
             return Response::text(json_encode([
                 'success' => true,
                 'message' => "Let's Encrypt certificate installation initiated.",
-                'certificate_id' => $certificate->id ?? null,
+                'certificate_id' => $certificate->id,
                 'domains' => $domains,
                 'note' => 'Certificate installation may take a few minutes. Check certificate status using list-certificates-tool.',
             ], JSON_PRETTY_PRINT));
