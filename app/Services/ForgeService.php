@@ -5,7 +5,7 @@ declare(strict_types=1);
 namespace App\Services;
 
 use Laravel\Forge\Forge;
-use Laravel\Forge\Resources\{Certificate, Daemon, Database, FirewallRule, Job, Server, Site};
+use Laravel\Forge\Resources\{Certificate, Daemon, Database, DatabaseUser, FirewallRule, Job, Server, Site};
 use RuntimeException;
 
 class ForgeService
@@ -34,7 +34,7 @@ class ForgeService
 
     public function getServer(int $serverId): Server
     {
-        return $this->forge->server($serverId);
+        return $this->forge->server((string) $serverId);
     }
 
     public function createServer(array $data): Server
@@ -44,17 +44,17 @@ class ForgeService
 
     public function updateServer(int $serverId, array $data): Server
     {
-        return $this->forge->updateServer($serverId, $data);
+        return $this->forge->updateServer((string) $serverId, $data);
     }
 
     public function deleteServer(int $serverId): void
     {
-        $this->forge->deleteServer($serverId);
+        $this->forge->deleteServer((string) $serverId);
     }
 
     public function rebootServer(int $serverId): void
     {
-        $this->forge->rebootServer($serverId);
+        $this->forge->rebootServer((string) $serverId);
     }
 
     /**
@@ -138,9 +138,9 @@ class ForgeService
         return $this->forge->obtainLetsEncryptCertificate($serverId, $siteId, $data);
     }
 
-    public function installCertificate(int $serverId, int $siteId, array $data): Certificate
+    public function installCertificate(int $serverId, int $siteId, int $certificateId, array $data = []): void
     {
-        return $this->forge->installCertificate($serverId, $siteId, $data);
+        $this->forge->installCertificate($serverId, $siteId, $certificateId, $data);
     }
 
     public function deleteCertificate(int $serverId, int $siteId, int $certificateId): void
@@ -181,17 +181,17 @@ class ForgeService
         return $this->forge->databaseUsers($serverId);
     }
 
-    public function getDatabaseUser(int $serverId, int $userId): array
+    public function getDatabaseUser(int $serverId, int $userId): DatabaseUser
     {
         return $this->forge->databaseUser($serverId, $userId);
     }
 
-    public function createDatabaseUser(int $serverId, array $data): array
+    public function createDatabaseUser(int $serverId, array $data): DatabaseUser
     {
         return $this->forge->createDatabaseUser($serverId, $data);
     }
 
-    public function updateDatabaseUser(int $serverId, int $userId, array $data): array
+    public function updateDatabaseUser(int $serverId, int $userId, array $data): DatabaseUser
     {
         return $this->forge->updateDatabaseUser($serverId, $userId, $data);
     }

@@ -48,12 +48,12 @@ class ListCertificatesTool extends Tool
 
             $formatted = array_map(fn (Certificate $cert): array => [
                 'id' => $cert->id,
-                'domain' => $cert->domain ?? null,
-                'type' => $cert->type ?? null,
-                'status' => $cert->status ?? null,
-                'active' => $cert->active ?? false,
-                'existing' => $cert->existing ?? false,
-                'created_at' => $cert->createdAt ?? null,
+                'domain' => $cert->domain,
+                'type' => $cert->type,
+                'status' => $cert->status,
+                'active' => $cert->active,
+                'existing' => $cert->existing,
+                'created_at' => $cert->createdAt,
             ], $certificates);
 
             return Response::text(json_encode([
