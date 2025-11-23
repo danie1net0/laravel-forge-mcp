@@ -13,7 +13,7 @@ jobs:
     strategy:
       fail-fast: true
       matrix:
-        php: ['8.4']
+        php: ["8.4"]
 
     name: PHP ${{ matrix.php }}
 
@@ -25,7 +25,7 @@ jobs:
         uses: shivammathur/setup-php@v2
         with:
           php-version: ${{ matrix.php }}
-          extensions: dom, curl, libxml, mbstring, zip, pcntl, pdo, sqlite, pdo_sqlite
+          extensions: dom, curl, libxml, mbstring, zip, pcntl
           coverage: none
 
       - name: Install Composer dependencies
@@ -36,12 +36,6 @@ jobs:
 
       - name: Generate application key
         run: php artisan key:generate
-
-      - name: Create SQLite database
-        run: touch database/database.sqlite
-
-      - name: Run migrations
-        run: php artisan migrate --force
 
       - name: Check code style (Pint)
         run: composer lint

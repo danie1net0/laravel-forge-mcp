@@ -6,8 +6,8 @@ if git rev-parse -q --verify MERGE_HEAD > /dev/null 2>&1; then
     exit 0
 fi
 
-# Recupera arquivos em staging
-STAGED_FILES=$(git diff --cached --name-only)
+# Recupera arquivos em staging (apenas os que existem)
+STAGED_FILES=$(git diff --cached --name-only --diff-filter=ACMR)
 
 # Aborta a execução caso a área de staging esteja limpa
 if [ -z "$STAGED_FILES" ]; then

@@ -1,19 +1,12 @@
 {
-    "mcpServers": {
-        "laravel-boost": {
-            "command": "php",
-            "args": [
-                "artisan",
-                "boost:mcp"
-            ]
-        },
-        "forge": {
-          "command": "php",
-          "args": [
-            "artisan",
-            "mcp:start",
-            "forge"
-          ]
-        }
+  "mcpServers": {
+    "laravel-boost": {
+      "command": "php",
+      "args": ["artisan", "boost:mcp"]
+    },
+    "forge": {
+      "command": "php",
+      "args": ["artisan", "mcp:start", "forge"]
     }
+  }
 }

@@ -5,6 +5,7 @@ This guide shows how to connect the Laravel Forge MCP server to different AI cli
 ## Prerequisites
 
 1. Install the Forge MCP server:
+
 ```bash
 git clone <repository-url>
 cd forge-mcp
@@ -14,6 +15,7 @@ php artisan key:generate
 ```
 
 2. Add your Forge API token to `.env`:
+
 ```env
 FORGE_API_TOKEN=your_token_here
 ```
@@ -23,23 +25,25 @@ FORGE_API_TOKEN=your_token_here
 ### macOS
 
 1. Open Claude Desktop config file:
+
 ```bash
 code ~/Library/Application\ Support/Claude/claude_desktop_config.json
 ```
 
 2. Add the Forge MCP server:
+
 ```json
 {
-  "mcpServers": {
-    "forge": {
-      "command": "php",
-      "args": [
-        "/Users/YOUR_USERNAME/path/to/forge-mcp/artisan",
-        "mcp:start",
-        "forge"
-      ]
+    "mcpServers": {
+        "forge": {
+            "command": "php",
+            "args": [
+                "/Users/YOUR_USERNAME/path/to/forge-mcp/artisan",
+                "mcp:start",
+                "forge"
+            ]
+        }
     }
-  }
 }
 ```
 
@@ -52,23 +56,21 @@ code ~/Library/Application\ Support/Claude/claude_desktop_config.json
 ### Windows
 
 1. Open Claude Desktop config file:
+
 ```powershell
 notepad %APPDATA%\Claude\claude_desktop_config.json
 ```
 
 2. Add the Forge MCP server:
+
 ```json
 {
-  "mcpServers": {
-    "forge": {
-      "command": "php",
-      "args": [
-        "C:\\path\\to\\forge-mcp\\artisan",
-        "mcp:start",
-        "forge"
-      ]
+    "mcpServers": {
+        "forge": {
+            "command": "php",
+            "args": ["C:\\path\\to\\forge-mcp\\artisan", "mcp:start", "forge"]
+        }
     }
-  }
 }
 ```
 
@@ -79,23 +81,25 @@ notepad %APPDATA%\Claude\claude_desktop_config.json
 ### Linux
 
 1. Open Claude Desktop config file:
+
 ```bash
 nano ~/.config/Claude/claude_desktop_config.json
 ```
 
 2. Add the Forge MCP server:
+
 ```json
 {
-  "mcpServers": {
-    "forge": {
-      "command": "php",
-      "args": [
-        "/home/YOUR_USERNAME/path/to/forge-mcp/artisan",
-        "mcp:start",
-        "forge"
-      ]
+    "mcpServers": {
+        "forge": {
+            "command": "php",
+            "args": [
+                "/home/YOUR_USERNAME/path/to/forge-mcp/artisan",
+                "mcp:start",
+                "forge"
+            ]
+        }
     }
-  }
 }
 ```
 
@@ -108,25 +112,27 @@ nano ~/.config/Claude/claude_desktop_config.json
 Cursor supports MCP through its `.cursorrules` configuration.
 
 1. Create or edit `.cursorrules` in your project root:
+
 ```bash
 code .cursorrules
 ```
 
 2. Add the MCP configuration:
+
 ```json
 {
-  "mcp": {
-    "servers": {
-      "forge": {
-        "command": "php",
-        "args": [
-          "/absolute/path/to/forge-mcp/artisan",
-          "mcp:start",
-          "forge"
-        ]
-      }
+    "mcp": {
+        "servers": {
+            "forge": {
+                "command": "php",
+                "args": [
+                    "/absolute/path/to/forge-mcp/artisan",
+                    "mcp:start",
+                    "forge"
+                ]
+            }
+        }
     }
-  }
 }
 ```
 
@@ -141,18 +147,19 @@ code .cursorrules
 3. Search for "Cline MCP"
 
 4. Add the MCP server configuration:
+
 ```json
 {
-  "cline.mcpServers": {
-    "forge": {
-      "command": "php",
-      "args": [
-        "/absolute/path/to/forge-mcp/artisan",
-        "mcp:start",
-        "forge"
-      ]
+    "cline.mcpServers": {
+        "forge": {
+            "command": "php",
+            "args": [
+                "/absolute/path/to/forge-mcp/artisan",
+                "mcp:start",
+                "forge"
+            ]
+        }
     }
-  }
 }
 ```
 
@@ -163,27 +170,28 @@ code .cursorrules
 1. Install the Continue extension from VSCode marketplace
 
 2. Open Continue config:
-   - Press `Cmd/Ctrl + Shift + P`
-   - Type "Continue: Open config.json"
+    - Press `Cmd/Ctrl + Shift + P`
+    - Type "Continue: Open config.json"
 
 3. Add the MCP server under `experimental.modelContextProtocolServers`:
+
 ```json
 {
-  "experimental": {
-    "modelContextProtocolServers": [
-      {
-        "transport": {
-          "type": "stdio",
-          "command": "php",
-          "args": [
-            "/absolute/path/to/forge-mcp/artisan",
-            "mcp:start",
-            "forge"
-          ]
-        }
-      }
-    ]
-  }
+    "experimental": {
+        "modelContextProtocolServers": [
+            {
+                "transport": {
+                    "type": "stdio",
+                    "command": "php",
+                    "args": [
+                        "/absolute/path/to/forge-mcp/artisan",
+                        "mcp:start",
+                        "forge"
+                    ]
+                }
+            }
+        ]
+    }
 }
 ```
 
@@ -196,18 +204,19 @@ code .cursorrules
 2. Click on "Open ~/.config/zed/settings.json"
 
 3. Add the MCP configuration:
+
 ```json
 {
-  "context_servers": {
-    "forge": {
-      "command": "php",
-      "args": [
-        "/absolute/path/to/forge-mcp/artisan",
-        "mcp:start",
-        "forge"
-      ]
+    "context_servers": {
+        "forge": {
+            "command": "php",
+            "args": [
+                "/absolute/path/to/forge-mcp/artisan",
+                "mcp:start",
+                "forge"
+            ]
+        }
     }
-  }
 }
 ```
 
@@ -222,6 +231,7 @@ npx @modelcontextprotocol/inspector php /absolute/path/to/forge-mcp/artisan mcp:
 ```
 
 This opens a web interface at http://localhost:5173 where you can:
+
 - Test all available tools
 - View requests/responses in real-time
 - Debug MCP server issues
@@ -245,16 +255,16 @@ For Claude Desktop:
 
 ```json
 {
-  "mcpServers": {
-    "forge": {
-      "command": "npx",
-      "args": [
-        "-y",
-        "@modelcontextprotocol/mcp-remote",
-        "https://your-domain.com/mcp/forge"
-      ]
+    "mcpServers": {
+        "forge": {
+            "command": "npx",
+            "args": [
+                "-y",
+                "@modelcontextprotocol/mcp-remote",
+                "https://your-domain.com/mcp/forge"
+            ]
+        }
     }
-  }
 }
 ```
 
@@ -276,9 +286,9 @@ Mcp::web('forge')
 2. **Verify PHP**: Ensure `php` is in your PATH: `which php`
 3. **Check .env**: Verify `FORGE_API_TOKEN` is set
 4. **Test manually**: Run the command directly:
-   ```bash
-   php /absolute/path/to/artisan mcp:start forge
-   ```
+    ```bash
+    php /absolute/path/to/artisan mcp:start forge
+    ```
 
 ### No tools showing
 
@@ -295,6 +305,7 @@ Mcp::web('forge')
 ### SSL certificate errors (remote)
 
 When using `mcp-remote` with local HTTPS:
+
 - Node.js has its own certificate store
 - Use HTTP during local development
 - Use valid SSL certificates in production
@@ -304,12 +315,15 @@ When using `mcp-remote` with local HTTPS:
 After configuration, test the connection:
 
 ### In Claude Desktop
+
 Ask: "List my Forge servers"
 
 ### In Cursor
+
 Ask: "Show me all my Forge sites"
 
 ### In MCP Inspector
+
 1. Open http://localhost:5173
 2. Click on "list-servers-tool"
 3. Click "Execute"

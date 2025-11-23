@@ -26,16 +26,16 @@ Add to `~/Library/Application Support/Claude/claude_desktop_config.json`:
 
 ```json
 {
-  "mcpServers": {
-    "forge": {
-      "command": "php",
-      "args": [
-        "/absolute/path/to/forge-mcp/artisan",
-        "mcp:start",
-        "forge"
-      ]
+    "mcpServers": {
+        "forge": {
+            "command": "php",
+            "args": [
+                "/absolute/path/to/forge-mcp/artisan",
+                "mcp:start",
+                "forge"
+            ]
+        }
     }
-  }
 }
 ```
 
@@ -44,6 +44,7 @@ Restart Claude Desktop and look for the 🔌 icon.
 ### Other Clients
 
 See [MCP_CLIENTS.md](MCP_CLIENTS.md) for detailed setup instructions for:
+
 - Claude Desktop (macOS, Windows, Linux)
 - Cursor
 - Cline (VSCode)
@@ -57,24 +58,29 @@ See [MCP_CLIENTS.md](MCP_CLIENTS.md) for detailed setup instructions for:
 ### Tools (14)
 
 **Servers:**
+
 - `list-servers-tool` - List all servers
 - `get-server-tool` - Get server details
 - `reboot-server-tool` - Reboot a server
 
 **Sites:**
+
 - `list-sites-tool` - List sites on a server
 - `get-site-tool` - Get site details
 
 **Deployments:**
+
 - `deploy-site-tool` - Deploy a site
 - `get-deployment-script-tool` - Get deployment script
 - `get-deployment-log-tool` - Get deployment log
 
 **SSL Certificates:**
+
 - `list-certificates-tool` - List SSL certificates
 - `obtain-lets-encrypt-certificate-tool` - Install Let's Encrypt SSL
 
 **Infrastructure:**
+
 - `list-databases-tool` - List databases
 - `list-scheduled-jobs-tool` - List cron jobs
 - `list-daemons-tool` - List background processes
