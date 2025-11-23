@@ -55,7 +55,7 @@ See [MCP_CLIENTS.md](MCP_CLIENTS.md) for detailed setup instructions for:
 
 ## Available Resources
 
-### Tools (14)
+### Tools (19)
 
 **Servers:**
 
@@ -77,14 +77,28 @@ See [MCP_CLIENTS.md](MCP_CLIENTS.md) for detailed setup instructions for:
 **SSL Certificates:**
 
 - `list-certificates-tool` - List SSL certificates
+- `get-certificate-tool` - Get certificate details
 - `obtain-lets-encrypt-certificate-tool` - Install Let's Encrypt SSL
 
-**Infrastructure:**
+**Databases:**
 
 - `list-databases-tool` - List databases
+- `get-database-tool` - Get database details
+
+**Scheduled Jobs:**
+
 - `list-scheduled-jobs-tool` - List cron jobs
+- `get-scheduled-job-tool` - Get cron job details
+
+**Daemons:**
+
 - `list-daemons-tool` - List background processes
+- `get-daemon-tool` - Get daemon details
+
+**Firewall:**
+
 - `list-firewall-rules-tool` - List firewall rules
+- `get-firewall-rule-tool` - Get firewall rule details
 
 ### Resources (2)
 
