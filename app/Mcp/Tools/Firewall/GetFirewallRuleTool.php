@@ -53,7 +53,6 @@ class GetFirewallRuleTool extends Tool
                     'id' => $rule->id,
                     'name' => $rule->name,
                     'port' => $rule->port,
-                    'type' => $rule->type,
                     'ip_address' => $rule->ipAddress,
                     'status' => $rule->status,
                     'created_at' => $rule->createdAt,

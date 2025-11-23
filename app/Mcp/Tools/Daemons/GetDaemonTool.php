@@ -54,7 +54,6 @@ class GetDaemonTool extends Tool
                     'command' => $daemon->command,
                     'user' => $daemon->user,
                     'directory' => $daemon->directory,
-                    'processes' => $daemon->processes,
                     'status' => $daemon->status,
                     'created_at' => $daemon->createdAt,
                 ],

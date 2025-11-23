@@ -995,8 +995,6 @@ describe('ListDaemonsTool', function (): void {
             'command' => 'php artisan horizon',
             'user' => 'forge',
             'directory' => '/home/forge/example.com',
-            'processes' => 1,
-            'startsecs' => 1,
             'status' => 'installed',
             'createdAt' => '2024-01-01T00:00:00Z',
         ]);
@@ -1063,7 +1061,6 @@ describe('GetDaemonTool', function (): void {
             'command' => 'php artisan horizon',
             'user' => 'forge',
             'directory' => '/home/forge/example.com',
-            'processes' => 1,
             'status' => 'installed',
             'createdAt' => '2024-01-01T00:00:00Z',
         ]);
@@ -1081,8 +1078,7 @@ describe('GetDaemonTool', function (): void {
             ->assertOk()
             ->assertSee('"success": true')
             ->assertSee('horizon')
-            ->assertSee('example.com')
-            ->assertSee('"processes": 1');
+            ->assertSee('example.com');
     });
 
     it('handles daemon not found error', function (): void {
@@ -1101,13 +1097,12 @@ describe('GetDaemonTool', function (): void {
             ->assertSee('Daemon not found');
     });
 
-    it('returns daemon with multiple processes', function (): void {
+    it('returns daemon with different user', function (): void {
         $mockDaemon = new Daemon([
             'id' => 2,
             'command' => 'php artisan queue:work',
             'user' => 'root',
             'directory' => '/var/www/app',
-            'processes' => 5,
             'status' => 'installed',
             'createdAt' => '2024-01-01T00:00:00Z',
         ]);
@@ -1124,7 +1119,6 @@ describe('GetDaemonTool', function (): void {
         $response
             ->assertOk()
             ->assertSee('queue:work')
-            ->assertSee('"processes": 5')
             ->assertSee('"user": "root"');
     });
 });
@@ -1141,7 +1135,6 @@ describe('ListFirewallRulesTool', function (): void {
             'id' => 1,
             'name' => 'SSH',
             'port' => '22',
-            'type' => 'allow',
             'ipAddress' => null,
             'status' => 'installed',
             'createdAt' => '2024-01-01T00:00:00Z',
@@ -1208,7 +1201,6 @@ describe('GetFirewallRuleTool', function (): void {
             'id' => 1,
             'name' => 'SSH',
             'port' => '22',
-            'type' => 'allow',
             'ipAddress' => null,
             'status' => 'installed',
             'createdAt' => '2024-01-01T00:00:00Z',
@@ -1227,8 +1219,7 @@ describe('GetFirewallRuleTool', function (): void {
             ->assertOk()
             ->assertSee('"success": true')
             ->assertSee('SSH')
-            ->assertSee('"port": "22"')
-            ->assertSee('"type": "allow"');
+            ->assertSee('"port": "22"');
     });
 
     it('handles rule not found error', function (): void {
@@ -1252,7 +1243,6 @@ describe('GetFirewallRuleTool', function (): void {
             'id' => 2,
             'name' => 'Custom MySQL',
             'port' => '3306',
-            'type' => 'allow',
             'ipAddress' => '192.168.1.100',
             'status' => 'installed',
             'createdAt' => '2024-01-01T00:00:00Z',
@@ -1274,12 +1264,11 @@ describe('GetFirewallRuleTool', function (): void {
             ->assertSee('192.168.1.100');
     });
 
-    it('returns deny rule', function (): void {
+    it('returns rule for different port', function (): void {
         $mockRule = new FirewallRule([
             'id' => 3,
             'name' => 'Block Port',
             'port' => '8080',
-            'type' => 'deny',
             'ipAddress' => null,
             'status' => 'installed',
             'createdAt' => '2024-01-01T00:00:00Z',
@@ -1297,7 +1286,6 @@ describe('GetFirewallRuleTool', function (): void {
         $response
             ->assertOk()
             ->assertSee('Block Port')
-            ->assertSee('"type": "deny"')
             ->assertSee('8080');
     });
 });
