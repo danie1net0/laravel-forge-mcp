@@ -5,12 +5,12 @@ declare(strict_types=1);
 use App\Mcp\Prompts\DeployApplicationPrompt;
 use App\Mcp\Resources\{DeploymentGuidelinesResource, ForgeApiDocsResource};
 use App\Mcp\Servers\ForgeServer;
-use App\Mcp\Tools\Certificates\{ListCertificatesTool, ObtainLetsEncryptCertificateTool};
-use App\Mcp\Tools\Daemons\ListDaemonsTool;
-use App\Mcp\Tools\Databases\ListDatabasesTool;
+use App\Mcp\Tools\Certificates\{GetCertificateTool, ListCertificatesTool, ObtainLetsEncryptCertificateTool};
+use App\Mcp\Tools\Daemons\{GetDaemonTool, ListDaemonsTool};
+use App\Mcp\Tools\Databases\{GetDatabaseTool, ListDatabasesTool};
 use App\Mcp\Tools\Deployments\{DeploySiteTool, GetDeploymentLogTool, GetDeploymentScriptTool};
-use App\Mcp\Tools\Firewall\ListFirewallRulesTool;
-use App\Mcp\Tools\Jobs\ListScheduledJobsTool;
+use App\Mcp\Tools\Firewall\{GetFirewallRuleTool, ListFirewallRulesTool};
+use App\Mcp\Tools\Jobs\{GetScheduledJobTool, ListScheduledJobsTool};
 use App\Mcp\Tools\Servers\{GetServerTool, ListServersTool, RebootServerTool};
 use App\Mcp\Tools\Sites\{GetSiteTool, ListSitesTool};
 use App\Services\ForgeService;
@@ -589,6 +589,118 @@ describe('ListCertificatesTool', function (): void {
     });
 });
 
+describe('GetCertificateTool', function (): void {
+    it('requires server_id, site_id and certificate_id parameters', function (): void {
+        $response = ForgeServer::tool(GetCertificateTool::class, []);
+
+        $response->assertHasErrors();
+    });
+
+    it('requires certificate_id when server_id and site_id provided', function (): void {
+        $response = ForgeServer::tool(GetCertificateTool::class, [
+            'server_id' => 1,
+            'site_id' => 1,
+        ]);
+
+        $response->assertHasErrors();
+    });
+
+    it('rejects invalid parameter types', function (): void {
+        $response = ForgeServer::tool(GetCertificateTool::class, [
+            'server_id' => 'invalid',
+            'site_id' => 1,
+            'certificate_id' => 1,
+        ]);
+
+        $response->assertHasErrors();
+    });
+
+    it('rejects negative parameters', function (): void {
+        $response = ForgeServer::tool(GetCertificateTool::class, [
+            'server_id' => 1,
+            'site_id' => -1,
+            'certificate_id' => 1,
+        ]);
+
+        $response->assertHasErrors();
+    });
+
+    it('gets certificate details successfully', function (): void {
+        $mockCert = new Certificate([
+            'id' => 1,
+            'domain' => 'example.com',
+            'type' => 'letsencrypt',
+            'status' => 'installed',
+            'active' => true,
+            'existing' => false,
+            'requestStatus' => 'created',
+            'createdAt' => '2024-01-01T00:00:00Z',
+        ]);
+
+        $this->mock(ForgeService::class, function ($mock) use ($mockCert): void {
+            $mock->shouldReceive('getCertificate')->with(1, 1, 1)->once()->andReturn($mockCert);
+        });
+
+        $response = ForgeServer::tool(GetCertificateTool::class, [
+            'server_id' => 1,
+            'site_id' => 1,
+            'certificate_id' => 1,
+        ]);
+
+        $response
+            ->assertOk()
+            ->assertSee('"success": true')
+            ->assertSee('example.com')
+            ->assertSee('letsencrypt')
+            ->assertSee('installed');
+    });
+
+    it('handles certificate not found error', function (): void {
+        $this->mock(ForgeService::class, function ($mock): void {
+            $mock->shouldReceive('getCertificate')->with(1, 1, 999)->once()->andThrow(new Exception('Certificate not found'));
+        });
+
+        $response = ForgeServer::tool(GetCertificateTool::class, [
+            'server_id' => 1,
+            'site_id' => 1,
+            'certificate_id' => 999,
+        ]);
+
+        $response
+            ->assertOk()
+            ->assertSee('"success": false')
+            ->assertSee('Certificate not found');
+    });
+
+    it('returns custom certificate details', function (): void {
+        $mockCert = new Certificate([
+            'id' => 2,
+            'domain' => 'custom.example.com',
+            'type' => 'custom',
+            'status' => 'installed',
+            'active' => true,
+            'existing' => true,
+            'requestStatus' => null,
+        ]);
+
+        $this->mock(ForgeService::class, function ($mock) use ($mockCert): void {
+            $mock->shouldReceive('getCertificate')->with(1, 1, 2)->once()->andReturn($mockCert);
+        });
+
+        $response = ForgeServer::tool(GetCertificateTool::class, [
+            'server_id' => 1,
+            'site_id' => 1,
+            'certificate_id' => 2,
+        ]);
+
+        $response
+            ->assertOk()
+            ->assertSee('custom.example.com')
+            ->assertSee('"type": "custom"')
+            ->assertSee('"existing": true');
+    });
+});
+
 describe('ListDatabasesTool', function (): void {
     it('requires server_id parameter', function (): void {
         $response = ForgeServer::tool(ListDatabasesTool::class, []);
@@ -615,6 +727,112 @@ describe('ListDatabasesTool', function (): void {
         $response
             ->assertOk()
             ->assertSee('forge');
+    });
+});
+
+describe('GetDatabaseTool', function (): void {
+    it('requires server_id and database_id parameters', function (): void {
+        $response = ForgeServer::tool(GetDatabaseTool::class, []);
+
+        $response->assertHasErrors();
+    });
+
+    it('requires database_id when server_id provided', function (): void {
+        $response = ForgeServer::tool(GetDatabaseTool::class, [
+            'server_id' => 1,
+        ]);
+
+        $response->assertHasErrors();
+    });
+
+    it('rejects invalid parameter types', function (): void {
+        $response = ForgeServer::tool(GetDatabaseTool::class, [
+            'server_id' => 'invalid',
+            'database_id' => 1,
+        ]);
+
+        $response->assertHasErrors();
+    });
+
+    it('rejects negative database_id', function (): void {
+        $response = ForgeServer::tool(GetDatabaseTool::class, [
+            'server_id' => 1,
+            'database_id' => -1,
+        ]);
+
+        $response->assertHasErrors();
+    });
+
+    it('rejects zero database_id', function (): void {
+        $response = ForgeServer::tool(GetDatabaseTool::class, [
+            'server_id' => 1,
+            'database_id' => 0,
+        ]);
+
+        $response->assertHasErrors();
+    });
+
+    it('gets database details successfully', function (): void {
+        $mockDb = new Database([
+            'id' => 1,
+            'name' => 'forge',
+            'status' => 'installed',
+            'createdAt' => '2024-01-01T00:00:00Z',
+        ]);
+
+        $this->mock(ForgeService::class, function ($mock) use ($mockDb): void {
+            $mock->shouldReceive('getDatabase')->with(1, 1)->once()->andReturn($mockDb);
+        });
+
+        $response = ForgeServer::tool(GetDatabaseTool::class, [
+            'server_id' => 1,
+            'database_id' => 1,
+        ]);
+
+        $response
+            ->assertOk()
+            ->assertSee('"success": true')
+            ->assertSee('forge')
+            ->assertSee('installed');
+    });
+
+    it('handles database not found error', function (): void {
+        $this->mock(ForgeService::class, function ($mock): void {
+            $mock->shouldReceive('getDatabase')->with(1, 999)->once()->andThrow(new Exception('Database not found'));
+        });
+
+        $response = ForgeServer::tool(GetDatabaseTool::class, [
+            'server_id' => 1,
+            'database_id' => 999,
+        ]);
+
+        $response
+            ->assertOk()
+            ->assertSee('"success": false')
+            ->assertSee('Database not found');
+    });
+
+    it('returns database with different status', function (): void {
+        $mockDb = new Database([
+            'id' => 2,
+            'name' => 'production_db',
+            'status' => 'creating',
+            'createdAt' => '2024-01-01T00:00:00Z',
+        ]);
+
+        $this->mock(ForgeService::class, function ($mock) use ($mockDb): void {
+            $mock->shouldReceive('getDatabase')->with(1, 2)->once()->andReturn($mockDb);
+        });
+
+        $response = ForgeServer::tool(GetDatabaseTool::class, [
+            'server_id' => 1,
+            'database_id' => 2,
+        ]);
+
+        $response
+            ->assertOk()
+            ->assertSee('production_db')
+            ->assertSee('"status": "creating"');
     });
 });
 
@@ -647,6 +865,120 @@ describe('ListScheduledJobsTool', function (): void {
         $response
             ->assertOk()
             ->assertSee('schedule:run');
+    });
+});
+
+describe('GetScheduledJobTool', function (): void {
+    it('requires server_id and job_id parameters', function (): void {
+        $response = ForgeServer::tool(GetScheduledJobTool::class, []);
+
+        $response->assertHasErrors();
+    });
+
+    it('requires job_id when server_id provided', function (): void {
+        $response = ForgeServer::tool(GetScheduledJobTool::class, [
+            'server_id' => 1,
+        ]);
+
+        $response->assertHasErrors();
+    });
+
+    it('rejects invalid parameter types', function (): void {
+        $response = ForgeServer::tool(GetScheduledJobTool::class, [
+            'server_id' => 'invalid',
+            'job_id' => 1,
+        ]);
+
+        $response->assertHasErrors();
+    });
+
+    it('rejects negative job_id', function (): void {
+        $response = ForgeServer::tool(GetScheduledJobTool::class, [
+            'server_id' => 1,
+            'job_id' => -1,
+        ]);
+
+        $response->assertHasErrors();
+    });
+
+    it('rejects zero job_id', function (): void {
+        $response = ForgeServer::tool(GetScheduledJobTool::class, [
+            'server_id' => 1,
+            'job_id' => 0,
+        ]);
+
+        $response->assertHasErrors();
+    });
+
+    it('gets scheduled job details successfully', function (): void {
+        $mockJob = new Job([
+            'id' => 1,
+            'command' => 'php artisan schedule:run',
+            'user' => 'forge',
+            'frequency' => 'minutely',
+            'cron' => '* * * * *',
+            'status' => 'installed',
+            'createdAt' => '2024-01-01T00:00:00Z',
+        ]);
+
+        $this->mock(ForgeService::class, function ($mock) use ($mockJob): void {
+            $mock->shouldReceive('getJob')->with(1, 1)->once()->andReturn($mockJob);
+        });
+
+        $response = ForgeServer::tool(GetScheduledJobTool::class, [
+            'server_id' => 1,
+            'job_id' => 1,
+        ]);
+
+        $response
+            ->assertOk()
+            ->assertSee('"success": true')
+            ->assertSee('schedule:run')
+            ->assertSee('minutely')
+            ->assertSee('* * * * *');
+    });
+
+    it('handles job not found error', function (): void {
+        $this->mock(ForgeService::class, function ($mock): void {
+            $mock->shouldReceive('getJob')->with(1, 999)->once()->andThrow(new Exception('Job not found'));
+        });
+
+        $response = ForgeServer::tool(GetScheduledJobTool::class, [
+            'server_id' => 1,
+            'job_id' => 999,
+        ]);
+
+        $response
+            ->assertOk()
+            ->assertSee('"success": false')
+            ->assertSee('Job not found');
+    });
+
+    it('returns job with custom frequency', function (): void {
+        $mockJob = new Job([
+            'id' => 2,
+            'command' => 'php artisan backup:run',
+            'user' => 'root',
+            'frequency' => 'daily',
+            'cron' => '0 0 * * *',
+            'status' => 'installed',
+            'createdAt' => '2024-01-01T00:00:00Z',
+        ]);
+
+        $this->mock(ForgeService::class, function ($mock) use ($mockJob): void {
+            $mock->shouldReceive('getJob')->with(1, 2)->once()->andReturn($mockJob);
+        });
+
+        $response = ForgeServer::tool(GetScheduledJobTool::class, [
+            'server_id' => 1,
+            'job_id' => 2,
+        ]);
+
+        $response
+            ->assertOk()
+            ->assertSee('backup:run')
+            ->assertSee('"frequency": "daily"')
+            ->assertSee('0 0 * * *');
     });
 });
 
@@ -683,6 +1015,120 @@ describe('ListDaemonsTool', function (): void {
     });
 });
 
+describe('GetDaemonTool', function (): void {
+    it('requires server_id and daemon_id parameters', function (): void {
+        $response = ForgeServer::tool(GetDaemonTool::class, []);
+
+        $response->assertHasErrors();
+    });
+
+    it('requires daemon_id when server_id provided', function (): void {
+        $response = ForgeServer::tool(GetDaemonTool::class, [
+            'server_id' => 1,
+        ]);
+
+        $response->assertHasErrors();
+    });
+
+    it('rejects invalid parameter types', function (): void {
+        $response = ForgeServer::tool(GetDaemonTool::class, [
+            'server_id' => 'invalid',
+            'daemon_id' => 1,
+        ]);
+
+        $response->assertHasErrors();
+    });
+
+    it('rejects negative daemon_id', function (): void {
+        $response = ForgeServer::tool(GetDaemonTool::class, [
+            'server_id' => 1,
+            'daemon_id' => -1,
+        ]);
+
+        $response->assertHasErrors();
+    });
+
+    it('rejects zero daemon_id', function (): void {
+        $response = ForgeServer::tool(GetDaemonTool::class, [
+            'server_id' => 1,
+            'daemon_id' => 0,
+        ]);
+
+        $response->assertHasErrors();
+    });
+
+    it('gets daemon details successfully', function (): void {
+        $mockDaemon = new Daemon([
+            'id' => 1,
+            'command' => 'php artisan horizon',
+            'user' => 'forge',
+            'directory' => '/home/forge/example.com',
+            'processes' => 1,
+            'status' => 'installed',
+            'createdAt' => '2024-01-01T00:00:00Z',
+        ]);
+
+        $this->mock(ForgeService::class, function ($mock) use ($mockDaemon): void {
+            $mock->shouldReceive('getDaemon')->with(1, 1)->once()->andReturn($mockDaemon);
+        });
+
+        $response = ForgeServer::tool(GetDaemonTool::class, [
+            'server_id' => 1,
+            'daemon_id' => 1,
+        ]);
+
+        $response
+            ->assertOk()
+            ->assertSee('"success": true')
+            ->assertSee('horizon')
+            ->assertSee('example.com')
+            ->assertSee('"processes": 1');
+    });
+
+    it('handles daemon not found error', function (): void {
+        $this->mock(ForgeService::class, function ($mock): void {
+            $mock->shouldReceive('getDaemon')->with(1, 999)->once()->andThrow(new Exception('Daemon not found'));
+        });
+
+        $response = ForgeServer::tool(GetDaemonTool::class, [
+            'server_id' => 1,
+            'daemon_id' => 999,
+        ]);
+
+        $response
+            ->assertOk()
+            ->assertSee('"success": false')
+            ->assertSee('Daemon not found');
+    });
+
+    it('returns daemon with multiple processes', function (): void {
+        $mockDaemon = new Daemon([
+            'id' => 2,
+            'command' => 'php artisan queue:work',
+            'user' => 'root',
+            'directory' => '/var/www/app',
+            'processes' => 5,
+            'status' => 'installed',
+            'createdAt' => '2024-01-01T00:00:00Z',
+        ]);
+
+        $this->mock(ForgeService::class, function ($mock) use ($mockDaemon): void {
+            $mock->shouldReceive('getDaemon')->with(1, 2)->once()->andReturn($mockDaemon);
+        });
+
+        $response = ForgeServer::tool(GetDaemonTool::class, [
+            'server_id' => 1,
+            'daemon_id' => 2,
+        ]);
+
+        $response
+            ->assertOk()
+            ->assertSee('queue:work')
+            ->assertSee('"processes": 5')
+            ->assertSee('"user": "root"');
+    });
+});
+
 describe('ListFirewallRulesTool', function (): void {
     it('requires server_id parameter', function (): void {
         $response = ForgeServer::tool(ListFirewallRulesTool::class, []);
@@ -712,6 +1158,147 @@ describe('ListFirewallRulesTool', function (): void {
         $response
             ->assertOk()
             ->assertSee('SSH');
+    });
+});
+
+describe('GetFirewallRuleTool', function (): void {
+    it('requires server_id and rule_id parameters', function (): void {
+        $response = ForgeServer::tool(GetFirewallRuleTool::class, []);
+
+        $response->assertHasErrors();
+    });
+
+    it('requires rule_id when server_id provided', function (): void {
+        $response = ForgeServer::tool(GetFirewallRuleTool::class, [
+            'server_id' => 1,
+        ]);
+
+        $response->assertHasErrors();
+    });
+
+    it('rejects invalid parameter types', function (): void {
+        $response = ForgeServer::tool(GetFirewallRuleTool::class, [
+            'server_id' => 'invalid',
+            'rule_id' => 1,
+        ]);
+
+        $response->assertHasErrors();
+    });
+
+    it('rejects negative rule_id', function (): void {
+        $response = ForgeServer::tool(GetFirewallRuleTool::class, [
+            'server_id' => 1,
+            'rule_id' => -1,
+        ]);
+
+        $response->assertHasErrors();
+    });
+
+    it('rejects zero rule_id', function (): void {
+        $response = ForgeServer::tool(GetFirewallRuleTool::class, [
+            'server_id' => 1,
+            'rule_id' => 0,
+        ]);
+
+        $response->assertHasErrors();
+    });
+
+    it('gets firewall rule details successfully', function (): void {
+        $mockRule = new FirewallRule([
+            'id' => 1,
+            'name' => 'SSH',
+            'port' => '22',
+            'type' => 'allow',
+            'ipAddress' => null,
+            'status' => 'installed',
+            'createdAt' => '2024-01-01T00:00:00Z',
+        ]);
+
+        $this->mock(ForgeService::class, function ($mock) use ($mockRule): void {
+            $mock->shouldReceive('getFirewallRule')->with(1, 1)->once()->andReturn($mockRule);
+        });
+
+        $response = ForgeServer::tool(GetFirewallRuleTool::class, [
+            'server_id' => 1,
+            'rule_id' => 1,
+        ]);
+
+        $response
+            ->assertOk()
+            ->assertSee('"success": true')
+            ->assertSee('SSH')
+            ->assertSee('"port": "22"')
+            ->assertSee('"type": "allow"');
+    });
+
+    it('handles rule not found error', function (): void {
+        $this->mock(ForgeService::class, function ($mock): void {
+            $mock->shouldReceive('getFirewallRule')->with(1, 999)->once()->andThrow(new Exception('Firewall rule not found'));
+        });
+
+        $response = ForgeServer::tool(GetFirewallRuleTool::class, [
+            'server_id' => 1,
+            'rule_id' => 999,
+        ]);
+
+        $response
+            ->assertOk()
+            ->assertSee('"success": false')
+            ->assertSee('Firewall rule not found');
+    });
+
+    it('returns rule with specific IP address', function (): void {
+        $mockRule = new FirewallRule([
+            'id' => 2,
+            'name' => 'Custom MySQL',
+            'port' => '3306',
+            'type' => 'allow',
+            'ipAddress' => '192.168.1.100',
+            'status' => 'installed',
+            'createdAt' => '2024-01-01T00:00:00Z',
+        ]);
+
+        $this->mock(ForgeService::class, function ($mock) use ($mockRule): void {
+            $mock->shouldReceive('getFirewallRule')->with(1, 2)->once()->andReturn($mockRule);
+        });
+
+        $response = ForgeServer::tool(GetFirewallRuleTool::class, [
+            'server_id' => 1,
+            'rule_id' => 2,
+        ]);
+
+        $response
+            ->assertOk()
+            ->assertSee('Custom MySQL')
+            ->assertSee('"port": "3306"')
+            ->assertSee('192.168.1.100');
+    });
+
+    it('returns deny rule', function (): void {
+        $mockRule = new FirewallRule([
+            'id' => 3,
+            'name' => 'Block Port',
+            'port' => '8080',
+            'type' => 'deny',
+            'ipAddress' => null,
+            'status' => 'installed',
+            'createdAt' => '2024-01-01T00:00:00Z',
+        ]);
+
+        $this->mock(ForgeService::class, function ($mock) use ($mockRule): void {
+            $mock->shouldReceive('getFirewallRule')->with(1, 3)->once()->andReturn($mockRule);
+        });
+
+        $response = ForgeServer::tool(GetFirewallRuleTool::class, [
+            'server_id' => 1,
+            'rule_id' => 3,
+        ]);
+
+        $response
+            ->assertOk()
+            ->assertSee('Block Port')
+            ->assertSee('"type": "deny"')
+            ->assertSee('8080');
     });
 });
 

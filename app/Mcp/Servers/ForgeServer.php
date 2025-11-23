@@ -102,18 +102,23 @@ class ForgeServer extends Server
     protected array $tools = [
         \App\Mcp\Tools\Servers\ListServersTool::class,
         \App\Mcp\Tools\Servers\GetServerTool::class,
+        \App\Mcp\Tools\Servers\RebootServerTool::class,
         \App\Mcp\Tools\Sites\ListSitesTool::class,
         \App\Mcp\Tools\Sites\GetSiteTool::class,
         \App\Mcp\Tools\Certificates\ListCertificatesTool::class,
+        \App\Mcp\Tools\Certificates\GetCertificateTool::class,
+        \App\Mcp\Tools\Certificates\ObtainLetsEncryptCertificateTool::class,
         \App\Mcp\Tools\Databases\ListDatabasesTool::class,
+        \App\Mcp\Tools\Databases\GetDatabaseTool::class,
         \App\Mcp\Tools\Jobs\ListScheduledJobsTool::class,
+        \App\Mcp\Tools\Jobs\GetScheduledJobTool::class,
         \App\Mcp\Tools\Daemons\ListDaemonsTool::class,
+        \App\Mcp\Tools\Daemons\GetDaemonTool::class,
         \App\Mcp\Tools\Deployments\GetDeploymentLogTool::class,
         \App\Mcp\Tools\Deployments\GetDeploymentScriptTool::class,
         \App\Mcp\Tools\Deployments\DeploySiteTool::class,
         \App\Mcp\Tools\Firewall\ListFirewallRulesTool::class,
-        \App\Mcp\Tools\Servers\RebootServerTool::class,
-        \App\Mcp\Tools\Certificates\ObtainLetsEncryptCertificateTool::class,
+        \App\Mcp\Tools\Firewall\GetFirewallRuleTool::class,
     ];
 
     /**
