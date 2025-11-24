@@ -110,15 +110,20 @@ class ForgeServer extends Server
         \App\Mcp\Tools\Certificates\ObtainLetsEncryptCertificateTool::class,
         \App\Mcp\Tools\Databases\ListDatabasesTool::class,
         \App\Mcp\Tools\Databases\GetDatabaseTool::class,
+        \App\Mcp\Tools\Databases\CreateDatabaseTool::class,
+        \App\Mcp\Tools\Databases\CreateDatabaseUserTool::class,
         \App\Mcp\Tools\Jobs\ListScheduledJobsTool::class,
         \App\Mcp\Tools\Jobs\GetScheduledJobTool::class,
+        \App\Mcp\Tools\Jobs\CreateScheduledJobTool::class,
         \App\Mcp\Tools\Daemons\ListDaemonsTool::class,
         \App\Mcp\Tools\Daemons\GetDaemonTool::class,
+        \App\Mcp\Tools\Daemons\CreateDaemonTool::class,
         \App\Mcp\Tools\Deployments\GetDeploymentLogTool::class,
         \App\Mcp\Tools\Deployments\GetDeploymentScriptTool::class,
         \App\Mcp\Tools\Deployments\DeploySiteTool::class,
         \App\Mcp\Tools\Firewall\ListFirewallRulesTool::class,
         \App\Mcp\Tools\Firewall\GetFirewallRuleTool::class,
+        \App\Mcp\Tools\Firewall\CreateFirewallRuleTool::class,
     ];
 
     /**

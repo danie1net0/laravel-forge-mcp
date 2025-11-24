@@ -55,7 +55,7 @@ See [MCP_CLIENTS.md](MCP_CLIENTS.md) for detailed setup instructions for:
 
 ## Available Resources
 
-### Tools (19)
+### Tools (24)
 
 **Servers:**
 
@@ -84,21 +84,26 @@ See [MCP_CLIENTS.md](MCP_CLIENTS.md) for detailed setup instructions for:
 
 - `list-databases-tool` - List databases
 - `get-database-tool` - Get database details
+- `create-database-tool` - Create a new database
+- `create-database-user-tool` - Create a new database user
 
 **Scheduled Jobs:**
 
 - `list-scheduled-jobs-tool` - List cron jobs
 - `get-scheduled-job-tool` - Get cron job details
+- `create-scheduled-job-tool` - Create a new cron job
 
 **Daemons:**
 
 - `list-daemons-tool` - List background processes
 - `get-daemon-tool` - Get daemon details
+- `create-daemon-tool` - Create a new daemon (long-running process)
 
 **Firewall:**
 
 - `list-firewall-rules-tool` - List firewall rules
 - `get-firewall-rule-tool` - Get firewall rule details
+- `create-firewall-rule-tool` - Create a new firewall rule
 
 ### Resources (2)
 
