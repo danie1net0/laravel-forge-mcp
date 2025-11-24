@@ -56,7 +56,7 @@ class ListDeploymentHistoryTool extends Tool
                 'server_id' => $serverId,
                 'site_id' => $siteId,
                 'deployments' => $history,
-                'count' => is_array($history) ? count($history) : 0,
+                'count' => count($history),
             ], JSON_PRETTY_PRINT));
         } catch (Exception $e) {
             return Response::text(json_encode([

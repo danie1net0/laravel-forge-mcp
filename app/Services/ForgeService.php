@@ -115,32 +115,60 @@ class ForgeService
         return $this->forge->siteDeploymentLog($serverId, $siteId);
     }
 
+    /**
+     * @return array<string, mixed>
+     * @phpstan-return array<string, mixed>
+     */
     public function siteLog(int $serverId, int $siteId): array
     {
+        /** @phpstan-ignore-next-line */
         return $this->forge->siteLog($serverId, $siteId);
     }
 
+    /**
+     * @return array<int, mixed>
+     * @phpstan-return array<int, mixed>
+     */
     public function deploymentHistory(int $serverId, int $siteId): array
     {
+        /** @phpstan-ignore-next-line */
         return $this->forge->deploymentHistory($serverId, $siteId);
     }
 
+    /**
+     * @return array<string, mixed>
+     * @phpstan-return array<string, mixed>
+     */
     public function deploymentHistoryDeployment(int $serverId, int $siteId, int $deploymentId): array
     {
+        /** @phpstan-ignore-next-line */
         return $this->forge->deploymentHistoryDeployment($serverId, $siteId, $deploymentId);
     }
 
+    /**
+     * @return array<string, mixed>
+     * @phpstan-return array<string, mixed>
+     */
     public function deploymentHistoryOutput(int $serverId, int $siteId, int $deploymentId): array
     {
+        /** @phpstan-ignore-next-line */
         return $this->forge->deploymentHistoryOutput($serverId, $siteId, $deploymentId);
     }
 
+    /**
+     * @return \Laravel\Forge\Resources\SiteCommand[]
+     * @phpstan-return array<\Laravel\Forge\Resources\SiteCommand>
+     */
     public function listCommandHistory(int $serverId, int $siteId): array
     {
+        /** @phpstan-ignore-next-line */
         return $this->forge->listCommandHistory($serverId, $siteId);
     }
 
-    public function getSiteCommand(int $serverId, int $siteId, int $commandId): array
+    /**
+     * @return \Laravel\Forge\Resources\SiteCommand
+     */
+    public function getSiteCommand(int $serverId, int $siteId, int $commandId): mixed
     {
         return $this->forge->getSiteCommand($serverId, $siteId, $commandId);
     }
