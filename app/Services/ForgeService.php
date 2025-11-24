@@ -120,6 +120,31 @@ class ForgeService
         return $this->forge->siteLog($serverId, $siteId);
     }
 
+    public function deploymentHistory(int $serverId, int $siteId): array
+    {
+        return $this->forge->deploymentHistory($serverId, $siteId);
+    }
+
+    public function deploymentHistoryDeployment(int $serverId, int $siteId, int $deploymentId): array
+    {
+        return $this->forge->deploymentHistoryDeployment($serverId, $siteId, $deploymentId);
+    }
+
+    public function deploymentHistoryOutput(int $serverId, int $siteId, int $deploymentId): string
+    {
+        return $this->forge->deploymentHistoryOutput($serverId, $siteId, $deploymentId);
+    }
+
+    public function listCommandHistory(int $serverId, int $siteId): array
+    {
+        return $this->forge->listCommandHistory($serverId, $siteId);
+    }
+
+    public function getSiteCommand(int $serverId, int $siteId, int $commandId): array
+    {
+        return $this->forge->getSiteCommand($serverId, $siteId, $commandId);
+    }
+
     public function installGitRepositoryOnSite(int $serverId, int $siteId, array $data): void
     {
         $this->forge->installGitRepositoryOnSite($serverId, $siteId, $data);
@@ -151,6 +176,11 @@ class ForgeService
     public function deleteCertificate(int $serverId, int $siteId, int $certificateId): void
     {
         $this->forge->deleteCertificate($serverId, $siteId, $certificateId);
+    }
+
+    public function getCertificateSigningRequest(int $serverId, int $siteId, int $certificateId): string
+    {
+        return $this->forge->getCertificateSigningRequest($serverId, $siteId, $certificateId);
     }
 
     /**

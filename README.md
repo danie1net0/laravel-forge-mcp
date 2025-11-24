@@ -55,7 +55,7 @@ See [MCP_CLIENTS.md](MCP_CLIENTS.md) for detailed setup instructions for:
 
 ## Available Resources
 
-### Tools (25)
+### Tools (33)
 
 **Servers:**
 
@@ -69,16 +69,25 @@ See [MCP_CLIENTS.md](MCP_CLIENTS.md) for detailed setup instructions for:
 - `get-site-tool` - Get site details
 - `get-site-log-tool` - Get site web server logs
 
+**Commands:**
+
+- `list-command-history-tool` - List command execution history
+- `get-site-command-tool` - Get command details and output
+
 **Deployments:**
 
 - `deploy-site-tool` - Deploy a site
 - `get-deployment-script-tool` - Get deployment script
 - `get-deployment-log-tool` - Get deployment log
+- `list-deployment-history-tool` - List all deployments
+- `get-deployment-history-deployment-tool` - Get specific deployment details
+- `get-deployment-history-output-tool` - Get deployment output/logs
 
 **SSL Certificates:**
 
 - `list-certificates-tool` - List SSL certificates
 - `get-certificate-tool` - Get certificate details
+- `get-certificate-signing-request-tool` - Get CSR for SSL certificates
 - `obtain-lets-encrypt-certificate-tool` - Install Let's Encrypt SSL
 
 **Databases:**
@@ -86,6 +95,8 @@ See [MCP_CLIENTS.md](MCP_CLIENTS.md) for detailed setup instructions for:
 - `list-databases-tool` - List databases
 - `get-database-tool` - Get database details
 - `create-database-tool` - Create a new database
+- `list-database-users-tool` - List database users
+- `get-database-user-tool` - Get database user details
 - `create-database-user-tool` - Create a new database user
 
 **Scheduled Jobs:**
