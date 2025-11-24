@@ -112,8 +112,8 @@ describe('ForgeService site methods', function (): void {
         expect(true)->toBeTrue();
     });
 
-    it('siteLog returns string', function (): void {
-        $mockLog = "192.168.1.1 - - [01/Jan/2024:12:00:00 +0000] \"GET / HTTP/1.1\" 200 1234";
+    it('siteLog returns array', function (): void {
+        $mockLog = ['content' => "192.168.1.1 - - [01/Jan/2024:12:00:00 +0000] \"GET / HTTP/1.1\" 200 1234"];
         $forge = Mockery::mock(Forge::class);
         $forge->shouldReceive('siteLog')->with(1, 1)->once()->andReturn($mockLog);
 
@@ -122,7 +122,7 @@ describe('ForgeService site methods', function (): void {
         $property = $reflection->getProperty('forge');
         $property->setValue($service, $forge);
 
-        expect($service->siteLog(1, 1))->toBeString()->toBe($mockLog);
+        expect($service->siteLog(1, 1))->toBeArray()->toBe($mockLog);
     });
 });
 

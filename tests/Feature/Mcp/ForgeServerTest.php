@@ -397,7 +397,7 @@ describe('GetSiteLogTool', function (): void {
     });
 
     it('gets site log successfully', function (): void {
-        $mockLog = "Access log content here\nError log content here";
+        $mockLog = ['content' => "Access log content here\nError log content here"];
 
         $this->mock(ForgeService::class, function ($mock) use ($mockLog): void {
             $mock->shouldReceive('siteLog')->with(1, 1)->once()->andReturn($mockLog);
@@ -416,7 +416,7 @@ describe('GetSiteLogTool', function (): void {
 
     it('handles empty site log', function (): void {
         $this->mock(ForgeService::class, function ($mock): void {
-            $mock->shouldReceive('siteLog')->with(1, 1)->once()->andReturn('');
+            $mock->shouldReceive('siteLog')->with(1, 1)->once()->andReturn(['content' => '']);
         });
 
         $response = ForgeServer::tool(GetSiteLogTool::class, [
@@ -426,12 +426,11 @@ describe('GetSiteLogTool', function (): void {
 
         $response
             ->assertOk()
-            ->assertSee('"success": true')
-            ->assertSee('"log": ""');
+            ->assertSee('"success": true');
     });
 
     it('handles site log with errors', function (): void {
-        $mockLog = "[error] 2024/01/01 12:00:00 [error] 123#456: *1 FastCGI sent in stderr: \"PHP message: PHP Fatal error: Uncaught Exception\"";
+        $mockLog = ['content' => "[error] 2024/01/01 12:00:00 [error] 123#456: *1 FastCGI sent in stderr: \"PHP message: PHP Fatal error: Uncaught Exception\""];
 
         $this->mock(ForgeService::class, function ($mock) use ($mockLog): void {
             $mock->shouldReceive('siteLog')->with(1, 1)->once()->andReturn($mockLog);

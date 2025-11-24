@@ -281,7 +281,7 @@ describe('GetDeploymentHistoryOutputTool', function (): void {
     });
 
     it('gets deployment output successfully', function (): void {
-        $mockOutput = "Deploying...\nCompleted successfully";
+        $mockOutput = ['output' => "Deploying...\nCompleted successfully"];
 
         $this->mock(ForgeService::class, function ($mock) use ($mockOutput): void {
             $mock->shouldReceive('deploymentHistoryOutput')

@@ -52,14 +52,14 @@ class GetDeploymentHistoryOutputTool extends Tool
         $deploymentId = $request->integer('deployment_id');
 
         try {
-            $output = $forge->deploymentHistoryOutput($serverId, $siteId, $deploymentId);
+            $outputData = $forge->deploymentHistoryOutput($serverId, $siteId, $deploymentId);
 
             return Response::text(json_encode([
                 'success' => true,
                 'server_id' => $serverId,
                 'site_id' => $siteId,
                 'deployment_id' => $deploymentId,
-                'output' => $output,
+                'output' => $outputData,
             ], JSON_PRETTY_PRINT));
         } catch (Exception $e) {
             return Response::text(json_encode([

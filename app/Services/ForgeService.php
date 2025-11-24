@@ -115,7 +115,7 @@ class ForgeService
         return $this->forge->siteDeploymentLog($serverId, $siteId);
     }
 
-    public function siteLog(int $serverId, int $siteId): string
+    public function siteLog(int $serverId, int $siteId): array
     {
         return $this->forge->siteLog($serverId, $siteId);
     }
@@ -130,7 +130,7 @@ class ForgeService
         return $this->forge->deploymentHistoryDeployment($serverId, $siteId, $deploymentId);
     }
 
-    public function deploymentHistoryOutput(int $serverId, int $siteId, int $deploymentId): string
+    public function deploymentHistoryOutput(int $serverId, int $siteId, int $deploymentId): array
     {
         return $this->forge->deploymentHistoryOutput($serverId, $siteId, $deploymentId);
     }

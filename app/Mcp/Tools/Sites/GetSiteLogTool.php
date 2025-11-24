@@ -49,13 +49,13 @@ class GetSiteLogTool extends Tool
         $siteId = $request->integer('site_id');
 
         try {
-            $log = $forge->siteLog($serverId, $siteId);
+            $logData = $forge->siteLog($serverId, $siteId);
 
             return Response::text(json_encode([
                 'success' => true,
                 'server_id' => $serverId,
                 'site_id' => $siteId,
-                'log' => $log,
+                'log' => $logData,
             ], JSON_PRETTY_PRINT));
         } catch (Exception $e) {
             return Response::text(json_encode([
