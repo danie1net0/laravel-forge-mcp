@@ -105,6 +105,7 @@ class ForgeServer extends Server
         \App\Mcp\Tools\Servers\RebootServerTool::class,
         \App\Mcp\Tools\Sites\ListSitesTool::class,
         \App\Mcp\Tools\Sites\GetSiteTool::class,
+        \App\Mcp\Tools\Sites\GetSiteLogTool::class,
         \App\Mcp\Tools\Certificates\ListCertificatesTool::class,
         \App\Mcp\Tools\Certificates\GetCertificateTool::class,
         \App\Mcp\Tools\Certificates\ObtainLetsEncryptCertificateTool::class,

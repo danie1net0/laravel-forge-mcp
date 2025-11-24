@@ -12,7 +12,7 @@ use App\Mcp\Tools\Deployments\{DeploySiteTool, GetDeploymentLogTool, GetDeployme
 use App\Mcp\Tools\Firewall\{CreateFirewallRuleTool, GetFirewallRuleTool, ListFirewallRulesTool};
 use App\Mcp\Tools\Jobs\{CreateScheduledJobTool, GetScheduledJobTool, ListScheduledJobsTool};
 use App\Mcp\Tools\Servers\{GetServerTool, ListServersTool, RebootServerTool};
-use App\Mcp\Tools\Sites\{GetSiteTool, ListSitesTool};
+use App\Mcp\Tools\Sites\{GetSiteLogTool, GetSiteTool, ListSitesTool};
 use App\Services\ForgeService;
 use Laravel\Forge\Resources\{Certificate, Daemon, Database, DatabaseUser, FirewallRule, Job, Server, Site};
 
@@ -369,6 +369,99 @@ describe('GetSiteTool', function (): void {
         $response
             ->assertOk()
             ->assertSee('example.com');
+    });
+});
+
+describe('GetSiteLogTool', function (): void {
+    it('requires server_id and site_id parameters', function (): void {
+        $response = ForgeServer::tool(GetSiteLogTool::class, []);
+
+        $response->assertHasErrors();
+    });
+
+    it('requires site_id when server_id provided', function (): void {
+        $response = ForgeServer::tool(GetSiteLogTool::class, [
+            'server_id' => 1,
+        ]);
+
+        $response->assertHasErrors();
+    });
+
+    it('rejects invalid parameter types', function (): void {
+        $response = ForgeServer::tool(GetSiteLogTool::class, [
+            'server_id' => 'invalid',
+            'site_id' => 1,
+        ]);
+
+        $response->assertHasErrors();
+    });
+
+    it('gets site log successfully', function (): void {
+        $mockLog = "Access log content here\nError log content here";
+
+        $this->mock(ForgeService::class, function ($mock) use ($mockLog): void {
+            $mock->shouldReceive('siteLog')->with(1, 1)->once()->andReturn($mockLog);
+        });
+
+        $response = ForgeServer::tool(GetSiteLogTool::class, [
+            'server_id' => 1,
+            'site_id' => 1,
+        ]);
+
+        $response
+            ->assertOk()
+            ->assertSee('"success": true')
+            ->assertSee('Access log');
+    });
+
+    it('handles empty site log', function (): void {
+        $this->mock(ForgeService::class, function ($mock): void {
+            $mock->shouldReceive('siteLog')->with(1, 1)->once()->andReturn('');
+        });
+
+        $response = ForgeServer::tool(GetSiteLogTool::class, [
+            'server_id' => 1,
+            'site_id' => 1,
+        ]);
+
+        $response
+            ->assertOk()
+            ->assertSee('"success": true')
+            ->assertSee('"log": ""');
+    });
+
+    it('handles site log with errors', function (): void {
+        $mockLog = "[error] 2024/01/01 12:00:00 [error] 123#456: *1 FastCGI sent in stderr: \"PHP message: PHP Fatal error: Uncaught Exception\"";
+
+        $this->mock(ForgeService::class, function ($mock) use ($mockLog): void {
+            $mock->shouldReceive('siteLog')->with(1, 1)->once()->andReturn($mockLog);
+        });
+
+        $response = ForgeServer::tool(GetSiteLogTool::class, [
+            'server_id' => 1,
+            'site_id' => 1,
+        ]);
+
+        $response
+            ->assertOk()
+            ->assertSee('[error]')
+            ->assertSee('Fatal error');
+    });
+
+    it('handles API errors', function (): void {
+        $this->mock(ForgeService::class, function ($mock): void {
+            $mock->shouldReceive('siteLog')->with(1, 999)->once()->andThrow(new Exception('Site not found'));
+        });
+
+        $response = ForgeServer::tool(GetSiteLogTool::class, [
+            'server_id' => 1,
+            'site_id' => 999,
+        ]);
+
+        $response
+            ->assertOk()
+            ->assertSee('"success": false')
+            ->assertSee('Site not found');
     });
 });
 

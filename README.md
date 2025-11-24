@@ -55,7 +55,7 @@ See [MCP_CLIENTS.md](MCP_CLIENTS.md) for detailed setup instructions for:
 
 ## Available Resources
 
-### Tools (24)
+### Tools (25)
 
 **Servers:**
 
@@ -67,6 +67,7 @@ See [MCP_CLIENTS.md](MCP_CLIENTS.md) for detailed setup instructions for:
 
 - `list-sites-tool` - List sites on a server
 - `get-site-tool` - Get site details
+- `get-site-log-tool` - Get site web server logs
 
 **Deployments:**
 

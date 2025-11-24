@@ -115,6 +115,11 @@ class ForgeService
         return $this->forge->siteDeploymentLog($serverId, $siteId);
     }
 
+    public function siteLog(int $serverId, int $siteId): string
+    {
+        return $this->forge->siteLog($serverId, $siteId);
+    }
+
     public function installGitRepositoryOnSite(int $serverId, int $siteId, array $data): void
     {
         $this->forge->installGitRepositoryOnSite($serverId, $siteId, $data);
