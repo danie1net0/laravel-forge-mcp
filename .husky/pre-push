@@ -1,0 +1,13 @@
+#!/usr/bin/env sh
+. "$(dirname "$0")/common.sh"
+
+echo "🔍 Validando código com Pint..."
+run_php vendor/bin/pint --test
+
+echo "🔬 Executando análise estática com PHPStan..."
+run_php vendor/bin/phpstan analyse --memory-limit=-1
+
+echo "🧪 Executando testes com Pest..."
+run_php vendor/bin/pest --compact
+
+echo "✅ Todas as verificações passaram!"

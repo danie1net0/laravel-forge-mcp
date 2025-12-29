@@ -1,0 +1,84 @@
+<?php
+
+declare(strict_types=1);
+
+namespace App\Mcp\Tools\Daemons;
+
+use App\Integrations\Forge\ForgeClient;
+use Exception;
+use Illuminate\JsonSchema\JsonSchema;
+use App\Integrations\Forge\Data\Daemons\DaemonData;
+use Laravel\Mcp\{Request, Response};
+use Laravel\Mcp\Server\Tool;
+use Laravel\Mcp\Server\Tools\Annotations\IsReadOnly;
+
+#[IsReadOnly]
+class ListDaemonsTool extends Tool
+{
+    protected string $description = <<<'MARKDOWN'
+        List all daemons (long-running processes) on a specific Laravel Forge server.
+
+        Returns a list of daemons including:
+        - Daemon ID
+        - Command
+        - User
+        - Directory
+        - Processes count
+        - Status
+        - Created date
+
+        This is a read-only operation and will not modify any daemons.
+
+        **Required Parameters:**
+        - `server_id`: The unique ID of the Forge server
+    MARKDOWN;
+
+    public function handle(Request $request, ForgeClient $client): Response
+    {
+        $request->validate([
+            'server_id' => ['required', 'integer', 'min:1'],
+        ]);
+
+        $serverId = $request->integer('server_id');
+
+        try {
+            $daemons = $client->daemons()->list($serverId)->daemons;
+
+            $formatted = array_map(fn (DaemonData $daemon): array => [
+                'id' => $daemon->id,
+                'command' => $daemon->command,
+                'user' => $daemon->user,
+                'directory' => $daemon->directory,
+                'status' => $daemon->status,
+                'created_at' => $daemon->createdAt,
+            ], $daemons);
+
+            return Response::text(json_encode([
+                'success' => true,
+                'server_id' => $serverId,
+                'count' => count($formatted),
+                'daemons' => $formatted,
+            ], JSON_PRETTY_PRINT));
+        } catch (Exception $e) {
+            return Response::text(json_encode([
+                'success' => false,
+                'error' => $e->getMessage(),
+            ], JSON_PRETTY_PRINT));
+        }
+    }
+
+    public function schema(JsonSchema $schema): array
+    {
+        return [
+            'server_id' => $schema->integer()
+                ->description('The unique ID of the Forge server')
+                ->min(1)
+                ->required(),
+        ];
+    }
+
+    public function shouldRegister(): bool
+    {
+        return config('services.forge.api_token') !== null;
+    }
+}

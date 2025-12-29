@@ -1,0 +1,36 @@
+<?php
+
+namespace App\Integrations\Forge;
+
+use Saloon\Http\Auth\TokenAuthenticator;
+use Saloon\Http\Connector;
+use Saloon\Traits\Plugins\{AcceptsJson, AlwaysThrowOnErrors};
+
+class ForgeConnector extends Connector
+{
+    use AcceptsJson;
+    use AlwaysThrowOnErrors;
+
+    public function __construct(
+        protected string $apiToken
+    ) {
+    }
+
+    public function resolveBaseUrl(): string
+    {
+        return 'https://forge.laravel.com/api/v1';
+    }
+
+    protected function defaultHeaders(): array
+    {
+        return [
+            'Accept' => 'application/json',
+            'Content-Type' => 'application/json',
+        ];
+    }
+
+    protected function defaultAuth(): TokenAuthenticator
+    {
+        return new TokenAuthenticator($this->apiToken);
+    }
+}

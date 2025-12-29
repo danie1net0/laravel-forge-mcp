@@ -1,0 +1,84 @@
+<?php
+
+declare(strict_types=1);
+
+namespace App\Mcp\Tools\Firewall;
+
+use App\Integrations\Forge\ForgeClient;
+use Exception;
+use Illuminate\JsonSchema\JsonSchema;
+use App\Integrations\Forge\Data\Firewall\FirewallRuleData;
+use Laravel\Mcp\{Request, Response};
+use Laravel\Mcp\Server\Tool;
+use Laravel\Mcp\Server\Tools\Annotations\IsReadOnly;
+
+#[IsReadOnly]
+class ListFirewallRulesTool extends Tool
+{
+    protected string $description = <<<'MARKDOWN'
+        List all firewall rules on a specific Laravel Forge server.
+
+        Returns a list of firewall rules including:
+        - Rule ID
+        - Name
+        - Port
+        - Type (allow/deny)
+        - IP addresses
+        - Status
+        - Created date
+
+        This is a read-only operation and will not modify any firewall rules.
+
+        **Required Parameters:**
+        - `server_id`: The unique ID of the Forge server
+    MARKDOWN;
+
+    public function handle(Request $request, ForgeClient $client): Response
+    {
+        $request->validate([
+            'server_id' => ['required', 'integer', 'min:1'],
+        ]);
+
+        $serverId = $request->integer('server_id');
+
+        try {
+            $rules = $client->firewall()->list($serverId)->rules;
+
+            $formatted = array_map(fn (FirewallRuleData $rule): array => [
+                'id' => $rule->id,
+                'name' => $rule->name,
+                'port' => $rule->port,
+                'ip_address' => $rule->ipAddress,
+                'status' => $rule->status,
+                'created_at' => $rule->createdAt,
+            ], $rules);
+
+            return Response::text(json_encode([
+                'success' => true,
+                'server_id' => $serverId,
+                'count' => count($formatted),
+                'rules' => $formatted,
+            ], JSON_PRETTY_PRINT));
+        } catch (Exception $e) {
+            return Response::text(json_encode([
+                'success' => false,
+                'error' => $e->getMessage(),
+            ], JSON_PRETTY_PRINT));
+        }
+    }
+
+    public function schema(JsonSchema $schema): array
+    {
+        return [
+            'server_id' => $schema->integer()
+                ->description('The unique ID of the Forge server')
+                ->min(1)
+                ->required(),
+        ];
+    }
+
+    public function shouldRegister(): bool
+    {
+        return config('services.forge.api_token') !== null;
+    }
+}

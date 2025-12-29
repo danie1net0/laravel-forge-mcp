@@ -1,0 +1,92 @@
+# Regras do Projeto Laravel Forge MCP
+
+
+
+## ⛔ Regras Invioláveis — SEMPRE APLICAR
+
+
+
+### Antes de Implementar
+
+**OBRIGATÓRIO**: Este é um servidor MCP para Laravel Forge. Consulte a estrutura antes de criar novas tools.
+
+
+
+### Tipagem e Código
+
+- **PHP 8.2+ estrito**: TODOS parâmetros, retornos e propriedades tipados
+- **Visibilidade explícita**: SEMPRE `public`, `private` ou `protected`
+- **Naming completo**: Sem abreviações (ex: `serverId` não `srvId`)
+- **Laravel moderno**: Dependency injection, DTOs com `spatie/laravel-data`
+- **Sem facades**: Preferir injection sobre facades quando possível
+- **Estrutura**: Early return, sem comentários óbvios, código limpo
+
+
+
+### Nomenclatura MCP Tools
+
+- **Formato**: `{action}-{resource}-tool` (ex: `list-servers-tool`, `create-site-tool`)
+- **Actions**: `list`, `get`, `create`, `update`, `delete`, `restart`, `deploy`
+- **Localização**: Todas em `app/Mcp/Tools/`
+
+
+
+### Validação Automática
+
+Após edições, SEMPRE:
+
+1. Verificar linter errors com `read_lints()`
+2. Executar `./vendor/bin/pint` para formatação
+3. Executar `./vendor/bin/phpstan analyse` para análise estática
+4. Rodar `php artisan test` se modificar lógica
+
+
+
+### Commits
+
+- Conventional Commits em português
+- ❌ NUNCA adicionar créditos de IA
+
+
+
+### Estrutura do Projeto
+
+- `app/Mcp/Tools/` - Ferramentas MCP (102 tools)
+- `app/Mcp/Resources/` - Recursos MCP (docs, guidelines)
+- `app/Mcp/Prompts/` - Prompts MCP (workflows)
+- `app/Mcp/Servers/` - Configuração servidor MCP
+- `app/Services/Forge/` - Serviços de integração Forge API
+- `tests/Feature/` - Testes de feature (Pest PHP)
+- `tests/Unit/` - Testes unitários
+
+
+
+### Comandos Úteis
+
+```bash
+php artisan test              # Rodar testes
+./vendor/bin/pint             # Formatar código
+./vendor/bin/phpstan analyse  # Análise estática
+php artisan mcp:start forge   # Iniciar servidor MCP
+```
+
+
+
+### Documentação
+
+- [Laravel Forge Docs](https://forge.laravel.com/docs)
+- [Forge API Docs](https://forge.laravel.com/api-documentation)
+- [Laravel Forge SDK](https://github.com/laravel/forge-sdk)
+- [Model Context Protocol](https://modelcontextprotocol.io)
+
+
+
+---
+
+
+
+**Stack**: Laravel 12 + MCP Protocol + Forge SDK | Auth: `FORGE_API_TOKEN` via `.env`
+
+
+
+**Prioridade**: Tipagem > Visibilidade > Naming > Estrutura > Testes

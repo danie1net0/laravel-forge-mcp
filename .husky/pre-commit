@@ -1,0 +1,27 @@
+#!/usr/bin/env sh
+. "$(dirname "$0")/common.sh"
+
+# Verifica se é merge
+if git rev-parse -q --verify MERGE_HEAD > /dev/null 2>&1; then
+    exit 0
+fi
+
+# Recupera arquivos em staging (apenas os que existem)
+STAGED_FILES=$(git diff --cached --name-only --diff-filter=ACMR)
+
+# Aborta a execução caso a área de staging esteja limpa
+if [ -z "$STAGED_FILES" ]; then
+    exit 0
+fi
+
+# Executa formatação
+echo "🔍 Formatando código PHP com Pint..."
+run_php vendor/bin/pint
+
+echo "🎨 Formatando código frontend com Prettier..."
+npm run prettier
+
+# Re-adiciona arquivos formatados
+git add $STAGED_FILES
+
+echo "✅ Código formatado com sucesso!"

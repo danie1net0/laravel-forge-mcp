@@ -1,0 +1,38 @@
+<?php
+
+declare(strict_types=1);
+
+namespace App\Integrations\Forge\Requests\Integrations;
+
+use Saloon\Contracts\Body\HasBody;
+use Saloon\Enums\Method;
+use Saloon\Http\Request;
+use Saloon\Traits\Body\HasJsonBody;
+
+class EnableOctaneRequest extends Request implements HasBody
+{
+    use HasJsonBody;
+
+    protected Method $method = Method::POST;
+
+    public function __construct(
+        protected int $serverId,
+        protected int $siteId,
+        protected string $server = 'swoole',
+        protected string|int $workers = 'auto'
+    ) {
+    }
+
+    public function resolveEndpoint(): string
+    {
+        return "/servers/{$this->serverId}/sites/{$this->siteId}/integrations/octane";
+    }
+
+    protected function defaultBody(): array
+    {
+        return [
+            'server' => $this->server,
+            'workers' => $this->workers,
+        ];
+    }
+}

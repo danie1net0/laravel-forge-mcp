@@ -1,0 +1,21 @@
+<?php
+
+namespace App\Integrations\Forge\Requests\Servers;
+
+use Saloon\Enums\Method;
+use Saloon\Http\Request;
+
+class DeleteServerRequest extends Request
+{
+    protected Method $method = Method::DELETE;
+
+    public function __construct(
+        protected int $serverId
+    ) {
+    }
+
+    public function resolveEndpoint(): string
+    {
+        return "/servers/{$this->serverId}";
+    }
+}
