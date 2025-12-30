@@ -103,6 +103,8 @@ function createMockCertificateData(array $overrides = []): CertificateData
 
 describe('ServerHealthCheckTool', function (): void {
     it('requires server_id parameter', function (): void {
+        $this->mock(ForgeClient::class);
+
         $response = ForgeServer::tool(ServerHealthCheckTool::class, []);
 
         $response->assertHasErrors();
@@ -150,6 +152,8 @@ describe('ServerHealthCheckTool', function (): void {
 
 describe('SiteStatusDashboardTool', function (): void {
     it('requires server_id and site_id parameters', function (): void {
+        $this->mock(ForgeClient::class);
+
         $response = ForgeServer::tool(SiteStatusDashboardTool::class, []);
 
         $response->assertHasErrors();
@@ -204,6 +208,8 @@ describe('SiteStatusDashboardTool', function (): void {
 
 describe('BulkDeployTool', function (): void {
     it('requires deployments array parameter', function (): void {
+        $this->mock(ForgeClient::class);
+
         $response = ForgeServer::tool(BulkDeployTool::class, []);
 
         $response->assertHasErrors();
@@ -343,6 +349,8 @@ describe('SSLExpirationCheckTool', function (): void {
 
 describe('CloneSiteTool', function (): void {
     it('requires all mandatory parameters', function (): void {
+        $this->mock(ForgeClient::class);
+
         $response = ForgeServer::tool(CloneSiteTool::class, []);
 
         $response->assertHasErrors();
