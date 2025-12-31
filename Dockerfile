@@ -9,10 +9,14 @@ RUN apk add --no-cache \
     unzip \
     && rm -rf /var/cache/apk/*
 
-# Configure PHP for MCP (disable display_errors to prevent stdout pollution)
+# Configure PHP for MCP (disable ALL output to stdout)
 RUN echo "display_errors = Off" >> /usr/local/etc/php/conf.d/mcp.ini && \
+    echo "display_startup_errors = Off" >> /usr/local/etc/php/conf.d/mcp.ini && \
     echo "log_errors = On" >> /usr/local/etc/php/conf.d/mcp.ini && \
-    echo "error_log = /dev/stderr" >> /usr/local/etc/php/conf.d/mcp.ini
+    echo "error_log = /dev/stderr" >> /usr/local/etc/php/conf.d/mcp.ini && \
+    echo "error_reporting = 0" >> /usr/local/etc/php/conf.d/mcp.ini && \
+    echo "opcache.enable = 1" >> /usr/local/etc/php/conf.d/mcp.ini && \
+    echo "opcache.enable_cli = 0" >> /usr/local/etc/php/conf.d/mcp.ini
 
 # Install Composer
 COPY --from=composer:latest /usr/bin/composer /usr/bin/composer
@@ -54,5 +58,11 @@ USER www-data
 HEALTHCHECK --interval=30s --timeout=3s --start-period=5s --retries=3 \
     CMD php artisan --version || exit 1
 
-# Run MCP server on stdin/stdout
-CMD ["php", "artisan", "mcp:start", "forge"]
+# Environment for MCP (no stdout pollution)
+ENV APP_ENV=production
+ENV APP_DEBUG=false
+ENV LOG_CHANNEL=stderr
+ENV LOG_LEVEL=error
+
+# Run MCP server on stdin/stdout (stderr for any errors)
+CMD ["php", "-d", "display_errors=Off", "-d", "error_reporting=0", "artisan", "mcp:start", "forge"]
