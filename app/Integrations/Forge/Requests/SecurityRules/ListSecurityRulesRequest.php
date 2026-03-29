@@ -30,6 +30,6 @@ class ListSecurityRulesRequest extends Request
             $response->json('security_rules')
         );
 
-        return SecurityRuleCollectionData::from(['security_rules' => $rules]);
+        return SecurityRuleCollectionData::from(['rules' => $rules]);
     }
 }
