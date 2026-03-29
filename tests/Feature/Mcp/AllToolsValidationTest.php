@@ -2,11 +2,13 @@
 
 declare(strict_types=1);
 
+use Symfony\Component\Finder\SplFileInfo;
+
 describe('All MCP Tools Validation', function (): void {
     it('validates all tools have proper structure and required methods', function (): void {
         $toolsPath = app_path('Mcp/Tools');
         $toolFiles = collect(File::allFiles($toolsPath))
-            ->filter(fn ($file) => str_ends_with($file->getFilename(), 'Tool.php'))
+            ->filter(fn (SplFileInfo $file): bool => str_ends_with($file->getFilename(), 'Tool.php'))
             ->values();
 
         expect($toolFiles)->toHaveCount(179, 'Expected exactly 179 tools to be found');
@@ -34,7 +36,7 @@ describe('All MCP Tools Validation', function (): void {
     it('validates all tools can be instantiated and called', function (): void {
         $toolsPath = app_path('Mcp/Tools');
         $toolFiles = collect(File::allFiles($toolsPath))
-            ->filter(fn ($file) => str_ends_with($file->getFilename(), 'Tool.php'))
+            ->filter(fn (SplFileInfo $file): bool => str_ends_with($file->getFilename(), 'Tool.php'))
             ->values();
 
         $failures = [];
@@ -58,6 +60,55 @@ describe('All MCP Tools Validation', function (): void {
         );
     })->group('validation');
 
+    it('validates all tools schema and shouldRegister methods', function (): void {
+        config(['services.forge.api_token' => 'test-token']);
+
+        $toolsPath = app_path('Mcp/Tools');
+        $toolFiles = collect(File::allFiles($toolsPath))
+            ->filter(fn (SplFileInfo $file): bool => str_ends_with($file->getFilename(), 'Tool.php'))
+            ->values();
+
+        $failures = [];
+
+        foreach ($toolFiles as $file) {
+            $relativePath = str_replace([app_path('Mcp/Tools/'), '.php', '/'], ['', '', '\\'], $file->getPathname());
+            $className = "App\\Mcp\\Tools\\{$relativePath}";
+
+            try {
+                $instance = app($className);
+
+                $shouldRegister = $instance->shouldRegister();
+                expect($shouldRegister)->toBeTrue("{$className} should register when token is set");
+
+                $toolArray = $instance->toArray();
+                expect($toolArray)->toBeArray()->toHaveKey('name')->toHaveKey('inputSchema');
+            } catch (Throwable $e) {
+                $failures[] = "{$className}: {$e->getMessage()}";
+            }
+        }
+
+        expect($failures)->toBeEmpty(
+            "The following tools had issues:\n" . implode("\n", $failures)
+        );
+    })->group('validation');
+
+    it('validates tools do not register without API token', function (): void {
+        config(['services.forge.api_token' => null]);
+
+        $toolsPath = app_path('Mcp/Tools');
+        $toolFiles = collect(File::allFiles($toolsPath))
+            ->filter(fn (SplFileInfo $file): bool => str_ends_with($file->getFilename(), 'Tool.php'))
+            ->values();
+
+        foreach ($toolFiles as $file) {
+            $relativePath = str_replace([app_path('Mcp/Tools/'), '.php', '/'], ['', '', '\\'], $file->getPathname());
+            $className = "App\\Mcp\\Tools\\{$relativePath}";
+
+            $instance = app($className);
+            expect($instance->shouldRegister())->toBeFalse("{$className} should not register without token");
+        }
+    })->group('validation');
+
     it('validates all tools belong to correct categories', function (): void {
         $expectedCategories = [
             'Backups', 'Certificates', 'Commands', 'Composite', 'Configuration', 'Credentials', 'Daemons',
@@ -69,7 +120,7 @@ describe('All MCP Tools Validation', function (): void {
 
         $toolsPath = app_path('Mcp/Tools');
         $actualCategories = collect(File::directories($toolsPath))
-            ->map(fn ($dir) => basename($dir))
+            ->map(fn (string $directory): string => basename($directory))
             ->sort()
             ->values()
             ->all();
@@ -80,7 +131,7 @@ describe('All MCP Tools Validation', function (): void {
     it('validates all Saloon requests have createDtoFromResponse method', function (): void {
         $requestsPath = app_path('Integrations/Forge/Requests');
         $requestFiles = collect(File::allFiles($requestsPath))
-            ->filter(fn ($file) => str_ends_with($file->getFilename(), 'Request.php'))
+            ->filter(fn (SplFileInfo $file): bool => str_ends_with($file->getFilename(), 'Request.php'))
             ->values();
 
         $failures = [];
@@ -119,14 +170,12 @@ describe('All MCP Tools Validation', function (): void {
         $dataPath = app_path('Integrations/Forge/Data');
 
         if (! is_dir($dataPath)) {
-            expect(true)->toBeTrue('Integrations/Forge/Data directory does not exist');
-
-            return;
+            $this->markTestSkipped('Integrations/Forge/Data directory does not exist');
         }
 
         $dataFiles = collect(File::allFiles($dataPath))
-            ->filter(fn ($file) => str_ends_with($file->getFilename(), 'Data.php'))
-            ->filter(fn ($file) => ! str_contains($file->getFilename(), 'Collection'))
+            ->filter(fn (SplFileInfo $file): bool => str_ends_with($file->getFilename(), 'Data.php'))
+            ->filter(fn (SplFileInfo $file): bool => ! str_contains($file->getFilename(), 'Collection'))
             ->values();
 
         $failures = [];
