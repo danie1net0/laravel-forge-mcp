@@ -34,8 +34,10 @@ class ServerData extends Data
         public bool $revoked,
         public string $createdAt,
         public bool $isReady,
-        public array $tags,
-        public array $network,
+        /** @var array<int, string> */
+        public array $tags = [],
+        /** @var array<int, int> */
+        public array $network = [],
         public ?string $sudoPassword = null,
         public ?string $databasePassword = null,
     ) {
