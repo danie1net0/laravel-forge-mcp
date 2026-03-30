@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 namespace App\Mcp\Tools\Composite;
 
-use App\Integrations\Forge\Data\Certificates\ObtainLetsEncryptCertificateData;
 use App\Integrations\Forge\Data\Jobs\CreateJobData;
 use App\Integrations\Forge\Data\Sites\{CreateSiteData, InstallGitRepositoryData};
 use App\Integrations\Forge\Data\Workers\CreateWorkerData;
@@ -133,8 +132,12 @@ class CloneSiteTool extends Tool
 
             if ($cloneSsl) {
                 try {
-                    $certData = ObtainLetsEncryptCertificateData::from(['domains' => [$newDomain]]);
-                    $client->certificates()->obtainLetsEncrypt($targetServerId, $newSite->id, $certData);
+                    $domainsCollection = $client->certificates()->list($targetServerId, $newSite->id);
+
+                    foreach ($domainsCollection->certificates as $domainCert) {
+                        $client->certificates()->obtainLetsEncrypt($targetServerId, $newSite->id, $domainCert->id);
+                    }
+
                     $steps[] = ['action' => 'obtain_ssl', 'status' => 'success', 'message' => "SSL certificate requested for {$newDomain}"];
                 } catch (Exception $e) {
                     $steps[] = ['action' => 'obtain_ssl', 'status' => 'failed', 'message' => $e->getMessage()];

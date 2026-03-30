@@ -14,6 +14,8 @@ class ListNginxTemplatesRequest extends Request
 
     public function __construct(
         private readonly int $serverId,
+        private readonly ?string $cursor = null,
+        private readonly int $pageSize = 30,
     ) {
     }
 
@@ -30,5 +32,19 @@ class ListNginxTemplatesRequest extends Request
         );
 
         return NginxTemplateCollectionData::from(['templates' => $templates]);
+    }
+
+    /**
+     * @return array<string, string|int>
+     */
+    protected function defaultQuery(): array
+    {
+        $query = ['page[size]' => $this->pageSize];
+
+        if ($this->cursor !== null) {
+            $query['page[cursor]'] = $this->cursor;
+        }
+
+        return $query;
     }
 }

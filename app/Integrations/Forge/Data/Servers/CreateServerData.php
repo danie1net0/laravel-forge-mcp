@@ -12,15 +12,25 @@ use Spatie\LaravelData\Mappers\SnakeCaseMapper;
 class CreateServerData extends Data
 {
     public function __construct(
-        public int $credentialId,
         public string $name,
-        public string $size,
-        public string $region,
+        public string $provider,
+        public string $type,
+        public string $ubuntuVersion,
+        public ?int $credentialId = null,
+        public ?int $teamId = null,
         public ?string $phpVersion = null,
+        public ?string $databaseType = null,
+        public ?int $recipeId = null,
+        public ?array $tags = null,
+        public ?bool $addKeyToSourceControl = null,
         public ?string $database = null,
-        public ?string $databaseName = null,
-        public ?bool $loadBalancer = null,
-        public ?array $network = null,
+        public ?array $ocean2 = null,
+        public ?array $aws = null,
+        public ?array $hetzner = null,
+        public ?array $vultr = null,
+        public ?array $akamai = null,
+        public ?array $laravel = null,
+        public ?array $custom = null,
     ) {
     }
 }

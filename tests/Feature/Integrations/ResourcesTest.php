@@ -17,7 +17,7 @@ use App\Integrations\Forge\Data\Firewall\{CreateFirewallRuleData, FirewallRuleCo
 use App\Integrations\Forge\Data\Monitors\{CreateMonitorData, MonitorCollectionData, MonitorData};
 use App\Integrations\Forge\Data\Webhooks\{CreateWebhookData, WebhookCollectionData, WebhookData};
 use App\Integrations\Forge\Data\Databases\{CreateDatabaseData, CreateDatabaseUserData, DatabaseCollectionData, DatabaseData, DatabaseUserCollectionData, DatabaseUserData, UpdateDatabaseUserData};
-use App\Integrations\Forge\Data\Certificates\{CertificateCollectionData, CertificateData, ObtainLetsEncryptCertificateData};
+use App\Integrations\Forge\Data\Certificates\{CertificateCollectionData, CertificateData};
 use App\Integrations\Forge\Data\RedirectRules\{CreateRedirectRuleData, RedirectRuleCollectionData, RedirectRuleData};
 use App\Integrations\Forge\Data\SecurityRules\{CreateSecurityRuleData, SecurityRuleCollectionData, SecurityRuleData};
 use App\Integrations\Forge\Data\NginxTemplates\{CreateNginxTemplateData, NginxTemplateCollectionData, NginxTemplateData, UpdateNginxTemplateData};
@@ -357,10 +357,11 @@ describe('ServerResource', function (): void {
 
         $resource = new ServerResource($connector);
         $data = CreateServerData::from([
-            'credentialId' => 1,
             'name' => 'test-server',
-            'size' => '1GB',
-            'region' => 'nyc1',
+            'provider' => 'ocean2',
+            'type' => 'app',
+            'ubuntu_version' => '24.04',
+            'ocean2' => ['region_id' => 'nyc1', 'size_id' => 's-1vcpu-1gb'],
         ]);
         $result = $resource->create($data);
 
@@ -1134,7 +1135,7 @@ describe('DatabaseUserResource', function (): void {
 describe('CertificateResource', function (): void {
     it('lists certificates', function (): void {
         $connector = createMockedConnector([
-            MockResponse::make(['certificates' => [certificateMockData()]]),
+            MockResponse::make(['domains' => [certificateMockData()]]),
         ]);
 
         $resource = new CertificateResource($connector);
@@ -1166,8 +1167,7 @@ describe('CertificateResource', function (): void {
         ]);
 
         $resource = new CertificateResource($connector);
-        $data = ObtainLetsEncryptCertificateData::from(['domains' => ['test.com']]);
-        $result = $resource->obtainLetsEncrypt(1, 1, $data);
+        $result = $resource->obtainLetsEncrypt(1, 1, 1);
 
         expect($result)
             ->toBeInstanceOf(CertificateData::class)

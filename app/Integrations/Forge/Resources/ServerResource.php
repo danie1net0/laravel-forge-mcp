@@ -29,9 +29,9 @@ class ServerResource
     ) {
     }
 
-    public function list(): ServerCollectionData
+    public function list(?string $cursor = null, int $pageSize = 30): ServerCollectionData
     {
-        $request = new ListServersRequest();
+        $request = new ListServersRequest($cursor, $pageSize);
         $response = $this->connector->send($request);
 
         return $request->createDtoFromResponse($response);
@@ -103,9 +103,12 @@ class ServerResource
     /**
      * @return array<int, array<string, mixed>>
      */
-    public function listEvents(int $serverId): array
+    /**
+     * @return array<int, array<string, mixed>>
+     */
+    public function listEvents(int $serverId, ?string $cursor = null, int $pageSize = 30): array
     {
-        $response = $this->connector->send(new ListEventsRequest($serverId));
+        $response = $this->connector->send(new ListEventsRequest($serverId, $cursor, $pageSize));
 
         return $response->json('events') ?? [];
     }

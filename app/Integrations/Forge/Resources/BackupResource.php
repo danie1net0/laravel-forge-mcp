@@ -15,9 +15,9 @@ class BackupResource
     ) {
     }
 
-    public function listConfigurations(int $serverId): BackupConfigurationCollectionData
+    public function listConfigurations(int $serverId, ?string $cursor = null, int $pageSize = 30): BackupConfigurationCollectionData
     {
-        $request = new ListBackupConfigurationsRequest($serverId);
+        $request = new ListBackupConfigurationsRequest($serverId, $cursor, $pageSize);
         $response = $this->connector->send($request);
 
         return $request->createDtoFromResponse($response);

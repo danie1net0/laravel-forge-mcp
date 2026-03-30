@@ -15,9 +15,9 @@ class JobResource
     ) {
     }
 
-    public function list(int $serverId): JobCollectionData
+    public function list(int $serverId, ?string $cursor = null, int $pageSize = 30): JobCollectionData
     {
-        $request = new ListJobsRequest($serverId);
+        $request = new ListJobsRequest($serverId, $cursor, $pageSize);
         $response = $this->connector->send($request);
 
         return $request->createDtoFromResponse($response);

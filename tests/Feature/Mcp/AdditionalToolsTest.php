@@ -191,7 +191,7 @@ describe('ListEventsTool', function (): void {
         $this->mock(ForgeClient::class, function ($mock) use ($mockEvents): void {
             $serverResource = Mockery::mock(ServerResource::class);
             $serverResource->shouldReceive('listEvents')
-                ->with(1)
+                ->with(1, null, 30)
                 ->once()
                 ->andReturn($mockEvents);
             $mock->shouldReceive('servers')->once()->andReturn($serverResource);
@@ -626,7 +626,7 @@ describe('ActivateCertificateTool', function (): void {
         $response = ForgeServer::tool(ActivateCertificateTool::class, [
             'server_id' => 1,
             'site_id' => 1,
-            'certificate_id' => 1,
+            'domain_id' => 1,
         ]);
 
         $response

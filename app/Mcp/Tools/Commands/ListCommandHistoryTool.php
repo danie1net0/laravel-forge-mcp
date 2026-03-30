@@ -48,9 +48,11 @@ class ListCommandHistoryTool extends Tool
 
         $serverId = $request->integer('server_id');
         $siteId = $request->integer('site_id');
+        $cursor = $request->has('cursor') ? $request->string('cursor')->value() : null;
+        $pageSize = $request->has('page_size') ? $request->integer('page_size') : 30;
 
         try {
-            $commandsArray = $client->sites()->commandHistory($serverId, $siteId);
+            $commandsArray = $client->sites()->commandHistory($serverId, $siteId, $cursor, $pageSize);
             $commands = array_map(fn (array $command): array => SiteCommandData::from($command)->toArray(), $commandsArray);
 
             return Response::text(json_encode([
@@ -80,6 +82,8 @@ class ListCommandHistoryTool extends Tool
                 ->description('The unique ID of the site')
                 ->min(1)
                 ->required(),
+            'cursor' => $schema->string()->description('Pagination cursor for next page')->nullable(),
+            'page_size' => $schema->integer()->description('Items per page (default 30)')->min(1)->max(100)->nullable(),
         ];
     }
 

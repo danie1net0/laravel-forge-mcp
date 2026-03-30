@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Integrations\Forge\Requests\Sites;
 
 use App\Integrations\Forge\Data\Sites\SiteCollectionData;
@@ -11,7 +13,9 @@ class ListSitesRequest extends Request
     protected Method $method = Method::GET;
 
     public function __construct(
-        protected int $serverId
+        protected int $serverId,
+        private readonly ?string $cursor = null,
+        private readonly int $pageSize = 30,
     ) {
     }
 
@@ -28,5 +32,19 @@ class ListSitesRequest extends Request
         );
 
         return SiteCollectionData::from(['sites' => $sites]);
+    }
+
+    /**
+     * @return array<string, string|int>
+     */
+    protected function defaultQuery(): array
+    {
+        $query = ['page[size]' => $this->pageSize];
+
+        if ($this->cursor !== null) {
+            $query['page[cursor]'] = $this->cursor;
+        }
+
+        return $query;
     }
 }

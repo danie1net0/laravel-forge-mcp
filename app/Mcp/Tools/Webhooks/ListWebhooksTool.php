@@ -24,8 +24,11 @@ class ListWebhooksTool extends Tool
             'site_id' => ['required', 'integer', 'min:1'],
         ]);
 
+        $cursor = $request->has('cursor') ? $request->string('cursor')->value() : null;
+        $pageSize = $request->has('page_size') ? $request->integer('page_size') : 30;
+
         try {
-            $webhooks = $client->webhooks()->list($request->integer('server_id'), $request->integer('site_id'))->webhooks;
+            $webhooks = $client->webhooks()->list($request->integer('server_id'), $request->integer('site_id'), $cursor, $pageSize)->webhooks;
 
             $formatted = array_map(fn (WebhookData $webhook): array => [
                 'id' => $webhook->id,
@@ -47,6 +50,8 @@ class ListWebhooksTool extends Tool
         return [
             'server_id' => $schema->integer()->min(1)->required(),
             'site_id' => $schema->integer()->min(1)->required(),
+            'cursor' => $schema->string()->description('Pagination cursor for next page')->nullable(),
+            'page_size' => $schema->integer()->description('Items per page (default 30)')->min(1)->max(100)->nullable(),
         ];
     }
 

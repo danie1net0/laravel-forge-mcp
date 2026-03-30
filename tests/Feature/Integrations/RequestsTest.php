@@ -2,7 +2,6 @@
 
 declare(strict_types=1);
 
-use App\Integrations\Forge\Data\Certificates\ObtainLetsEncryptCertificateData;
 use App\Integrations\Forge\Data\Daemons\CreateDaemonData;
 use App\Integrations\Forge\Data\Firewall\CreateFirewallRuleData;
 use App\Integrations\Forge\Data\Jobs\CreateJobData;
@@ -43,6 +42,18 @@ function getHttpMethod(object $request): string
     $property = $reflection->getProperty('method');
 
     return $property->getDefaultValue()->value;
+}
+
+/**
+ * @return array<string, string|int>
+ */
+function getDefaultQuery(object $request): array
+{
+    $reflection = new ReflectionClass($request);
+    $method = $reflection->getMethod('defaultQuery');
+    $method->setAccessible(true);
+
+    return $method->invoke($request);
 }
 
 /**
@@ -151,52 +162,64 @@ describe('Certificates', function (): void {
     it('resolves ListCertificatesRequest endpoint and method', function (): void {
         $request = new ListCertificatesRequest(1, 2);
 
-        expect($request->resolveEndpoint())->toBe('/servers/1/sites/2/certificates')
+        expect($request->resolveEndpoint())->toBe('/servers/1/sites/2/domains')
             ->and(getHttpMethod($request))->toBe('GET');
     });
 
     it('resolves GetCertificateRequest endpoint and method', function (): void {
         $request = new GetCertificateRequest(1, 2, 3);
 
-        expect($request->resolveEndpoint())->toBe('/servers/1/sites/2/certificates/3')
+        expect($request->resolveEndpoint())->toBe('/servers/1/sites/2/domains/3/certificate')
             ->and(getHttpMethod($request))->toBe('GET');
     });
 
     it('resolves ObtainLetsEncryptCertificateRequest endpoint and method', function (): void {
-        $data = ObtainLetsEncryptCertificateData::from(['domains' => ['example.com']]);
-        $request = new ObtainLetsEncryptCertificateRequest(1, 2, $data);
+        $request = new ObtainLetsEncryptCertificateRequest(1, 2, 3);
 
-        expect($request->resolveEndpoint())->toBe('/servers/1/sites/2/certificates/letsencrypt')
+        expect($request->resolveEndpoint())->toBe('/servers/1/sites/2/domains/3/certificate/actions')
             ->and(getHttpMethod($request))->toBe('POST');
     });
 
-    it('builds ObtainLetsEncryptCertificateRequest body', function (): void {
-        $data = ObtainLetsEncryptCertificateData::from(['domains' => ['example.com', 'www.example.com']]);
-        $request = new ObtainLetsEncryptCertificateRequest(1, 2, $data);
+    it('builds ObtainLetsEncryptCertificateRequest body with enable action', function (): void {
+        $request = new ObtainLetsEncryptCertificateRequest(1, 2, 3);
         $body = getDefaultBody($request);
 
-        expect($body)->toHaveKey('domains', ['example.com', 'www.example.com']);
+        expect($body)->toHaveKey('action', 'enable');
     });
 
     it('resolves GetSigningRequestRequest endpoint and method', function (): void {
         $request = new GetSigningRequestRequest(1, 2, 3);
 
-        expect($request->resolveEndpoint())->toBe('/servers/1/sites/2/certificates/3/csr')
+        expect($request->resolveEndpoint())->toBe('/servers/1/sites/2/domains/3/certificate/csr')
             ->and(getHttpMethod($request))->toBe('GET');
     });
 
     it('resolves DeleteCertificateRequest endpoint and method', function (): void {
         $request = new DeleteCertificateRequest(1, 2, 3);
 
-        expect($request->resolveEndpoint())->toBe('/servers/1/sites/2/certificates/3')
-            ->and(getHttpMethod($request))->toBe('DELETE');
+        expect($request->resolveEndpoint())->toBe('/servers/1/sites/2/domains/3/certificate/actions')
+            ->and(getHttpMethod($request))->toBe('POST');
+    });
+
+    it('builds DeleteCertificateRequest body with disable action', function (): void {
+        $request = new DeleteCertificateRequest(1, 2, 3);
+        $body = getDefaultBody($request);
+
+        expect($body)->toHaveKey('action', 'disable');
     });
 
     it('resolves ActivateCertificateRequest endpoint and method', function (): void {
         $request = new ActivateCertificateRequest(1, 2, 3);
 
-        expect($request->resolveEndpoint())->toBe('/servers/1/sites/2/certificates/3/activate')
+        expect($request->resolveEndpoint())->toBe('/servers/1/sites/2/domains/3/certificate/actions')
             ->and(getHttpMethod($request))->toBe('POST');
+    });
+
+    it('builds ActivateCertificateRequest body with enable action', function (): void {
+        $request = new ActivateCertificateRequest(1, 2, 3);
+        $body = getDefaultBody($request);
+
+        expect($body)->toHaveKey('action', 'enable');
     });
 });
 
@@ -735,10 +758,10 @@ describe('Servers', function (): void {
 
     it('resolves CreateServerRequest endpoint and method', function (): void {
         $data = CreateServerData::from([
-            'credentialId' => 1,
             'name' => 'production',
-            'size' => '1gb',
-            'region' => 'nyc1',
+            'provider' => 'ocean2',
+            'type' => 'app',
+            'ubuntu_version' => '24.04',
         ]);
         $request = new CreateServerRequest($data);
 
@@ -748,19 +771,21 @@ describe('Servers', function (): void {
 
     it('builds CreateServerRequest body', function (): void {
         $data = CreateServerData::from([
-            'credentialId' => 1,
             'name' => 'production',
-            'size' => '1gb',
-            'region' => 'nyc1',
+            'provider' => 'ocean2',
+            'type' => 'app',
+            'ubuntu_version' => '24.04',
+            'ocean2' => ['region_id' => 'nyc1', 'size_id' => 's-1vcpu-1gb'],
         ]);
         $request = new CreateServerRequest($data);
         $body = getDefaultBody($request);
 
         expect($body)
-            ->toHaveKey('credentialId', 1)
             ->toHaveKey('name', 'production')
-            ->toHaveKey('size', '1gb')
-            ->toHaveKey('region', 'nyc1');
+            ->toHaveKey('provider', 'ocean2')
+            ->toHaveKey('type', 'app')
+            ->toHaveKey('ubuntuVersion', '24.04')
+            ->toHaveKey('ocean2');
     });
 
     it('resolves UpdateServerRequest endpoint and method', function (): void {
@@ -1524,4 +1549,46 @@ describe('Workers', function (): void {
         expect($request->resolveEndpoint())->toBe('/servers/1/sites/2/workers/3/output')
             ->and(getHttpMethod($request))->toBe('GET');
     });
+});
+
+describe('Cursor Pagination', function (): void {
+    it('includes cursor in query when provided', function (object $request): void {
+        $query = getDefaultQuery($request);
+
+        expect($query)
+            ->toHaveKey('page[size]', 10)
+            ->toHaveKey('page[cursor]', 'abc123');
+    })->with([
+        'ListServersRequest' => [fn (): ListServersRequest => new ListServersRequest('abc123', 10)],
+        'ListSitesRequest' => [fn (): ListSitesRequest => new ListSitesRequest(1, 'abc123', 10)],
+        'ListDatabasesRequest' => [fn (): ListDatabasesRequest => new ListDatabasesRequest(1, 'abc123', 10)],
+        'ListDatabaseUsersRequest' => [fn (): ListDatabaseUsersRequest => new ListDatabaseUsersRequest(1, 'abc123', 10)],
+        'ListBackupConfigurationsRequest' => [fn (): ListBackupConfigurationsRequest => new ListBackupConfigurationsRequest(1, 'abc123', 10)],
+        'ListCertificatesRequest' => [fn (): ListCertificatesRequest => new ListCertificatesRequest(1, 1, 'abc123', 10)],
+        'ListDaemonsRequest' => [fn (): ListDaemonsRequest => new ListDaemonsRequest(1, 'abc123', 10)],
+        'ListFirewallRulesRequest' => [fn (): ListFirewallRulesRequest => new ListFirewallRulesRequest(1, 'abc123', 10)],
+        'ListJobsRequest' => [fn (): ListJobsRequest => new ListJobsRequest(1, 'abc123', 10)],
+        'ListMonitorsRequest' => [fn (): ListMonitorsRequest => new ListMonitorsRequest(1, 'abc123', 10)],
+        'ListWorkersRequest' => [fn (): ListWorkersRequest => new ListWorkersRequest(1, 1, 'abc123', 10)],
+        'ListWebhooksRequest' => [fn (): ListWebhooksRequest => new ListWebhooksRequest(1, 1, 'abc123', 10)],
+        'ListSSHKeysRequest' => [fn (): ListSSHKeysRequest => new ListSSHKeysRequest(1, 'abc123', 10)],
+        'ListSecurityRulesRequest' => [fn (): ListSecurityRulesRequest => new ListSecurityRulesRequest(1, 1, 'abc123', 10)],
+        'ListRedirectRulesRequest' => [fn (): ListRedirectRulesRequest => new ListRedirectRulesRequest(1, 1, 'abc123', 10)],
+        'ListNginxTemplatesRequest' => [fn (): ListNginxTemplatesRequest => new ListNginxTemplatesRequest(1, 'abc123', 10)],
+        'ListEventsRequest' => [fn (): ListEventsRequest => new ListEventsRequest(1, 'abc123', 10)],
+        'ListCommandHistoryRequest' => [fn (): ListCommandHistoryRequest => new ListCommandHistoryRequest(1, 1, 'abc123', 10)],
+        'ListAliasesRequest' => [fn (): ListAliasesRequest => new ListAliasesRequest(1, 1, 'abc123', 10)],
+    ]);
+
+    it('omits cursor from query when null', function (object $request): void {
+        $query = getDefaultQuery($request);
+
+        expect($query)
+            ->toHaveKey('page[size]', 30)
+            ->not->toHaveKey('page[cursor]');
+    })->with([
+        'ListServersRequest' => [fn (): ListServersRequest => new ListServersRequest()],
+        'ListSitesRequest' => [fn (): ListSitesRequest => new ListSitesRequest(1)],
+        'ListDatabasesRequest' => [fn (): ListDatabasesRequest => new ListDatabasesRequest(1)],
+    ]);
 });

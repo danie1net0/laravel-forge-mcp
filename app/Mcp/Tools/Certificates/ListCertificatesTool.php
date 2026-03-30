@@ -16,10 +16,10 @@ use Laravel\Mcp\Server\Tools\Annotations\IsReadOnly;
 class ListCertificatesTool extends Tool
 {
     protected string $description = <<<'MARKDOWN'
-        List all SSL certificates for a specific site on a Laravel Forge server.
+        List all domains and their SSL certificate status for a specific site on a Laravel Forge server.
 
-        Returns a list of SSL certificates including:
-        - Certificate ID
+        Returns a list of domains including:
+        - Domain ID
         - Domain names
         - Type (Let's Encrypt or Custom)
         - Status (active, installing, failed)
@@ -42,9 +42,11 @@ class ListCertificatesTool extends Tool
 
         $serverId = $request->integer('server_id');
         $siteId = $request->integer('site_id');
+        $cursor = $request->has('cursor') ? $request->string('cursor')->value() : null;
+        $pageSize = $request->has('page_size') ? $request->integer('page_size') : 30;
 
         try {
-            $certificates = $client->certificates()->list($serverId, $siteId)->certificates;
+            $certificates = $client->certificates()->list($serverId, $siteId, $cursor, $pageSize)->certificates;
 
             $formatted = array_map(fn (CertificateData $cert): array => [
                 'id' => $cert->id,
@@ -63,10 +65,10 @@ class ListCertificatesTool extends Tool
                 'count' => count($formatted),
                 'certificates' => $formatted,
             ], JSON_PRETTY_PRINT));
-        } catch (Exception $e) {
+        } catch (Exception $exception) {
             return Response::text(json_encode([
                 'success' => false,
-                'error' => $e->getMessage(),
+                'error' => $exception->getMessage(),
                 'message' => 'Failed to retrieve certificates. Please verify the server_id and site_id are correct.',
             ], JSON_PRETTY_PRINT));
         }
@@ -83,6 +85,8 @@ class ListCertificatesTool extends Tool
                 ->description('The unique ID of the site')
                 ->min(1)
                 ->required(),
+            'cursor' => $schema->string()->description('Pagination cursor for next page')->nullable(),
+            'page_size' => $schema->integer()->description('Items per page (default 30)')->min(1)->max(100)->nullable(),
         ];
     }
 

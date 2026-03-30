@@ -15,9 +15,9 @@ class WebhookResource
     ) {
     }
 
-    public function list(int $serverId, int $siteId): WebhookCollectionData
+    public function list(int $serverId, int $siteId, ?string $cursor = null, int $pageSize = 30): WebhookCollectionData
     {
-        $request = new ListWebhooksRequest($serverId, $siteId);
+        $request = new ListWebhooksRequest($serverId, $siteId, $cursor, $pageSize);
         $response = $this->connector->send($request);
 
         return $request->createDtoFromResponse($response);

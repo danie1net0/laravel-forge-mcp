@@ -15,7 +15,7 @@ use Laravel\Mcp\Server\Tools\Annotations\{IsIdempotent, IsReadOnly};
 class GetCertificateSigningRequestTool extends Tool
 {
     protected string $description = <<<'MARKDOWN'
-        Get the Certificate Signing Request (CSR) for a specific SSL certificate.
+        Get the Certificate Signing Request (CSR) for a specific domain's SSL certificate.
 
         A CSR is a block of encoded text that contains information about your organization
         and the domain you want to secure. It's required when ordering SSL certificates
@@ -31,7 +31,7 @@ class GetCertificateSigningRequestTool extends Tool
         **Required Parameters:**
         - `server_id`: The unique ID of the Forge server
         - `site_id`: The unique ID of the site
-        - `certificate_id`: The unique ID of the certificate
+        - `domain_id`: The unique ID of the domain
     MARKDOWN;
 
     public function handle(Request $request, ForgeClient $client): Response
@@ -39,27 +39,27 @@ class GetCertificateSigningRequestTool extends Tool
         $request->validate([
             'server_id' => ['required', 'integer', 'min:1'],
             'site_id' => ['required', 'integer', 'min:1'],
-            'certificate_id' => ['required', 'integer', 'min:1'],
+            'domain_id' => ['required', 'integer', 'min:1'],
         ]);
 
         $serverId = $request->integer('server_id');
         $siteId = $request->integer('site_id');
-        $certificateId = $request->integer('certificate_id');
+        $domainId = $request->integer('domain_id');
 
         try {
-            $csr = $client->certificates()->signingRequest($serverId, $siteId, $certificateId);
+            $csr = $client->certificates()->signingRequest($serverId, $siteId, $domainId);
 
             return Response::text(json_encode([
                 'success' => true,
                 'server_id' => $serverId,
                 'site_id' => $siteId,
-                'certificate_id' => $certificateId,
+                'domain_id' => $domainId,
                 'csr' => $csr,
             ], JSON_PRETTY_PRINT));
-        } catch (Exception $e) {
+        } catch (Exception $exception) {
             return Response::text(json_encode([
                 'success' => false,
-                'error' => $e->getMessage(),
+                'error' => $exception->getMessage(),
                 'message' => 'Failed to retrieve certificate signing request. The certificate may not exist or may not have a CSR.',
             ], JSON_PRETTY_PRINT));
         }
@@ -76,8 +76,8 @@ class GetCertificateSigningRequestTool extends Tool
                 ->description('The unique ID of the site')
                 ->min(1)
                 ->required(),
-            'certificate_id' => $schema->integer()
-                ->description('The unique ID of the certificate')
+            'domain_id' => $schema->integer()
+                ->description('The unique ID of the domain')
                 ->min(1)
                 ->required(),
         ];

@@ -5,18 +5,17 @@ declare(strict_types=1);
 namespace App\Mcp\Tools\Certificates;
 
 use App\Integrations\Forge\ForgeClient;
-use App\Integrations\Forge\Data\Certificates\ObtainLetsEncryptCertificateData;
 use Exception;
 use Illuminate\JsonSchema\JsonSchema;
-use Laravel\Mcp\Server\Tools\Annotations\IsDestructive;
 use Laravel\Mcp\{Request, Response};
 use Laravel\Mcp\Server\Tool;
+use Laravel\Mcp\Server\Tools\Annotations\IsDestructive;
 
 #[IsDestructive]
 class ObtainLetsEncryptCertificateTool extends Tool
 {
     protected string $description = <<<'MARKDOWN'
-        Obtain and install a free Let's Encrypt SSL certificate for a site.
+        Enable a Let's Encrypt SSL certificate for a domain.
 
         **What is Let's Encrypt?**
         - Free SSL certificates (no cost, ever)
@@ -26,15 +25,14 @@ class ObtainLetsEncryptCertificateTool extends Tool
 
         **Common Use Cases:**
         - Enabling HTTPS for a new site
-        - Securing www and non-www domains together
-        - Adding SSL to a site after domain DNS is configured
+        - Securing a domain after DNS is configured
         - Replacing an expired or soon-to-expire certificate
 
         **Requirements (CRITICAL - Must be met before attempting):**
-        ✅ Domain DNS must point to server's IP address
-        ✅ Port 80 must be open (for domain verification)
-        ✅ Site must be accessible via HTTP first
-        ✅ Domain must be publicly accessible (not localhost)
+        - Domain DNS must point to server's IP address
+        - Port 80 must be open (for domain verification)
+        - Site must be accessible via HTTP first
+        - Domain must be publicly accessible (not localhost)
 
         **Before You Run This:**
         1. Verify DNS is propagated: `dig yourdomain.com` or `nslookup yourdomain.com`
@@ -42,18 +40,13 @@ class ObtainLetsEncryptCertificateTool extends Tool
         3. Verify port 80 is open: Use `list-firewall-rules-tool`
 
         **Common Errors & Solutions:**
-        - "Connection refused" → DNS not pointing to server, wait for propagation
-        - "Port 80 blocked" → Add firewall rule for port 80
-        - "Too many requests" → Let's Encrypt rate limit (5 failures/hour), wait 1 hour
-        - "Invalid domain" → Domain must be a valid FQDN, not IP address
-
-        **Examples:**
-        - Single domain: `["example.com"]`
-        - With www: `["example.com", "www.example.com"]`
-        - Multiple subdomains: `["example.com", "www.example.com", "api.example.com"]`
+        - "Connection refused" -> DNS not pointing to server, wait for propagation
+        - "Port 80 blocked" -> Add firewall rule for port 80
+        - "Too many requests" -> Let's Encrypt rate limit (5 failures/hour), wait 1 hour
+        - "Invalid domain" -> Domain must be a valid FQDN, not IP address
 
         **What Happens:**
-        1. Forge requests certificate from Let's Encrypt
+        1. Forge enables Let's Encrypt certificate on the domain
         2. Let's Encrypt verifies domain ownership (HTTP challenge)
         3. Certificate is issued (takes 1-3 minutes)
         4. Forge installs and activates certificate
@@ -68,7 +61,7 @@ class ObtainLetsEncryptCertificateTool extends Tool
         **Required Parameters:**
         - `server_id`: The unique ID of the Forge server
         - `site_id`: The unique ID of the site
-        - `domains`: Array of domain names to include in the certificate
+        - `domain_id`: The unique ID of the domain
     MARKDOWN;
 
     public function handle(Request $request, ForgeClient $client): Response
@@ -76,30 +69,27 @@ class ObtainLetsEncryptCertificateTool extends Tool
         $request->validate([
             'server_id' => ['required', 'integer', 'min:1'],
             'site_id' => ['required', 'integer', 'min:1'],
-            'domains' => ['required', 'array', 'min:1'],
+            'domain_id' => ['required', 'integer', 'min:1'],
         ]);
 
         $serverId = $request->integer('server_id');
         $siteId = $request->integer('site_id');
-        $domains = $request->array('domains');
+        $domainId = $request->integer('domain_id');
 
         try {
-            $obtainData = ObtainLetsEncryptCertificateData::from([
-                'domains' => $domains,
-            ]);
-            $certificate = $client->certificates()->obtainLetsEncrypt($serverId, $siteId, $obtainData);
+            $certificate = $client->certificates()->obtainLetsEncrypt($serverId, $siteId, $domainId);
 
             return Response::text(json_encode([
                 'success' => true,
                 'message' => "Let's Encrypt certificate installation initiated.",
                 'certificate_id' => $certificate->id,
-                'domains' => $domains,
+                'domain_id' => $domainId,
                 'note' => 'Certificate installation may take a few minutes. Check certificate status using list-certificates-tool.',
             ], JSON_PRETTY_PRINT));
-        } catch (Exception $e) {
+        } catch (Exception $exception) {
             return Response::text(json_encode([
                 'success' => false,
-                'error' => $e->getMessage(),
+                'error' => $exception->getMessage(),
                 'message' => 'Failed to obtain certificate. Ensure domain DNS is pointing to the server.',
             ], JSON_PRETTY_PRINT));
         }
@@ -116,9 +106,9 @@ class ObtainLetsEncryptCertificateTool extends Tool
                 ->description('The unique ID of the site')
                 ->min(1)
                 ->required(),
-            'domains' => $schema->array()
-                ->items($schema->string())
-                ->description('Array of domain names to include in the certificate (e.g., ["example.com", "www.example.com"])')
+            'domain_id' => $schema->integer()
+                ->description('The unique ID of the domain')
+                ->min(1)
                 ->required(),
         ];
     }

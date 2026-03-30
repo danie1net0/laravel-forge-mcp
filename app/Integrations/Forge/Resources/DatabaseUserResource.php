@@ -15,9 +15,9 @@ class DatabaseUserResource
     ) {
     }
 
-    public function list(int $serverId): DatabaseUserCollectionData
+    public function list(int $serverId, ?string $cursor = null, int $pageSize = 30): DatabaseUserCollectionData
     {
-        $request = new ListDatabaseUsersRequest($serverId);
+        $request = new ListDatabaseUsersRequest($serverId, $cursor, $pageSize);
         $response = $this->connector->send($request);
 
         return $request->createDtoFromResponse($response);

@@ -40,7 +40,7 @@ describe('GetCertificateSigningRequestTool', function (): void {
         $response = ForgeServer::tool(GetCertificateSigningRequestTool::class, [
             'server_id' => 1,
             'site_id' => 1,
-            'certificate_id' => 1,
+            'domain_id' => 1,
         ]);
 
         $response
@@ -62,7 +62,7 @@ describe('GetCertificateSigningRequestTool', function (): void {
         $response = ForgeServer::tool(GetCertificateSigningRequestTool::class, [
             'server_id' => 1,
             'site_id' => 1,
-            'certificate_id' => 999,
+            'domain_id' => 999,
         ]);
 
         $response
@@ -92,7 +92,7 @@ describe('ListCommandHistoryTool', function (): void {
         $this->mock(ForgeClient::class, function ($mock) use ($mockCommands): void {
             $siteResource = Mockery::mock(SiteResource::class);
             $siteResource->shouldReceive('commandHistory')
-                ->with(1, 1)
+                ->with(1, 1, null, 30)
                 ->once()
                 ->andReturn($mockCommands);
             $mock->shouldReceive('sites')->once()->andReturn($siteResource);
@@ -113,7 +113,7 @@ describe('ListCommandHistoryTool', function (): void {
         $this->mock(ForgeClient::class, function ($mock): void {
             $siteResource = Mockery::mock(SiteResource::class);
             $siteResource->shouldReceive('commandHistory')
-                ->with(1, 999)
+                ->with(1, 999, null, 30)
                 ->once()
                 ->andThrow(new Exception('Site not found'));
             $mock->shouldReceive('sites')->once()->andReturn($siteResource);
@@ -376,7 +376,7 @@ describe('ListDatabaseUsersTool', function (): void {
             $userResource = Mockery::mock(DatabaseUserResource::class);
             $collection = new App\Integrations\Forge\Data\Databases\DatabaseUserCollectionData(users: [$mockUser]);
             $userResource->shouldReceive('list')
-                ->with(1)
+                ->with(1, null, 30)
                 ->once()
                 ->andReturn($collection);
             $mock->shouldReceive('databaseUsers')->once()->andReturn($userResource);
@@ -396,7 +396,7 @@ describe('ListDatabaseUsersTool', function (): void {
         $this->mock(ForgeClient::class, function ($mock): void {
             $userResource = Mockery::mock(DatabaseUserResource::class);
             $userResource->shouldReceive('list')
-                ->with(999)
+                ->with(999, null, 30)
                 ->once()
                 ->andThrow(new Exception('Server not found'));
             $mock->shouldReceive('databaseUsers')->once()->andReturn($userResource);

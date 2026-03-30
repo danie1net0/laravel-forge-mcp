@@ -73,7 +73,7 @@ class SSLExpirationCheckTool extends Tool
                                     'server_name' => $server->name,
                                     'site_id' => $site->id,
                                     'site_domain' => $site->name,
-                                    'certificate_id' => $cert->id,
+                                    'domain_id' => $cert->id,
                                     'domain' => $cert->domain,
                                     'type' => $cert->type,
                                     'expires_at' => $cert->expiresAt,

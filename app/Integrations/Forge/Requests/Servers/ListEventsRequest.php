@@ -12,12 +12,28 @@ class ListEventsRequest extends Request
     protected Method $method = Method::GET;
 
     public function __construct(
-        protected int $serverId
+        protected int $serverId,
+        private readonly ?string $cursor = null,
+        private readonly int $pageSize = 30,
     ) {
     }
 
     public function resolveEndpoint(): string
     {
         return "/servers/{$this->serverId}/events";
+    }
+
+    /**
+     * @return array<string, string|int>
+     */
+    protected function defaultQuery(): array
+    {
+        $query = ['page[size]' => $this->pageSize];
+
+        if ($this->cursor !== null) {
+            $query['page[cursor]'] = $this->cursor;
+        }
+
+        return $query;
     }
 }

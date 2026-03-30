@@ -15,28 +15,44 @@ class ListCertificatesRequest extends Request
     public function __construct(
         protected int $serverId,
         protected int $siteId,
+        private readonly ?string $cursor = null,
+        private readonly int $pageSize = 30,
     ) {
     }
 
     public function resolveEndpoint(): string
     {
-        return "/servers/{$this->serverId}/sites/{$this->siteId}/certificates";
+        return "/servers/{$this->serverId}/sites/{$this->siteId}/domains";
     }
 
     public function createDtoFromResponse(Response $response): CertificateCollectionData
     {
-        $certificates = $response->json('certificates', []);
+        $domains = $response->json('domains', []);
 
-        $certificatesWithContext = array_map(
-            fn (array $cert) => array_merge($cert, [
+        $domainsWithContext = array_map(
+            fn (array $domain): array => array_merge($domain, [
                 'server_id' => $this->serverId,
                 'site_id' => $this->siteId,
             ]),
-            $certificates
+            $domains
         );
 
         return CertificateCollectionData::from([
-            'certificates' => $certificatesWithContext,
+            'certificates' => $domainsWithContext,
         ]);
+    }
+
+    /**
+     * @return array<string, string|int>
+     */
+    protected function defaultQuery(): array
+    {
+        $query = ['page[size]' => $this->pageSize];
+
+        if ($this->cursor !== null) {
+            $query['page[cursor]'] = $this->cursor;
+        }
+
+        return $query;
     }
 }

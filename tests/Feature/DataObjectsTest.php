@@ -13,7 +13,7 @@ use App\Integrations\Forge\Data\Firewall\{FirewallRuleData};
 use App\Integrations\Forge\Data\Monitors\{MonitorData};
 use App\Integrations\Forge\Data\Webhooks\{WebhookData};
 use App\Integrations\Forge\Data\Databases\{CreateDatabaseData, DatabaseData};
-use App\Integrations\Forge\Data\Certificates\{CertificateData, ObtainLetsEncryptCertificateData};
+use App\Integrations\Forge\Data\Certificates\CertificateData;
 
 describe('ServerData', function (): void {
     it('creates from array with snake_case keys', function (): void {
@@ -95,16 +95,16 @@ describe('CreateServerData', function (): void {
     it('creates with required fields', function (): void {
         $data = CreateServerData::from([
             'name' => 'new-server',
-            'credential_id' => 1,
-            'region' => 'nyc1',
-            'size' => '1gb',
+            'provider' => 'ocean2',
+            'type' => 'app',
+            'ubuntu_version' => '24.04',
             'php_version' => 'php82',
         ]);
 
         expect($data->name)->toBe('new-server');
-        expect($data->credentialId)->toBe(1);
-        expect($data->region)->toBe('nyc1');
-        expect($data->size)->toBe('1gb');
+        expect($data->provider)->toBe('ocean2');
+        expect($data->type)->toBe('app');
+        expect($data->ubuntuVersion)->toBe('24.04');
     });
 });
 
@@ -275,16 +275,6 @@ describe('CertificateData', function (): void {
         expect($data->type)->toBe('letsencrypt');
         expect($data->active)->toBeTrue();
         expect($data->status)->toBe('installed');
-    });
-});
-
-describe('ObtainLetsEncryptCertificateData', function (): void {
-    it('creates with domains array', function (): void {
-        $data = ObtainLetsEncryptCertificateData::from([
-            'domains' => ['example.com', 'www.example.com'],
-        ]);
-
-        expect($data->domains)->toBe(['example.com', 'www.example.com']);
     });
 });
 

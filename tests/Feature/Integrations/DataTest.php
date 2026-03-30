@@ -14,7 +14,7 @@ use App\Integrations\Forge\Data\Firewall\{CreateFirewallRuleData, FirewallRuleCo
 use App\Integrations\Forge\Data\Monitors\{CreateMonitorData, MonitorCollectionData, MonitorData};
 use App\Integrations\Forge\Data\Webhooks\{CreateWebhookData, WebhookCollectionData, WebhookData};
 use App\Integrations\Forge\Data\Databases\{CreateDatabaseData, CreateDatabaseUserData, DatabaseCollectionData, DatabaseData, DatabaseUserCollectionData, DatabaseUserData, UpdateDatabaseUserData};
-use App\Integrations\Forge\Data\Certificates\{CertificateCollectionData, CertificateData, ObtainLetsEncryptCertificateData};
+use App\Integrations\Forge\Data\Certificates\{CertificateCollectionData, CertificateData};
 use App\Integrations\Forge\Data\RedirectRules\{CreateRedirectRuleData, RedirectRuleCollectionData, RedirectRuleData};
 use App\Integrations\Forge\Data\SecurityRules\{CreateSecurityRuleData, SecurityRuleCollectionData, SecurityRuleData};
 use App\Integrations\Forge\Data\NginxTemplates\{CreateNginxTemplateData, NginxTemplateCollectionData, NginxTemplateData, UpdateNginxTemplateData};
@@ -158,14 +158,6 @@ describe('Certificates', function (): void {
             ->active->toBeTrue()
             ->expiresAt->toBe('2025-06-01T00:00:00Z')
             ->activationError->toBeNull();
-    });
-
-    it('creates ObtainLetsEncryptCertificateData with domains', function (): void {
-        $data = ObtainLetsEncryptCertificateData::from([
-            'domains' => ['example.com', 'www.example.com'],
-        ]);
-
-        expect($data->domains)->toBe(['example.com', 'www.example.com']);
     });
 
     it('creates CertificateCollectionData with empty array', function (): void {
@@ -882,23 +874,29 @@ describe('Servers', function (): void {
 
     it('creates CreateServerData from snake_case input', function (): void {
         $data = CreateServerData::from([
-            'credential_id' => 1,
             'name' => 'new-server',
-            'size' => '2gb',
-            'region' => 'nyc1',
+            'provider' => 'ocean2',
+            'type' => 'app',
+            'ubuntu_version' => '24.04',
+            'credential_id' => 1,
             'php_version' => 'php82',
-            'database' => 'mysql8',
-            'database_name' => 'forge',
+            'database_type' => 'mysql8',
+            'database' => 'forge',
+            'tags' => ['production', 'api'],
+            'ocean2' => ['region_id' => 'nyc1', 'size_id' => 's-1vcpu-1gb'],
         ]);
 
         expect($data)
-            ->credentialId->toBe(1)
             ->name->toBe('new-server')
-            ->size->toBe('2gb')
-            ->region->toBe('nyc1')
+            ->provider->toBe('ocean2')
+            ->type->toBe('app')
+            ->ubuntuVersion->toBe('24.04')
+            ->credentialId->toBe(1)
             ->phpVersion->toBe('php82')
-            ->database->toBe('mysql8')
-            ->databaseName->toBe('forge');
+            ->databaseType->toBe('mysql8')
+            ->database->toBe('forge')
+            ->tags->toBe(['production', 'api'])
+            ->ocean2->toBe(['region_id' => 'nyc1', 'size_id' => 's-1vcpu-1gb']);
     });
 
     it('creates UpdateServerData with partial fields', function (): void {

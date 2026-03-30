@@ -55,7 +55,7 @@ describe('ListWorkersTool', function (): void {
         $this->mock(ForgeClient::class, function ($mock) use ($mockWorker): void {
             $workerResource = Mockery::mock(WorkerResource::class);
             $collection = new WorkerCollectionData(workers: [$mockWorker]);
-            $workerResource->shouldReceive('list')->with(Mockery::any(), Mockery::any())->once()->andReturn($collection);
+            $workerResource->shouldReceive('list')->with(Mockery::any(), Mockery::any(), null, 30)->once()->andReturn($collection);
             $mock->shouldReceive('workers')->once()->andReturn($workerResource);
         });
 
@@ -76,7 +76,7 @@ describe('ListWorkersTool', function (): void {
         $this->mock(ForgeClient::class, function ($mock): void {
             $workerResource = Mockery::mock(WorkerResource::class);
             $collection = new WorkerCollectionData(workers: []);
-            $workerResource->shouldReceive('list')->with(Mockery::any(), Mockery::any())->once()->andReturn($collection);
+            $workerResource->shouldReceive('list')->with(Mockery::any(), Mockery::any(), null, 30)->once()->andReturn($collection);
             $mock->shouldReceive('workers')->once()->andReturn($workerResource);
         });
 
@@ -93,7 +93,7 @@ describe('ListWorkersTool', function (): void {
     it('handles API errors', function (): void {
         $this->mock(ForgeClient::class, function ($mock): void {
             $workerResource = Mockery::mock(WorkerResource::class);
-            $workerResource->shouldReceive('list')->with(Mockery::any(), Mockery::any())->once()->andThrow(new Exception('Site not found'));
+            $workerResource->shouldReceive('list')->with(Mockery::any(), Mockery::any(), null, 30)->once()->andThrow(new Exception('Site not found'));
             $mock->shouldReceive('workers')->once()->andReturn($workerResource);
         });
 

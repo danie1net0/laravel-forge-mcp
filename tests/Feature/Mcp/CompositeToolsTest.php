@@ -396,8 +396,12 @@ describe('CloneSiteTool', function (): void {
                 JobCollectionData::from(['jobs' => []])
             );
 
+            $mockDomainCert = createMockCertificateData(['id' => 10, 'domain' => 'clone.com']);
             $certResource = Mockery::mock(CertificateResource::class);
-            $certResource->shouldReceive('obtainLetsEncrypt')->with(2, 2, Mockery::any())->once();
+            $certResource->shouldReceive('list')->with(2, 2)->once()->andReturn(
+                CertificateCollectionData::from(['certificates' => [$mockDomainCert->toArray()]])
+            );
+            $certResource->shouldReceive('obtainLetsEncrypt')->with(2, 2, 10)->once();
 
             $mock->shouldReceive('sites')->andReturn($siteResource);
             $mock->shouldReceive('workers')->andReturn($workerResource);

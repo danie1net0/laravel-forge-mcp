@@ -15,9 +15,9 @@ class WorkerResource
     ) {
     }
 
-    public function list(int $serverId, int $siteId): WorkerCollectionData
+    public function list(int $serverId, int $siteId, ?string $cursor = null, int $pageSize = 30): WorkerCollectionData
     {
-        $request = new ListWorkersRequest($serverId, $siteId);
+        $request = new ListWorkersRequest($serverId, $siteId, $cursor, $pageSize);
         $response = $this->connector->send($request);
 
         return $request->createDtoFromResponse($response);

@@ -21,8 +21,11 @@ class ListNginxTemplatesTool extends Tool
     {
         $request->validate(['server_id' => ['required', 'integer', 'min:1']]);
 
+        $cursor = $request->has('cursor') ? $request->string('cursor')->value() : null;
+        $pageSize = $request->has('page_size') ? $request->integer('page_size') : 30;
+
         try {
-            $templates = $client->nginxTemplates()->list($request->integer('server_id'))->templates;
+            $templates = $client->nginxTemplates()->list($request->integer('server_id'), $cursor, $pageSize)->templates;
 
             $formatted = array_map(fn (NginxTemplateData $t): array => [
                 'id' => $t->id,
@@ -41,7 +44,11 @@ class ListNginxTemplatesTool extends Tool
 
     public function schema(JsonSchema $schema): array
     {
-        return ['server_id' => $schema->integer()->min(1)->required()];
+        return [
+            'server_id' => $schema->integer()->min(1)->required(),
+            'cursor' => $schema->string()->description('Pagination cursor for next page')->nullable(),
+            'page_size' => $schema->integer()->description('Items per page (default 30)')->min(1)->max(100)->nullable(),
+        ];
     }
 
     public function shouldRegister(): bool

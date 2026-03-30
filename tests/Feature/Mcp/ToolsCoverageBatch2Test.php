@@ -41,7 +41,7 @@ describe('ListDatabasesTool', function (): void {
 
         $this->mock(ForgeClient::class, function (Mockery\MockInterface $mock) use ($database): void {
             $resource = Mockery::mock(DatabaseResource::class);
-            $resource->shouldReceive('list')->with(1)->once()->andReturn(new DatabaseCollectionData(databases: [$database]));
+            $resource->shouldReceive('list')->with(1, null, 30)->once()->andReturn(new DatabaseCollectionData(databases: [$database]));
             $mock->shouldReceive('databases')->once()->andReturn($resource);
         });
 
@@ -261,7 +261,7 @@ describe('ListDatabaseUsersTool', function (): void {
 
         $this->mock(ForgeClient::class, function (Mockery\MockInterface $mock) use ($user): void {
             $resource = Mockery::mock(DatabaseUserResource::class);
-            $resource->shouldReceive('list')->with(1)->once()->andReturn(new DatabaseUserCollectionData(users: [$user]));
+            $resource->shouldReceive('list')->with(1, null, 30)->once()->andReturn(new DatabaseUserCollectionData(users: [$user]));
             $mock->shouldReceive('databaseUsers')->once()->andReturn($resource);
         });
 
@@ -882,7 +882,7 @@ describe('ListFirewallRulesTool', function (): void {
 
         $this->mock(ForgeClient::class, function (Mockery\MockInterface $mock) use ($rule): void {
             $resource = Mockery::mock(FirewallResource::class);
-            $resource->shouldReceive('list')->with(1)->once()->andReturn(new FirewallRuleCollectionData(rules: [$rule]));
+            $resource->shouldReceive('list')->with(1, null, 30)->once()->andReturn(new FirewallRuleCollectionData(rules: [$rule]));
             $mock->shouldReceive('firewall')->once()->andReturn($resource);
         });
 
@@ -1273,7 +1273,7 @@ describe('ListScheduledJobsTool', function (): void {
 
         $this->mock(ForgeClient::class, function (Mockery\MockInterface $mock) use ($job): void {
             $resource = Mockery::mock(JobResource::class);
-            $resource->shouldReceive('list')->with(1)->once()->andReturn(new JobCollectionData(jobs: [$job]));
+            $resource->shouldReceive('list')->with(1, null, 30)->once()->andReturn(new JobCollectionData(jobs: [$job]));
             $mock->shouldReceive('jobs')->once()->andReturn($resource);
         });
 

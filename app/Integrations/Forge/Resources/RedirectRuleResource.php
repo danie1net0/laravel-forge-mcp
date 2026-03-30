@@ -15,9 +15,9 @@ class RedirectRuleResource
     ) {
     }
 
-    public function list(int $serverId, int $siteId): RedirectRuleCollectionData
+    public function list(int $serverId, int $siteId, ?string $cursor = null, int $pageSize = 30): RedirectRuleCollectionData
     {
-        $request = new ListRedirectRulesRequest($serverId, $siteId);
+        $request = new ListRedirectRulesRequest($serverId, $siteId, $cursor, $pageSize);
         $response = $this->connector->send($request);
 
         return $request->createDtoFromResponse($response);

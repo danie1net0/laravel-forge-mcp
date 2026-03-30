@@ -15,9 +15,9 @@ class SiteResource
     ) {
     }
 
-    public function list(int $serverId): SiteCollectionData
+    public function list(int $serverId, ?string $cursor = null, int $pageSize = 30): SiteCollectionData
     {
-        $request = new ListSitesRequest($serverId);
+        $request = new ListSitesRequest($serverId, $cursor, $pageSize);
         $response = $this->connector->send($request);
 
         return $request->createDtoFromResponse($response);
@@ -115,9 +115,9 @@ class SiteResource
         return $response->json();
     }
 
-    public function commandHistory(int $serverId, int $siteId): array
+    public function commandHistory(int $serverId, int $siteId, ?string $cursor = null, int $pageSize = 30): array
     {
-        $response = $this->connector->send(new ListCommandHistoryRequest($serverId, $siteId));
+        $response = $this->connector->send(new ListCommandHistoryRequest($serverId, $siteId, $cursor, $pageSize));
 
         return $response->json('commands', []);
     }
@@ -203,9 +203,9 @@ class SiteResource
         $this->connector->send(new \App\Integrations\Forge\Requests\Sites\UpdateEnvFileRequest($serverId, $siteId, $content));
     }
 
-    public function listAliases(int $serverId, int $siteId): array
+    public function listAliases(int $serverId, int $siteId, ?string $cursor = null, int $pageSize = 30): array
     {
-        $response = $this->connector->send(new \App\Integrations\Forge\Requests\Sites\ListAliasesRequest($serverId, $siteId));
+        $response = $this->connector->send(new \App\Integrations\Forge\Requests\Sites\ListAliasesRequest($serverId, $siteId, $cursor, $pageSize));
 
         return $response->json('aliases', []);
     }

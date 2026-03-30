@@ -15,21 +15,21 @@ use Laravel\Mcp\Server\Tools\Annotations\IsDestructive;
 class DeleteCertificateTool extends Tool
 {
     protected string $description = <<<'MARKDOWN'
-        Delete an SSL certificate from a site.
+        Disable and remove an SSL certificate from a domain.
 
-        ⚠️ **WARNING** ⚠️
+        **WARNING**
 
         This will:
-        - Remove the certificate from Forge
+        - Disable the certificate on the domain
         - Site will revert to HTTP (no HTTPS)
         - Cannot be undone
 
         **Required Parameters:**
         - `server_id`: The unique ID of the Forge server
         - `site_id`: The unique ID of the site
-        - `certificate_id`: The unique ID of the certificate to delete
+        - `domain_id`: The unique ID of the domain to disable the certificate on
 
-        Ensure you have a replacement certificate before deleting the active one.
+        Ensure you have a replacement certificate before disabling the active one.
     MARKDOWN;
 
     public function handle(Request $request, ForgeClient $client): Response
@@ -37,25 +37,25 @@ class DeleteCertificateTool extends Tool
         $request->validate([
             'server_id' => ['required', 'integer', 'min:1'],
             'site_id' => ['required', 'integer', 'min:1'],
-            'certificate_id' => ['required', 'integer', 'min:1'],
+            'domain_id' => ['required', 'integer', 'min:1'],
         ]);
 
         $serverId = $request->integer('server_id');
         $siteId = $request->integer('site_id');
-        $certificateId = $request->integer('certificate_id');
+        $domainId = $request->integer('domain_id');
 
         try {
-            $client->certificates()->delete($serverId, $siteId, $certificateId);
+            $client->certificates()->delete($serverId, $siteId, $domainId);
 
             return Response::text(json_encode([
                 'success' => true,
                 'message' => 'Certificate deleted successfully',
                 'warning' => 'Site may now be serving HTTP instead of HTTPS',
             ], JSON_PRETTY_PRINT));
-        } catch (Exception $e) {
+        } catch (Exception $exception) {
             return Response::text(json_encode([
                 'success' => false,
-                'error' => $e->getMessage(),
+                'error' => $exception->getMessage(),
                 'message' => 'Failed to delete certificate.',
             ], JSON_PRETTY_PRINT));
         }
@@ -72,8 +72,8 @@ class DeleteCertificateTool extends Tool
                 ->description('The unique ID of the site')
                 ->min(1)
                 ->required(),
-            'certificate_id' => $schema->integer()
-                ->description('The unique ID of the certificate to delete')
+            'domain_id' => $schema->integer()
+                ->description('The unique ID of the domain to disable the certificate on')
                 ->min(1)
                 ->required(),
         ];

@@ -6,7 +6,7 @@ use App\Integrations\Forge\ForgeClient;
 use App\Integrations\Forge\Resources\CertificateResource;
 use App\Mcp\Servers\ForgeServer;
 use App\Mcp\Tools\Certificates\{ActivateCertificateTool, DeleteCertificateTool, GetCertificateSigningRequestTool, GetCertificateTool, InstallCertificateTool, ListCertificatesTool, ObtainLetsEncryptCertificateTool};
-use App\Integrations\Forge\Data\Certificates\{CertificateCollectionData, CertificateData, ObtainLetsEncryptCertificateData};
+use App\Integrations\Forge\Data\Certificates\{CertificateCollectionData, CertificateData};
 
 beforeEach(function (): void {
     config([
@@ -46,7 +46,7 @@ describe('ListCertificatesTool', function (): void {
 
         $this->mock(ForgeClient::class, function ($mock) use ($collection): void {
             $certResource = Mockery::mock(CertificateResource::class);
-            $certResource->shouldReceive('list')->with(1, 1)->once()->andReturn($collection);
+            $certResource->shouldReceive('list')->with(1, 1, null, 30)->once()->andReturn($collection);
             $mock->shouldReceive('certificates')->once()->andReturn($certResource);
         });
 
@@ -63,7 +63,7 @@ describe('ListCertificatesTool', function (): void {
 
         $this->mock(ForgeClient::class, function ($mock) use ($collection): void {
             $certResource = Mockery::mock(CertificateResource::class);
-            $certResource->shouldReceive('list')->once()->andReturn($collection);
+            $certResource->shouldReceive('list')->with(1, 1, null, 30)->once()->andReturn($collection);
             $mock->shouldReceive('certificates')->once()->andReturn($certResource);
         });
 
@@ -95,7 +95,7 @@ describe('GetCertificateTool', function (): void {
         $response = ForgeServer::tool(GetCertificateTool::class, [
             'server_id' => 1,
             'site_id' => 1,
-            'certificate_id' => 1,
+            'domain_id' => 1,
         ]);
 
         $response->assertOk()->assertSee('example.com');
@@ -111,7 +111,7 @@ describe('GetCertificateTool', function (): void {
         $response = ForgeServer::tool(GetCertificateTool::class, [
             'server_id' => 1,
             'site_id' => 1,
-            'certificate_id' => 999,
+            'domain_id' => 999,
         ]);
 
         $response->assertOk()->assertSee('"success": false');
@@ -125,7 +125,7 @@ describe('ObtainLetsEncryptCertificateTool', function (): void {
         $response->assertHasErrors();
     });
 
-    it('requires domains parameter', function (): void {
+    it('requires domain_id parameter', function (): void {
         $response = ForgeServer::tool(ObtainLetsEncryptCertificateTool::class, [
             'server_id' => 1,
             'site_id' => 1,
@@ -153,7 +153,7 @@ describe('ObtainLetsEncryptCertificateTool', function (): void {
         $this->mock(ForgeClient::class, function ($mock) use ($mockCert): void {
             $certResource = Mockery::mock(CertificateResource::class);
             $certResource->shouldReceive('obtainLetsEncrypt')
-                ->with(1, 1, Mockery::type(ObtainLetsEncryptCertificateData::class))
+                ->with(1, 1, 10)
                 ->once()
                 ->andReturn($mockCert);
             $mock->shouldReceive('certificates')->once()->andReturn($certResource);
@@ -162,28 +162,10 @@ describe('ObtainLetsEncryptCertificateTool', function (): void {
         $response = ForgeServer::tool(ObtainLetsEncryptCertificateTool::class, [
             'server_id' => 1,
             'site_id' => 1,
-            'domains' => ['example.com'],
+            'domain_id' => 10,
         ]);
 
         $response->assertOk()->assertSee('"success": true');
-    });
-
-    it('obtains certificate for multiple domains', function (): void {
-        $mockCert = createMockCertificate();
-
-        $this->mock(ForgeClient::class, function ($mock) use ($mockCert): void {
-            $certResource = Mockery::mock(CertificateResource::class);
-            $certResource->shouldReceive('obtainLetsEncrypt')->once()->andReturn($mockCert);
-            $mock->shouldReceive('certificates')->once()->andReturn($certResource);
-        });
-
-        $response = ForgeServer::tool(ObtainLetsEncryptCertificateTool::class, [
-            'server_id' => 1,
-            'site_id' => 1,
-            'domains' => ['example.com', 'www.example.com'],
-        ]);
-
-        $response->assertOk();
     });
 
     it('handles DNS validation error', function (): void {
@@ -197,7 +179,7 @@ describe('ObtainLetsEncryptCertificateTool', function (): void {
         $response = ForgeServer::tool(ObtainLetsEncryptCertificateTool::class, [
             'server_id' => 1,
             'site_id' => 1,
-            'domains' => ['invalid.example.com'],
+            'domain_id' => 10,
         ]);
 
         $response->assertOk()->assertSee('"success": false');
@@ -211,7 +193,7 @@ describe('InstallCertificateTool', function (): void {
         $response->assertHasErrors();
     });
 
-    it('requires certificate_id parameter', function (): void {
+    it('requires domain_id parameter', function (): void {
         $response = ForgeServer::tool(InstallCertificateTool::class, [
             'server_id' => 1,
             'site_id' => 1,
@@ -232,7 +214,7 @@ describe('InstallCertificateTool', function (): void {
         $response = ForgeServer::tool(InstallCertificateTool::class, [
             'server_id' => 1,
             'site_id' => 1,
-            'certificate_id' => 1,
+            'domain_id' => 1,
         ]);
 
         $response->assertOk()->assertSee('"success": true');
@@ -256,7 +238,7 @@ describe('ActivateCertificateTool', function (): void {
         $response = ForgeServer::tool(ActivateCertificateTool::class, [
             'server_id' => 1,
             'site_id' => 1,
-            'certificate_id' => 1,
+            'domain_id' => 1,
         ]);
 
         $response->assertOk()->assertSee('"success": true');
@@ -283,7 +265,7 @@ describe('GetCertificateSigningRequestTool', function (): void {
         $response = ForgeServer::tool(GetCertificateSigningRequestTool::class, [
             'server_id' => 1,
             'site_id' => 1,
-            'certificate_id' => 1,
+            'domain_id' => 1,
         ]);
 
         $response->assertOk()->assertSee('CERTIFICATE REQUEST');
@@ -307,7 +289,7 @@ describe('DeleteCertificateTool', function (): void {
         $response = ForgeServer::tool(DeleteCertificateTool::class, [
             'server_id' => 1,
             'site_id' => 1,
-            'certificate_id' => 1,
+            'domain_id' => 1,
         ]);
 
         $response->assertOk()->assertSee('"success": true');
@@ -323,7 +305,7 @@ describe('DeleteCertificateTool', function (): void {
         $response = ForgeServer::tool(DeleteCertificateTool::class, [
             'server_id' => 1,
             'site_id' => 1,
-            'certificate_id' => 1,
+            'domain_id' => 1,
         ]);
 
         $response->assertOk()->assertSee('"success": false');

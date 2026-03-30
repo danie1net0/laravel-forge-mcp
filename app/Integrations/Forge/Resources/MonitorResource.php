@@ -15,9 +15,9 @@ class MonitorResource
     ) {
     }
 
-    public function list(int $serverId): MonitorCollectionData
+    public function list(int $serverId, ?string $cursor = null, int $pageSize = 30): MonitorCollectionData
     {
-        $request = new ListMonitorsRequest($serverId);
+        $request = new ListMonitorsRequest($serverId, $cursor, $pageSize);
         $response = $this->connector->send($request);
 
         return $request->createDtoFromResponse($response);

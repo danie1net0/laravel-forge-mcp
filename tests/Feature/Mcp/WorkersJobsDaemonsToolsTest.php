@@ -78,7 +78,7 @@ describe('ListWorkersTool', function (): void {
 
         $this->mock(ForgeClient::class, function ($mock) use ($collection): void {
             $workerResource = Mockery::mock(WorkerResource::class);
-            $workerResource->shouldReceive('list')->with(1, 1)->once()->andReturn($collection);
+            $workerResource->shouldReceive('list')->with(1, 1, null, 30)->once()->andReturn($collection);
             $mock->shouldReceive('workers')->once()->andReturn($workerResource);
         });
 
@@ -265,7 +265,7 @@ describe('ListScheduledJobsTool', function (): void {
 
         $this->mock(ForgeClient::class, function ($mock) use ($collection): void {
             $jobResource = Mockery::mock(JobResource::class);
-            $jobResource->shouldReceive('list')->with(1)->once()->andReturn($collection);
+            $jobResource->shouldReceive('list')->with(1, null, 30)->once()->andReturn($collection);
             $mock->shouldReceive('jobs')->once()->andReturn($jobResource);
         });
 
@@ -396,7 +396,7 @@ describe('ListDaemonsTool', function (): void {
 
         $this->mock(ForgeClient::class, function ($mock) use ($collection): void {
             $daemonResource = Mockery::mock(DaemonResource::class);
-            $daemonResource->shouldReceive('list')->with(1)->once()->andReturn($collection);
+            $daemonResource->shouldReceive('list')->with(1, null, 30)->once()->andReturn($collection);
             $mock->shouldReceive('daemons')->once()->andReturn($daemonResource);
         });
 

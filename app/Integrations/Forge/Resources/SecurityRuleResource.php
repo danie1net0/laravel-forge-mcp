@@ -15,9 +15,9 @@ class SecurityRuleResource
     ) {
     }
 
-    public function list(int $serverId, int $siteId): SecurityRuleCollectionData
+    public function list(int $serverId, int $siteId, ?string $cursor = null, int $pageSize = 30): SecurityRuleCollectionData
     {
-        $request = new ListSecurityRulesRequest($serverId, $siteId);
+        $request = new ListSecurityRulesRequest($serverId, $siteId, $cursor, $pageSize);
         $response = $this->connector->send($request);
 
         return $request->createDtoFromResponse($response);

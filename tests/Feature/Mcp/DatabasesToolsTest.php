@@ -51,7 +51,7 @@ describe('ListDatabasesTool', function (): void {
         $this->mock(ForgeClient::class, function ($mock) use ($mockDatabase): void {
             $dbResource = Mockery::mock(DatabaseResource::class);
             $collection = new DatabaseCollectionData(databases: [$mockDatabase]);
-            $dbResource->shouldReceive('list')->with(1)->once()->andReturn($collection);
+            $dbResource->shouldReceive('list')->with(1, null, 30)->once()->andReturn($collection);
             $mock->shouldReceive('databases')->once()->andReturn($dbResource);
         });
 
@@ -64,7 +64,7 @@ describe('ListDatabasesTool', function (): void {
         $this->mock(ForgeClient::class, function ($mock): void {
             $dbResource = Mockery::mock(DatabaseResource::class);
             $collection = new DatabaseCollectionData(databases: []);
-            $dbResource->shouldReceive('list')->once()->andReturn($collection);
+            $dbResource->shouldReceive('list')->with(1, null, 30)->once()->andReturn($collection);
             $mock->shouldReceive('databases')->once()->andReturn($dbResource);
         });
 
@@ -198,7 +198,7 @@ describe('ListDatabaseUsersTool', function (): void {
         $this->mock(ForgeClient::class, function ($mock) use ($mockUser): void {
             $dbUserResource = Mockery::mock(DatabaseUserResource::class);
             $collection = new DatabaseUserCollectionData(users: [$mockUser]);
-            $dbUserResource->shouldReceive('list')->with(1)->once()->andReturn($collection);
+            $dbUserResource->shouldReceive('list')->with(1, null, 30)->once()->andReturn($collection);
             $mock->shouldReceive('databaseUsers')->once()->andReturn($dbUserResource);
         });
 

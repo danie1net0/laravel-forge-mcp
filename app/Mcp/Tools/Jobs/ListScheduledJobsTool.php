@@ -39,9 +39,11 @@ class ListScheduledJobsTool extends Tool
         ]);
 
         $serverId = $request->integer('server_id');
+        $cursor = $request->has('cursor') ? $request->string('cursor')->value() : null;
+        $pageSize = $request->has('page_size') ? $request->integer('page_size') : 30;
 
         try {
-            $jobs = $client->jobs()->list($serverId)->jobs;
+            $jobs = $client->jobs()->list($serverId, $cursor, $pageSize)->jobs;
 
             $formatted = array_map(fn (JobData $job): array => [
                 'id' => $job->id,
@@ -74,6 +76,8 @@ class ListScheduledJobsTool extends Tool
                 ->description('The unique ID of the Forge server')
                 ->min(1)
                 ->required(),
+            'cursor' => $schema->string()->description('Pagination cursor for next page')->nullable(),
+            'page_size' => $schema->integer()->description('Items per page (default 30)')->min(1)->max(100)->nullable(),
         ];
     }
 

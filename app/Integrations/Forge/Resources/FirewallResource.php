@@ -15,9 +15,9 @@ class FirewallResource
     ) {
     }
 
-    public function list(int $serverId): FirewallRuleCollectionData
+    public function list(int $serverId, ?string $cursor = null, int $pageSize = 30): FirewallRuleCollectionData
     {
-        $request = new ListFirewallRulesRequest($serverId);
+        $request = new ListFirewallRulesRequest($serverId, $cursor, $pageSize);
         $response = $this->connector->send($request);
 
         return $request->createDtoFromResponse($response);

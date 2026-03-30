@@ -16,10 +16,10 @@ use Laravel\Mcp\Server\Tools\Annotations\{IsIdempotent, IsReadOnly};
 class GetCertificateTool extends Tool
 {
     protected string $description = <<<'MARKDOWN'
-        Get detailed information about a specific SSL certificate on a Laravel Forge server.
+        Get detailed information about a specific SSL certificate for a domain on a Laravel Forge server.
 
         Returns complete certificate information including:
-        - Certificate ID
+        - Domain ID
         - Domain names
         - Type (Let's Encrypt or Custom)
         - Status (active, installing, failed)
@@ -32,7 +32,7 @@ class GetCertificateTool extends Tool
         **Required Parameters:**
         - `server_id`: The unique ID of the Forge server
         - `site_id`: The unique ID of the site
-        - `certificate_id`: The unique ID of the certificate
+        - `domain_id`: The unique ID of the domain
     MARKDOWN;
 
     public function handle(Request $request, ForgeClient $client): Response
@@ -40,15 +40,15 @@ class GetCertificateTool extends Tool
         $request->validate([
             'server_id' => ['required', 'integer', 'min:1'],
             'site_id' => ['required', 'integer', 'min:1'],
-            'certificate_id' => ['required', 'integer', 'min:1'],
+            'domain_id' => ['required', 'integer', 'min:1'],
         ]);
 
         $serverId = $request->integer('server_id');
         $siteId = $request->integer('site_id');
-        $certificateId = $request->integer('certificate_id');
+        $domainId = $request->integer('domain_id');
 
         try {
-            $certificate = $client->certificates()->get($serverId, $siteId, $certificateId);
+            $certificate = $client->certificates()->get($serverId, $siteId, $domainId);
 
             return Response::text(json_encode([
                 'success' => true,
@@ -64,10 +64,10 @@ class GetCertificateTool extends Tool
                     'created_at' => $certificate->createdAt,
                 ],
             ], JSON_PRETTY_PRINT));
-        } catch (Exception $e) {
+        } catch (Exception $exception) {
             return Response::text(json_encode([
                 'success' => false,
-                'error' => $e->getMessage(),
+                'error' => $exception->getMessage(),
                 'message' => 'Failed to retrieve certificate. Please verify the IDs are correct.',
             ], JSON_PRETTY_PRINT));
         }
@@ -84,8 +84,8 @@ class GetCertificateTool extends Tool
                 ->description('The unique ID of the site')
                 ->min(1)
                 ->required(),
-            'certificate_id' => $schema->integer()
-                ->description('The unique ID of the certificate')
+            'domain_id' => $schema->integer()
+                ->description('The unique ID of the domain')
                 ->min(1)
                 ->required(),
         ];

@@ -15,6 +15,8 @@ class ListSecurityRulesRequest extends Request
     public function __construct(
         private readonly int $serverId,
         private readonly int $siteId,
+        private readonly ?string $cursor = null,
+        private readonly int $pageSize = 30,
     ) {
     }
 
@@ -31,5 +33,19 @@ class ListSecurityRulesRequest extends Request
         );
 
         return SecurityRuleCollectionData::from(['rules' => $rules]);
+    }
+
+    /**
+     * @return array<string, string|int>
+     */
+    protected function defaultQuery(): array
+    {
+        $query = ['page[size]' => $this->pageSize];
+
+        if ($this->cursor !== null) {
+            $query['page[cursor]'] = $this->cursor;
+        }
+
+        return $query;
     }
 }

@@ -15,17 +15,14 @@ use Laravel\Mcp\Server\Tools\Annotations\IsDestructive;
 class InstallCertificateTool extends Tool
 {
     protected string $description = <<<'MARKDOWN'
-        Install/activate an SSL certificate on a site.
+        Install/activate an SSL certificate on a domain.
 
         Activates a certificate that has already been created or obtained.
 
         **Required Parameters:**
         - `server_id`: The unique ID of the Forge server
         - `site_id`: The unique ID of the site
-        - `certificate_id`: The unique ID of the certificate to install
-
-        **Optional Parameters:**
-        - `add_san_redirect`: Add redirect for SAN domains (default: false)
+        - `domain_id`: The unique ID of the domain to install the certificate on
 
         Returns success when certificate is activated.
     MARKDOWN;
@@ -35,31 +32,25 @@ class InstallCertificateTool extends Tool
         $request->validate([
             'server_id' => ['required', 'integer', 'min:1'],
             'site_id' => ['required', 'integer', 'min:1'],
-            'certificate_id' => ['required', 'integer', 'min:1'],
-            'add_san_redirect' => ['nullable', 'boolean'],
+            'domain_id' => ['required', 'integer', 'min:1'],
         ]);
 
         $serverId = $request->integer('server_id');
         $siteId = $request->integer('site_id');
-        $certificateId = $request->integer('certificate_id');
-        $data = [];
-
-        if ($request->has('add_san_redirect')) {
-            $data['add_san_redirect'] = $request->boolean('add_san_redirect');
-        }
+        $domainId = $request->integer('domain_id');
 
         try {
-            $client->certificates()->activate($serverId, $siteId, $certificateId);
+            $client->certificates()->activate($serverId, $siteId, $domainId);
 
             return Response::text(json_encode([
                 'success' => true,
                 'message' => 'Certificate installed and activated successfully',
-                'certificate_id' => $certificateId,
+                'domain_id' => $domainId,
             ], JSON_PRETTY_PRINT));
-        } catch (Exception $e) {
+        } catch (Exception $exception) {
             return Response::text(json_encode([
                 'success' => false,
-                'error' => $e->getMessage(),
+                'error' => $exception->getMessage(),
                 'message' => 'Failed to install certificate.',
             ], JSON_PRETTY_PRINT));
         }
@@ -76,12 +67,10 @@ class InstallCertificateTool extends Tool
                 ->description('The unique ID of the site')
                 ->min(1)
                 ->required(),
-            'certificate_id' => $schema->integer()
-                ->description('The unique ID of the certificate to install')
+            'domain_id' => $schema->integer()
+                ->description('The unique ID of the domain to install the certificate on')
                 ->min(1)
                 ->required(),
-            'add_san_redirect' => $schema->boolean()
-                ->description('Add redirect for SAN domains'),
         ];
     }
 

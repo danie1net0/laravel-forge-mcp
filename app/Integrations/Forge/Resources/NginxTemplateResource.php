@@ -15,9 +15,9 @@ class NginxTemplateResource
     ) {
     }
 
-    public function list(int $serverId): NginxTemplateCollectionData
+    public function list(int $serverId, ?string $cursor = null, int $pageSize = 30): NginxTemplateCollectionData
     {
-        $request = new ListNginxTemplatesRequest($serverId);
+        $request = new ListNginxTemplatesRequest($serverId, $cursor, $pageSize);
         $response = $this->connector->send($request);
 
         return $request->createDtoFromResponse($response);

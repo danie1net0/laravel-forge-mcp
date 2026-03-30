@@ -14,12 +14,12 @@ class GetSigningRequestRequest extends Request
     public function __construct(
         protected int $serverId,
         protected int $siteId,
-        protected int $certificateId,
+        protected int $domainId,
     ) {
     }
 
     public function resolveEndpoint(): string
     {
-        return "/servers/{$this->serverId}/sites/{$this->siteId}/certificates/{$this->certificateId}/csr";
+        return "/servers/{$this->serverId}/sites/{$this->siteId}/domains/{$this->domainId}/certificate/csr";
     }
 }

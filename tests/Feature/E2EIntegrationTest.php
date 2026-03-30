@@ -195,7 +195,7 @@ describe('Complete Site Setup Flow', function (): void {
             $mock->shouldReceive('databases')->andReturn($dbResource);
 
             $certResource = Mockery::mock(CertificateResource::class);
-            $certResource->shouldReceive('obtainLetsEncrypt')->andReturn($mockCert);
+            $certResource->shouldReceive('obtainLetsEncrypt')->with(1, 1, 1)->andReturn($mockCert);
             $mock->shouldReceive('certificates')->andReturn($certResource);
         });
 
@@ -214,7 +214,7 @@ describe('Complete Site Setup Flow', function (): void {
         $certResponse = ForgeServer::tool(ObtainLetsEncryptCertificateTool::class, [
             'server_id' => 1,
             'site_id' => 1,
-            'domains' => ['example.com'],
+            'domain_id' => 1,
         ]);
         $certResponse->assertOk()->assertSee('"success": true');
     });
@@ -386,10 +386,10 @@ describe('Complete Multi-Site Scenario', function (): void {
 
             $siteResource = Mockery::mock(SiteResource::class);
             $siteResource->shouldReceive('list')
-                ->with(1)
+                ->with(1, null, 30)
                 ->andReturn(new SiteCollectionData(sites: array_values(array_filter($mockSites, fn ($s) => $s->serverId === 1))));
             $siteResource->shouldReceive('list')
-                ->with(2)
+                ->with(2, null, 30)
                 ->andReturn(new SiteCollectionData(sites: array_values(array_filter($mockSites, fn ($s) => $s->serverId === 2))));
             $mock->shouldReceive('sites')->andReturn($siteResource);
         });

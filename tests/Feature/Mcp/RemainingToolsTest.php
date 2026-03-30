@@ -49,7 +49,7 @@ describe('ListFirewallRulesTool', function (): void {
 
         $this->mock(ForgeClient::class, function ($mock) use ($collection): void {
             $resource = Mockery::mock(FirewallResource::class);
-            $resource->shouldReceive('list')->with(1)->once()->andReturn($collection);
+            $resource->shouldReceive('list')->with(1, null, 30)->once()->andReturn($collection);
             $mock->shouldReceive('firewall')->once()->andReturn($resource);
         });
 
@@ -133,7 +133,7 @@ describe('ListSSHKeysTool', function (): void {
 
         $this->mock(ForgeClient::class, function ($mock) use ($collection): void {
             $resource = Mockery::mock(SSHKeyResource::class);
-            $resource->shouldReceive('list')->with(1)->once()->andReturn($collection);
+            $resource->shouldReceive('list')->with(1, null, 30)->once()->andReturn($collection);
             $mock->shouldReceive('sshKeys')->once()->andReturn($resource);
         });
 
@@ -158,7 +158,7 @@ describe('ListMonitorsTool', function (): void {
 
         $this->mock(ForgeClient::class, function ($mock) use ($collection): void {
             $resource = Mockery::mock(MonitorResource::class);
-            $resource->shouldReceive('list')->with(1)->once()->andReturn($collection);
+            $resource->shouldReceive('list')->with(1, null, 30)->once()->andReturn($collection);
             $mock->shouldReceive('monitors')->once()->andReturn($resource);
         });
 
@@ -182,7 +182,7 @@ describe('ListWebhooksTool', function (): void {
 
         $this->mock(ForgeClient::class, function ($mock) use ($collection): void {
             $resource = Mockery::mock(WebhookResource::class);
-            $resource->shouldReceive('list')->with(1, 1)->once()->andReturn($collection);
+            $resource->shouldReceive('list')->with(1, 1, null, 30)->once()->andReturn($collection);
             $mock->shouldReceive('webhooks')->once()->andReturn($resource);
         });
 
@@ -207,7 +207,7 @@ describe('ListRedirectRulesTool', function (): void {
 
         $this->mock(ForgeClient::class, function ($mock) use ($collection): void {
             $resource = Mockery::mock(RedirectRuleResource::class);
-            $resource->shouldReceive('list')->with(1, 1)->once()->andReturn($collection);
+            $resource->shouldReceive('list')->with(1, 1, null, 30)->once()->andReturn($collection);
             $mock->shouldReceive('redirectRules')->once()->andReturn($resource);
         });
 
@@ -232,7 +232,7 @@ describe('ListSecurityRulesTool', function (): void {
 
         $this->mock(ForgeClient::class, function ($mock) use ($collection): void {
             $resource = Mockery::mock(SecurityRuleResource::class);
-            $resource->shouldReceive('list')->with(1, 1)->once()->andReturn($collection);
+            $resource->shouldReceive('list')->with(1, 1, null, 30)->once()->andReturn($collection);
             $mock->shouldReceive('securityRules')->once()->andReturn($resource);
         });
 
@@ -255,7 +255,7 @@ describe('ListNginxTemplatesTool', function (): void {
 
         $this->mock(ForgeClient::class, function ($mock) use ($collection): void {
             $resource = Mockery::mock(NginxTemplateResource::class);
-            $resource->shouldReceive('list')->with(1)->once()->andReturn($collection);
+            $resource->shouldReceive('list')->with(1, null, 30)->once()->andReturn($collection);
             $mock->shouldReceive('nginxTemplates')->once()->andReturn($resource);
         });
 
@@ -280,7 +280,7 @@ describe('ListBackupConfigurationsTool', function (): void {
 
         $this->mock(ForgeClient::class, function ($mock) use ($collection): void {
             $resource = Mockery::mock(BackupResource::class);
-            $resource->shouldReceive('listConfigurations')->with(1)->once()->andReturn($collection);
+            $resource->shouldReceive('listConfigurations')->with(1, null, 30)->once()->andReturn($collection);
             $mock->shouldReceive('backups')->once()->andReturn($resource);
         });
 

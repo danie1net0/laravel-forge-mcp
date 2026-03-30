@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace App\Integrations\Forge\Requests\Certificates;
 
-use App\Integrations\Forge\Data\Certificates\{CertificateData, ObtainLetsEncryptCertificateData};
+use App\Integrations\Forge\Data\Certificates\CertificateData;
 use Saloon\Contracts\Body\HasBody;
 use Saloon\Enums\Method;
 use Saloon\Http\{Request, Response};
@@ -19,13 +19,13 @@ class ObtainLetsEncryptCertificateRequest extends Request implements HasBody
     public function __construct(
         protected int $serverId,
         protected int $siteId,
-        protected ObtainLetsEncryptCertificateData $data,
+        protected int $domainId,
     ) {
     }
 
     public function resolveEndpoint(): string
     {
-        return "/servers/{$this->serverId}/sites/{$this->siteId}/certificates/letsencrypt";
+        return "/servers/{$this->serverId}/sites/{$this->siteId}/domains/{$this->domainId}/certificate/actions";
     }
 
     public function createDtoFromResponse(Response $response): CertificateData
@@ -33,8 +33,11 @@ class ObtainLetsEncryptCertificateRequest extends Request implements HasBody
         return CertificateData::from(array_merge($response->json('certificate'), ['server_id' => $this->serverId, 'site_id' => $this->siteId]));
     }
 
+    /**
+     * @return array{action: string}
+     */
     protected function defaultBody(): array
     {
-        return $this->data->toArray();
+        return ['action' => 'enable'];
     }
 }

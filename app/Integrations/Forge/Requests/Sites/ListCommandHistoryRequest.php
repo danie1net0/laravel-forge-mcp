@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Integrations\Forge\Requests\Sites;
 
 use Saloon\Enums\Method;
@@ -11,12 +13,28 @@ class ListCommandHistoryRequest extends Request
 
     public function __construct(
         protected int $serverId,
-        protected int $siteId
+        protected int $siteId,
+        private readonly ?string $cursor = null,
+        private readonly int $pageSize = 30,
     ) {
     }
 
     public function resolveEndpoint(): string
     {
         return "/servers/{$this->serverId}/sites/{$this->siteId}/commands";
+    }
+
+    /**
+     * @return array<string, string|int>
+     */
+    protected function defaultQuery(): array
+    {
+        $query = ['page[size]' => $this->pageSize];
+
+        if ($this->cursor !== null) {
+            $query['page[cursor]'] = $this->cursor;
+        }
+
+        return $query;
     }
 }

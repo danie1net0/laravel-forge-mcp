@@ -13,14 +13,14 @@ use Laravel\Mcp\Server\Tool;
 class ActivateCertificateTool extends Tool
 {
     protected string $description = <<<'MARKDOWN'
-        Activate an SSL certificate for a site.
+        Activate an SSL certificate for a domain.
 
-        This will configure the site to use the specified certificate for HTTPS.
+        This will configure the domain to use SSL for HTTPS.
 
         **Required Parameters:**
         - `server_id`: The unique ID of the Forge server
         - `site_id`: The unique ID of the site
-        - `certificate_id`: The unique ID of the certificate to activate
+        - `domain_id`: The unique ID of the domain to activate the certificate on
     MARKDOWN;
 
     public function handle(Request $request, ForgeClient $client): Response
@@ -28,27 +28,27 @@ class ActivateCertificateTool extends Tool
         $request->validate([
             'server_id' => ['required', 'integer', 'min:1'],
             'site_id' => ['required', 'integer', 'min:1'],
-            'certificate_id' => ['required', 'integer', 'min:1'],
+            'domain_id' => ['required', 'integer', 'min:1'],
         ]);
 
         $serverId = $request->integer('server_id');
         $siteId = $request->integer('site_id');
-        $certificateId = $request->integer('certificate_id');
+        $domainId = $request->integer('domain_id');
 
         try {
-            $client->certificates()->activate($serverId, $siteId, $certificateId);
+            $client->certificates()->activate($serverId, $siteId, $domainId);
 
             return Response::text(json_encode([
                 'success' => true,
                 'message' => 'Certificate activated successfully.',
                 'server_id' => $serverId,
                 'site_id' => $siteId,
-                'certificate_id' => $certificateId,
+                'domain_id' => $domainId,
             ], JSON_PRETTY_PRINT));
-        } catch (Exception $e) {
+        } catch (Exception $exception) {
             return Response::text(json_encode([
                 'success' => false,
-                'error' => $e->getMessage(),
+                'error' => $exception->getMessage(),
             ], JSON_PRETTY_PRINT));
         }
     }
@@ -64,8 +64,8 @@ class ActivateCertificateTool extends Tool
                 ->description('The unique ID of the site')
                 ->min(1)
                 ->required(),
-            'certificate_id' => $schema->integer()
-                ->description('The unique ID of the certificate to activate')
+            'domain_id' => $schema->integer()
+                ->description('The unique ID of the domain to activate the certificate on')
                 ->min(1)
                 ->required(),
         ];

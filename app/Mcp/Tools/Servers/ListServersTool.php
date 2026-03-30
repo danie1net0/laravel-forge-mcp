@@ -50,7 +50,10 @@ class ListServersTool extends Tool
     public function handle(Request $request, ForgeClient $client): Response
     {
         try {
-            $servers = $client->servers()->list()->servers;
+            $cursor = $request->has('cursor') ? $request->string('cursor')->value() : null;
+            $pageSize = $request->has('page_size') ? $request->integer('page_size') : 30;
+
+            $servers = $client->servers()->list($cursor, $pageSize)->servers;
 
             $formatted = array_map(fn (ServerData $server): array => [
                 'id' => $server->id,
@@ -79,7 +82,10 @@ class ListServersTool extends Tool
 
     public function schema(JsonSchema $schema): array
     {
-        return [];
+        return [
+            'cursor' => $schema->string()->description('Pagination cursor for next page')->nullable(),
+            'page_size' => $schema->integer()->description('Items per page (default 30)')->min(1)->max(100)->nullable(),
+        ];
     }
 
     public function shouldRegister(): bool

@@ -66,7 +66,7 @@ describe('ListSitesTool', function (): void {
         $this->mock(ForgeClient::class, function ($mock) use ($mockSite): void {
             $siteResource = Mockery::mock(SiteResource::class);
             $collection = new SiteCollectionData(sites: [$mockSite]);
-            $siteResource->shouldReceive('list')->with(Mockery::any())->once()->andReturn($collection);
+            $siteResource->shouldReceive('list')->with(Mockery::any(), null, 30)->once()->andReturn($collection);
             $mock->shouldReceive('sites')->once()->andReturn($siteResource);
         });
 
@@ -333,7 +333,7 @@ describe('ListAliasesTool', function (): void {
     it('lists aliases successfully', function (): void {
         $this->mock(ForgeClient::class, function ($mock): void {
             $siteResource = Mockery::mock(SiteResource::class);
-            $siteResource->shouldReceive('listAliases')->with(1, 1)->once()->andReturn(['www.example.com', 'api.example.com']);
+            $siteResource->shouldReceive('listAliases')->with(1, 1, null, 30)->once()->andReturn(['www.example.com', 'api.example.com']);
             $mock->shouldReceive('sites')->once()->andReturn($siteResource);
         });
 

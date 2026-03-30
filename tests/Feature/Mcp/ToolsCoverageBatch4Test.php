@@ -515,11 +515,11 @@ describe('Server tools error paths', function (): void {
 
         $response = ForgeServer::tool(CreateServerTool::class, [
             'name' => 'new-server',
-            'provider' => 'ocean',
-            'credential_id' => 1,
-            'region' => 'nyc1',
-            'size' => '1gb',
-            'php_version' => 'php82',
+            'provider' => 'ocean2',
+            'type' => 'app',
+            'ubuntu_version' => '24.04',
+            'region_id' => 'nyc1',
+            'size_id' => 's-1vcpu-1gb',
         ]);
 
         $response->assertOk()->assertSee('"success": false')->assertSee('Invalid credentials');
@@ -1737,7 +1737,7 @@ describe('CloneSiteTool error paths', function (): void {
             $jobResource->shouldReceive('list')->once()->andThrow(new Exception('Jobs fetch failed'));
 
             $certResource = Mockery::mock(CertificateResource::class);
-            $certResource->shouldReceive('obtainLetsEncrypt')->once()->andThrow(new Exception('SSL failed'));
+            $certResource->shouldReceive('list')->once()->andThrow(new Exception('SSL failed'));
 
             $mock->shouldReceive('sites')->andReturn($siteResource);
             $mock->shouldReceive('workers')->andReturn($workerResource);
@@ -1820,8 +1820,12 @@ describe('CloneSiteTool error paths', function (): void {
             );
             $jobResource->shouldReceive('create')->with(2, Mockery::any())->once();
 
+            $mockDomainCert = makeMockCertificateData(['id' => 10, 'domain' => 'clone.com']);
             $certResource = Mockery::mock(CertificateResource::class);
-            $certResource->shouldReceive('obtainLetsEncrypt')->with(2, 2, Mockery::any())->once();
+            $certResource->shouldReceive('list')->with(2, 2)->once()->andReturn(
+                CertificateCollectionData::from(['certificates' => [$mockDomainCert->toArray()]])
+            );
+            $certResource->shouldReceive('obtainLetsEncrypt')->with(2, 2, 10)->once();
 
             $mock->shouldReceive('sites')->andReturn($siteResource);
             $mock->shouldReceive('workers')->andReturn($workerResource);
@@ -1848,8 +1852,8 @@ describe('CloneSiteTool error paths', function (): void {
 // COVERAGE BATCH 5 - Uncovered optional parameter branches
 // ============================================================================
 
-describe('InstallCertificateTool optional parameters', function (): void {
-    it('accepts add_san_redirect parameter', function (): void {
+describe('InstallCertificateTool domain-based parameters', function (): void {
+    it('accepts domain_id parameter', function (): void {
         $this->mock(ForgeClient::class, function (Mockery\MockInterface $mock): void {
             $certificateResource = Mockery::mock(CertificateResource::class);
             $certificateResource->shouldReceive('activate')
@@ -1861,8 +1865,7 @@ describe('InstallCertificateTool optional parameters', function (): void {
         $response = ForgeServer::tool(InstallCertificateTool::class, [
             'server_id' => 1,
             'site_id' => 1,
-            'certificate_id' => 1,
-            'add_san_redirect' => true,
+            'domain_id' => 1,
         ]);
 
         $response->assertOk()->assertSee('"success": true');
@@ -1870,7 +1873,7 @@ describe('InstallCertificateTool optional parameters', function (): void {
 });
 
 describe('CreateServerTool optional parameters', function (): void {
-    it('accepts database, database_name and load_balancer parameters', function (): void {
+    it('accepts optional fields like credential_id, database, tags and php_version', function (): void {
         $mockServer = makeMockServerData([
             'id' => 5,
             'name' => 'db-server',
@@ -1888,19 +1891,55 @@ describe('CreateServerTool optional parameters', function (): void {
         });
 
         $response = ForgeServer::tool(CreateServerTool::class, [
-            'credential_id' => 1,
             'name' => 'db-server',
-            'size' => 's-2vcpu-2gb',
-            'region' => 'nyc3',
-            'database' => 'mysql8',
-            'database_name' => 'forge_db',
-            'load_balancer' => true,
+            'provider' => 'ocean2',
+            'type' => 'database',
+            'ubuntu_version' => '24.04',
+            'region_id' => 'nyc3',
+            'size_id' => 's-2vcpu-2gb',
+            'credential_id' => 1,
+            'php_version' => 'php83',
+            'database_type' => 'mysql8',
+            'database' => 'forge_db',
+            'tags' => ['production', 'database'],
+            'add_key_to_source_control' => false,
         ]);
 
         $response
             ->assertOk()
             ->assertSee('"success": true')
             ->assertSee('db-server');
+    });
+
+    it('creates server with custom provider using ip_address', function (): void {
+        $mockServer = makeMockServerData([
+            'id' => 6,
+            'name' => 'custom-server',
+            'provider' => 'custom',
+        ]);
+
+        $this->mock(ForgeClient::class, function (Mockery\MockInterface $mock) use ($mockServer): void {
+            $serverResource = Mockery::mock(ServerResource::class);
+            $serverResource->shouldReceive('create')
+                ->with(Mockery::type(CreateServerData::class))
+                ->once()
+                ->andReturn($mockServer);
+            $mock->shouldReceive('servers')->andReturn($serverResource);
+        });
+
+        $response = ForgeServer::tool(CreateServerTool::class, [
+            'name' => 'custom-server',
+            'provider' => 'custom',
+            'type' => 'app',
+            'ubuntu_version' => '22.04',
+            'ip_address' => '203.0.113.10',
+            'private_ip_address' => '10.0.0.5',
+        ]);
+
+        $response
+            ->assertOk()
+            ->assertSee('"success": true')
+            ->assertSee('custom-server');
     });
 });
 

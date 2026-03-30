@@ -15,9 +15,9 @@ class SSHKeyResource
     ) {
     }
 
-    public function list(int $serverId): SSHKeyCollectionData
+    public function list(int $serverId, ?string $cursor = null, int $pageSize = 30): SSHKeyCollectionData
     {
-        $request = new ListSSHKeysRequest($serverId);
+        $request = new ListSSHKeysRequest($serverId, $cursor, $pageSize);
         $response = $this->connector->send($request);
 
         return $request->createDtoFromResponse($response);

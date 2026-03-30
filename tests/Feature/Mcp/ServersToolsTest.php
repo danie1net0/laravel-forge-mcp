@@ -150,10 +150,9 @@ describe('CreateServerTool', function (): void {
 
     it('requires name parameter', function (): void {
         $response = ForgeServer::tool(CreateServerTool::class, [
-            'provider' => 'ocean',
-            'credential_id' => 1,
-            'region' => 'nyc1',
-            'size' => '1gb',
+            'provider' => 'ocean2',
+            'type' => 'app',
+            'ubuntu_version' => '24.04',
         ]);
 
         $response->assertHasErrors();
@@ -170,11 +169,11 @@ describe('CreateServerTool', function (): void {
 
         $response = ForgeServer::tool(CreateServerTool::class, [
             'name' => 'new-server',
-            'provider' => 'ocean',
-            'credential_id' => 1,
-            'region' => 'nyc1',
-            'size' => '1gb',
-            'php_version' => 'php82',
+            'provider' => 'ocean2',
+            'type' => 'app',
+            'ubuntu_version' => '24.04',
+            'region_id' => 'nyc1',
+            'size_id' => 's-1vcpu-1gb',
         ]);
 
         $response->assertOk()->assertSee('"success": true');
@@ -313,7 +312,7 @@ describe('ListEventsTool', function (): void {
 
         $this->mock(ForgeClient::class, function ($mock) use ($mockEvents): void {
             $serverResource = Mockery::mock(ServerResource::class);
-            $serverResource->shouldReceive('listEvents')->with(1)->once()->andReturn($mockEvents);
+            $serverResource->shouldReceive('listEvents')->with(1, null, 30)->once()->andReturn($mockEvents);
             $mock->shouldReceive('servers')->once()->andReturn($serverResource);
         });
 

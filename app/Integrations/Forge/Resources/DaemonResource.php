@@ -15,9 +15,9 @@ class DaemonResource
     ) {
     }
 
-    public function list(int $serverId): DaemonCollectionData
+    public function list(int $serverId, ?string $cursor = null, int $pageSize = 30): DaemonCollectionData
     {
-        $request = new ListDaemonsRequest($serverId);
+        $request = new ListDaemonsRequest($serverId, $cursor, $pageSize);
         $response = $this->connector->send($request);
 
         return $request->createDtoFromResponse($response);

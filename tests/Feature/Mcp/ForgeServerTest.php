@@ -428,7 +428,7 @@ describe('ListSitesTool', function (): void {
         $this->mock(ForgeClient::class, function ($mock) use ($mockSite): void {
             $siteResource = Mockery::mock(SiteResource::class);
             $collection = new SiteCollectionData(sites: [$mockSite]);
-            $siteResource->shouldReceive('list')->with(Mockery::any())->once()->andReturn($collection);
+            $siteResource->shouldReceive('list')->with(Mockery::any(), null, 30)->once()->andReturn($collection);
             $mock->shouldReceive('sites')->once()->andReturn($siteResource);
         });
 
@@ -485,7 +485,7 @@ describe('ObtainLetsEncryptCertificateTool', function (): void {
         $response->assertHasErrors();
     });
 
-    it('requires domains when server_id and site_id provided', function (): void {
+    it('requires domain_id when server_id and site_id provided', function (): void {
         $response = ForgeServer::tool(ObtainLetsEncryptCertificateTool::class, [
             'server_id' => 1,
             'site_id' => 1,
@@ -513,7 +513,7 @@ describe('ObtainLetsEncryptCertificateTool', function (): void {
         $this->mock(ForgeClient::class, function ($mock) use ($mockCert): void {
             $certResource = Mockery::mock(CertificateResource::class);
             $certResource->shouldReceive('obtainLetsEncrypt')
-                ->with(1, 1, Mockery::type(App\Integrations\Forge\Data\Certificates\ObtainLetsEncryptCertificateData::class))
+                ->with(1, 1, 10)
                 ->once()
                 ->andReturn($mockCert);
             $mock->shouldReceive('certificates')->once()->andReturn($certResource);
@@ -522,7 +522,7 @@ describe('ObtainLetsEncryptCertificateTool', function (): void {
         $response = ForgeServer::tool(ObtainLetsEncryptCertificateTool::class, [
             'server_id' => 1,
             'site_id' => 1,
-            'domains' => ['example.com'],
+            'domain_id' => 10,
         ]);
 
         $response
@@ -531,47 +531,11 @@ describe('ObtainLetsEncryptCertificateTool', function (): void {
             ->assertSee('initiated');
     });
 
-    it('obtains certificate for multiple domains', function (): void {
-        $mockCert = CertificateData::from([
-            'id' => 1,
-            'server_id' => 1,
-            'site_id' => 1,
-            'domain' => 'example.com',
-            'request_status' => 'creating',
-            'status' => 'installing',
-            'type' => 'letsencrypt',
-            'active' => false,
-            'existing' => false,
-            'expires_at' => null,
-            'created_at' => '2024-01-01T00:00:00Z',
-            'activation_error' => null,
-        ]);
-
-        $this->mock(ForgeClient::class, function ($mock) use ($mockCert): void {
-            $certResource = Mockery::mock(CertificateResource::class);
-            $certResource->shouldReceive('obtainLetsEncrypt')
-                ->with(1, 1, Mockery::type(App\Integrations\Forge\Data\Certificates\ObtainLetsEncryptCertificateData::class))
-                ->once()
-                ->andReturn($mockCert);
-            $mock->shouldReceive('certificates')->once()->andReturn($certResource);
-        });
-
-        $response = ForgeServer::tool(ObtainLetsEncryptCertificateTool::class, [
-            'server_id' => 1,
-            'site_id' => 1,
-            'domains' => ['example.com', 'www.example.com'],
-        ]);
-
-        $response
-            ->assertOk()
-            ->assertSee('initiated');
-    });
-
     it('handles DNS validation error', function (): void {
         $this->mock(ForgeClient::class, function ($mock): void {
             $certResource = Mockery::mock(CertificateResource::class);
             $certResource->shouldReceive('obtainLetsEncrypt')
-                ->with(1, 1, Mockery::type(App\Integrations\Forge\Data\Certificates\ObtainLetsEncryptCertificateData::class))
+                ->with(1, 1, 10)
                 ->once()
                 ->andThrow(new Exception('DNS validation failed'));
             $mock->shouldReceive('certificates')->once()->andReturn($certResource);
@@ -580,7 +544,7 @@ describe('ObtainLetsEncryptCertificateTool', function (): void {
         $response = ForgeServer::tool(ObtainLetsEncryptCertificateTool::class, [
             'server_id' => 1,
             'site_id' => 1,
-            'domains' => ['invalid.example.com'],
+            'domain_id' => 10,
         ]);
 
         $response
@@ -593,7 +557,7 @@ describe('ObtainLetsEncryptCertificateTool', function (): void {
         $this->mock(ForgeClient::class, function ($mock): void {
             $certResource = Mockery::mock(CertificateResource::class);
             $certResource->shouldReceive('obtainLetsEncrypt')
-                ->with(1, 1, Mockery::type(App\Integrations\Forge\Data\Certificates\ObtainLetsEncryptCertificateData::class))
+                ->with(1, 1, 10)
                 ->once()
                 ->andThrow(new Exception('Rate limit exceeded'));
             $mock->shouldReceive('certificates')->once()->andReturn($certResource);
@@ -602,7 +566,7 @@ describe('ObtainLetsEncryptCertificateTool', function (): void {
         $response = ForgeServer::tool(ObtainLetsEncryptCertificateTool::class, [
             'server_id' => 1,
             'site_id' => 1,
-            'domains' => ['example.com'],
+            'domain_id' => 10,
         ]);
 
         $response

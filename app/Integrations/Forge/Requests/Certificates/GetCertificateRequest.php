@@ -15,13 +15,13 @@ class GetCertificateRequest extends Request
     public function __construct(
         protected int $serverId,
         protected int $siteId,
-        protected int $certificateId,
+        protected int $domainId,
     ) {
     }
 
     public function resolveEndpoint(): string
     {
-        return "/servers/{$this->serverId}/sites/{$this->siteId}/certificates/{$this->certificateId}";
+        return "/servers/{$this->serverId}/sites/{$this->siteId}/domains/{$this->domainId}/certificate";
     }
 
     public function createDtoFromResponse(Response $response): CertificateData

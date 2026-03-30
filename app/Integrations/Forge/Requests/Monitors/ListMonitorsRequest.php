@@ -14,6 +14,8 @@ class ListMonitorsRequest extends Request
 
     public function __construct(
         private readonly int $serverId,
+        private readonly ?string $cursor = null,
+        private readonly int $pageSize = 30,
     ) {
     }
 
@@ -30,5 +32,19 @@ class ListMonitorsRequest extends Request
         );
 
         return MonitorCollectionData::from(['monitors' => $monitors]);
+    }
+
+    /**
+     * @return array<string, string|int>
+     */
+    protected function defaultQuery(): array
+    {
+        $query = ['page[size]' => $this->pageSize];
+
+        if ($this->cursor !== null) {
+            $query['page[cursor]'] = $this->cursor;
+        }
+
+        return $query;
     }
 }
