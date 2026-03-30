@@ -17,6 +17,6 @@ class GetDeploymentHistoryRequest extends Request
 
     public function resolveEndpoint(): string
     {
-        return "/servers/{$this->serverId}/sites/{$this->siteId}/deployment-history";
+        return "/servers/{$this->serverId}/sites/{$this->siteId}/deployments";
     }
 }

@@ -161,7 +161,7 @@ describe('GetSiteRequest', function (): void {
     it('resolves correct endpoint', function (): void {
         $request = new GetSiteRequest(123, 456);
 
-        expect($request->resolveEndpoint())->toBe('/servers/123/sites/456');
+        expect($request->resolveEndpoint())->toBe('/sites/456');
     });
 
     it('has createDtoFromResponse method', function (): void {

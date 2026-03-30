@@ -114,43 +114,27 @@ describe('SiteData', function (): void {
             'id' => 1,
             'server_id' => 1,
             'name' => 'example.com',
-            'aliases' => null,
-            'directory' => '/home/forge/example.com',
-            'wildcards' => false,
             'status' => 'installed',
-            'repository' => null,
-            'repository_provider' => null,
-            'repository_branch' => null,
-            'repository_status' => null,
-            'quick_deploy' => true,
-            'deployment_status' => null,
-            'project_type' => 'php',
-            'app' => null,
-            'app_status' => null,
-            'hipchat_room' => null,
-            'slack_channel' => null,
-            'telegram_chat_id' => null,
-            'telegram_chat_title' => null,
-            'teams_webhook_url' => null,
-            'discord_webhook_url' => null,
-            'username' => 'forge',
-            'balancing_status' => null,
             'created_at' => '2024-01-01T00:00:00Z',
-            'deployment_url' => null,
-            'is_secured' => false,
-            'php_version' => '8.2',
-            'tags' => [],
-            'failure_deployment_emails' => null,
-            'telegram_secret' => null,
+            'url' => 'http://example.com',
+            'user' => 'forge',
+            'https' => false,
             'web_directory' => '/public',
+            'root_directory' => '/home/forge/example.com',
+            'aliases' => [],
+            'php_version' => 'php82',
+            'quick_deploy' => true,
+            'wildcards' => false,
+            'app_type' => 'php',
+            'tags' => [],
         ]);
 
         expect($data->id)->toBe(1);
         expect($data->name)->toBe('example.com');
         expect($data->quickDeploy)->toBeTrue();
-        expect($data->username)->toBe('forge');
+        expect($data->user)->toBe('forge');
         expect($data->wildcards)->toBeFalse();
-        expect($data->isSecured)->toBeFalse();
+        expect($data->https)->toBeFalse();
     });
 
     it('handles repository fields', function (): void {
@@ -158,41 +142,23 @@ describe('SiteData', function (): void {
             'id' => 1,
             'server_id' => 1,
             'name' => 'example.com',
-            'aliases' => null,
-            'directory' => '/home/forge/example.com',
-            'wildcards' => false,
             'status' => 'installed',
-            'repository' => 'user/repo',
-            'repository_provider' => 'github',
-            'repository_branch' => 'main',
-            'repository_status' => 'installed',
-            'quick_deploy' => false,
-            'deployment_status' => null,
-            'project_type' => 'php',
-            'app' => null,
-            'app_status' => null,
-            'hipchat_room' => null,
-            'slack_channel' => null,
-            'telegram_chat_id' => null,
-            'telegram_chat_title' => null,
-            'teams_webhook_url' => null,
-            'discord_webhook_url' => null,
-            'username' => 'forge',
-            'balancing_status' => null,
             'created_at' => '2024-01-01T00:00:00Z',
-            'deployment_url' => null,
-            'is_secured' => true,
-            'php_version' => '8.2',
-            'tags' => null,
-            'failure_deployment_emails' => null,
-            'telegram_secret' => null,
-            'web_directory' => null,
+            'user' => 'forge',
+            'https' => true,
+            'web_directory' => '/public',
+            'root_directory' => '/home/forge/example.com',
+            'aliases' => [],
+            'php_version' => 'php82',
+            'quick_deploy' => false,
+            'wildcards' => false,
+            'repository' => ['provider' => 'github', 'url' => 'user/repo', 'branch' => 'main', 'status' => 'installed'],
+            'app_type' => 'php',
+            'tags' => [],
         ]);
 
-        expect($data->repository)->toBe('user/repo');
-        expect($data->repositoryProvider)->toBe('github');
-        expect($data->repositoryBranch)->toBe('main');
-        expect($data->isSecured)->toBeTrue();
+        expect($data->repository)->toBe(['provider' => 'github', 'url' => 'user/repo', 'branch' => 'main', 'status' => 'installed']);
+        expect($data->https)->toBeTrue();
     });
 });
 

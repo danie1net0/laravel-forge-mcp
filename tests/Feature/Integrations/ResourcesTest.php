@@ -60,35 +60,20 @@ function siteMockData(array $overrides = []): array
         'id' => 1,
         'server_id' => 1,
         'name' => 'test.com',
-        'aliases' => null,
-        'directory' => '/home/forge/test.com',
-        'wildcards' => false,
         'status' => 'installed',
-        'repository' => null,
-        'repository_provider' => null,
-        'repository_branch' => null,
-        'repository_status' => null,
-        'quick_deploy' => false,
-        'deployment_status' => null,
-        'project_type' => 'php',
-        'app' => null,
-        'app_status' => null,
-        'hipchat_room' => null,
-        'slack_channel' => null,
-        'telegram_chat_id' => null,
-        'telegram_chat_title' => null,
-        'teams_webhook_url' => null,
-        'discord_webhook_url' => null,
-        'username' => 'forge',
-        'balancing_status' => null,
         'created_at' => '2024-01-01T00:00:00Z',
-        'deployment_url' => null,
-        'is_secured' => false,
+        'url' => 'http://test.com',
+        'user' => 'forge',
+        'https' => false,
+        'web_directory' => '/home/forge/test.com/public',
+        'root_directory' => '/home/forge/test.com',
+        'aliases' => [],
         'php_version' => 'php84',
+        'quick_deploy' => false,
+        'wildcards' => false,
+        'repository' => null,
+        'app_type' => 'php',
         'tags' => [],
-        'failure_deployment_emails' => null,
-        'telegram_secret' => null,
-        'web_directory' => '/public',
     ], $overrides);
 }
 
@@ -497,7 +482,7 @@ describe('SiteResource', function (): void {
 
     it('updates a site', function (): void {
         $connector = createMockedConnector([
-            MockResponse::make(['site' => siteMockData(['directory' => '/home/forge/updated'])]),
+            MockResponse::make(['site' => siteMockData(['root_directory' => '/home/forge/updated'])]),
         ]);
 
         $resource = new SiteResource($connector);
@@ -506,7 +491,7 @@ describe('SiteResource', function (): void {
 
         expect($result)
             ->toBeInstanceOf(SiteData::class)
-            ->directory->toBe('/home/forge/updated');
+            ->rootDirectory->toBe('/home/forge/updated');
     });
 
     it('deletes a site', function (): void {
@@ -691,7 +676,7 @@ describe('SiteResource', function (): void {
 
     it('installs git repository', function (): void {
         $connector = createMockedConnector([
-            MockResponse::make(['site' => siteMockData(['repository' => 'user/repo', 'repository_provider' => 'github'])]),
+            MockResponse::make(['site' => siteMockData(['repository' => ['provider' => 'github', 'url' => 'user/repo', 'branch' => 'main', 'status' => 'installed']])]),
         ]);
 
         $resource = new SiteResource($connector);
@@ -703,7 +688,7 @@ describe('SiteResource', function (): void {
 
         expect($result)
             ->toBeInstanceOf(SiteData::class)
-            ->repository->toBe('user/repo');
+            ->repository->toBe(['provider' => 'github', 'url' => 'user/repo', 'branch' => 'main', 'status' => 'installed']);
     });
 
     it('updates git repository', function (): void {

@@ -20,7 +20,7 @@ class GetSSHKeyRequest extends Request
 
     public function resolveEndpoint(): string
     {
-        return "/servers/{$this->serverId}/keys/{$this->keyId}";
+        return "/servers/{$this->serverId}/ssh-keys/{$this->keyId}";
     }
 
     public function createDtoFromResponse(Response $response): SSHKeyData

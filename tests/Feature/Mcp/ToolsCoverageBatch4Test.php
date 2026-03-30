@@ -68,35 +68,20 @@ function makeMockSiteData(array $overrides = []): SiteData
         'id' => 1,
         'server_id' => 1,
         'name' => 'example.com',
-        'aliases' => null,
-        'directory' => '/home/forge/example.com',
-        'wildcards' => false,
         'status' => 'installed',
-        'repository' => null,
-        'repository_provider' => null,
-        'repository_branch' => null,
-        'repository_status' => null,
-        'quick_deploy' => true,
-        'deployment_status' => null,
-        'project_type' => 'php',
-        'app' => null,
-        'app_status' => null,
-        'hipchat_room' => null,
-        'slack_channel' => null,
-        'telegram_chat_id' => null,
-        'telegram_chat_title' => null,
-        'teams_webhook_url' => null,
-        'discord_webhook_url' => null,
-        'username' => 'forge',
-        'balancing_status' => null,
         'created_at' => '2024-01-01T00:00:00Z',
-        'deployment_url' => null,
-        'is_secured' => false,
+        'url' => 'http://example.com',
+        'user' => 'forge',
+        'https' => false,
+        'web_directory' => '/home/forge/example.com/public',
+        'root_directory' => '/home/forge/example.com',
+        'aliases' => [],
         'php_version' => 'php84',
+        'quick_deploy' => true,
+        'wildcards' => false,
+        'repository' => null,
+        'app_type' => 'php',
         'tags' => [],
-        'failure_deployment_emails' => null,
-        'telegram_secret' => null,
-        'web_directory' => '/public',
     ], $overrides));
 }
 
@@ -1252,9 +1237,7 @@ describe('SiteStatusDashboardTool error paths', function (): void {
 
     it('handles inner exceptions for sub-resources gracefully', function (): void {
         $mockSite = makeMockSiteData([
-            'repository' => 'user/repo',
-            'repository_provider' => 'github',
-            'repository_branch' => 'main',
+            'repository' => ['provider' => 'github', 'url' => 'user/repo', 'branch' => 'main', 'status' => 'installed'],
         ]);
 
         $this->mock(ForgeClient::class, function (Mockery\MockInterface $mock) use ($mockSite): void {
@@ -1287,9 +1270,7 @@ describe('SiteStatusDashboardTool error paths', function (): void {
 
     it('displays active certificate and deployment info', function (): void {
         $mockSite = makeMockSiteData([
-            'repository' => 'user/repo',
-            'repository_provider' => 'github',
-            'repository_branch' => 'main',
+            'repository' => ['provider' => 'github', 'url' => 'user/repo', 'branch' => 'main', 'status' => 'installed'],
         ]);
 
         $mockCert = makeMockCertificateData([
@@ -1662,9 +1643,7 @@ describe('CloneSiteTool error paths', function (): void {
         $mockSourceSite = makeMockSiteData([
             'id' => 1,
             'name' => 'source.com',
-            'repository' => 'user/repo',
-            'repository_provider' => 'github',
-            'repository_branch' => 'main',
+            'repository' => ['provider' => 'github', 'url' => 'user/repo', 'branch' => 'main', 'status' => 'installed'],
         ]);
 
         $mockNewSite = makeMockSiteData([
@@ -1897,9 +1876,10 @@ describe('CreateSiteTool optional parameters', function (): void {
         $mockSite = makeMockSiteData([
             'id' => 10,
             'name' => 'full-site.com',
-            'directory' => '/home/forge/full-site.com/public',
+            'root_directory' => '/home/forge/full-site.com',
+            'web_directory' => '/home/forge/full-site.com/public',
             'aliases' => ['www.full-site.com', 'blog.full-site.com'],
-            'username' => 'siteuser',
+            'user' => 'siteuser',
             'php_version' => 'php83',
             'status' => 'installing',
         ]);

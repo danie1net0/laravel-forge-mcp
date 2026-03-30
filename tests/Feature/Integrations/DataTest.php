@@ -933,35 +933,21 @@ describe('Sites', function (): void {
             'id' => 1,
             'server_id' => 2,
             'name' => 'example.com',
-            'aliases' => ['www.example.com'],
-            'directory' => '/home/forge/example.com',
-            'wildcards' => false,
             'status' => 'installed',
-            'repository' => 'user/repo',
-            'repository_provider' => 'github',
-            'repository_branch' => 'main',
-            'repository_status' => 'installed',
-            'quick_deploy' => true,
-            'deployment_status' => null,
-            'project_type' => 'php',
-            'app' => null,
-            'app_status' => null,
-            'hipchat_room' => null,
-            'slack_channel' => '#deployments',
-            'telegram_chat_id' => null,
-            'telegram_chat_title' => null,
-            'teams_webhook_url' => null,
-            'discord_webhook_url' => null,
-            'username' => 'forge',
-            'balancing_status' => null,
             'created_at' => '2024-01-01T00:00:00Z',
-            'deployment_url' => 'https://deploy.example.com',
-            'is_secured' => true,
-            'php_version' => 'php82',
-            'tags' => ['production'],
-            'failure_deployment_emails' => ['admin@example.com'],
-            'telegram_secret' => null,
+            'url' => 'http://example.com',
+            'user' => 'forge',
+            'https' => true,
             'web_directory' => '/public',
+            'root_directory' => '/home/forge/example.com',
+            'aliases' => ['www.example.com'],
+            'php_version' => 'php82',
+            'quick_deploy' => true,
+            'wildcards' => false,
+            'repository' => ['provider' => 'github', 'url' => 'user/repo', 'branch' => 'main', 'status' => 'installed'],
+            'deployment_url' => 'https://deploy.example.com',
+            'app_type' => 'php',
+            'tags' => ['production'],
         ]);
 
         expect($data)
@@ -970,13 +956,11 @@ describe('Sites', function (): void {
             ->name->toBe('example.com')
             ->aliases->toBe(['www.example.com'])
             ->wildcards->toBeFalse()
-            ->repository->toBe('user/repo')
-            ->repositoryProvider->toBe('github')
-            ->repositoryBranch->toBe('main')
+            ->repository->toBe(['provider' => 'github', 'url' => 'user/repo', 'branch' => 'main', 'status' => 'installed'])
             ->quickDeploy->toBeTrue()
-            ->projectType->toBe('php')
-            ->username->toBe('forge')
-            ->isSecured->toBeTrue()
+            ->appType->toBe('php')
+            ->user->toBe('forge')
+            ->https->toBeTrue()
             ->webDirectory->toBe('/public');
     });
 

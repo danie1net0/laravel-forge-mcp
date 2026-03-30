@@ -72,7 +72,7 @@ class UpdateSiteTool extends Tool
                 'site' => [
                     'id' => $site->id,
                     'name' => $site->name,
-                    'directory' => $site->directory,
+                    'root_directory' => $site->rootDirectory,
                     'aliases' => $site->aliases,
                 ],
             ], JSON_PRETTY_PRINT));

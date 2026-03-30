@@ -20,7 +20,7 @@ class GetJobRequest extends Request
 
     public function resolveEndpoint(): string
     {
-        return "/servers/{$this->serverId}/jobs/{$this->jobId}";
+        return "/servers/{$this->serverId}/scheduled-jobs/{$this->jobId}";
     }
 
     public function createDtoFromResponse(Response $response): JobData

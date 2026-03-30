@@ -91,17 +91,13 @@ describe('InstallGitRepositoryTool', function (): void {
 
     it('installs git repository successfully', function (): void {
         $mockSite = App\Integrations\Forge\Data\Sites\SiteData::from([
-            'id' => 1, 'server_id' => 1, 'name' => 'example.com', 'aliases' => null,
-            'directory' => '/public', 'wildcards' => false, 'status' => 'installed',
-            'repository' => 'user/repo', 'repository_provider' => 'github',
-            'repository_branch' => 'main', 'repository_status' => 'installed',
-            'quick_deploy' => false, 'deployment_status' => null, 'project_type' => 'php',
-            'app' => null, 'app_status' => null, 'hipchat_room' => null, 'slack_channel' => null,
-            'telegram_chat_id' => null, 'telegram_chat_title' => null, 'teams_webhook_url' => null,
-            'discord_webhook_url' => null, 'username' => 'forge', 'balancing_status' => null,
-            'created_at' => '2024-01-01T00:00:00Z', 'deployment_url' => null, 'is_secured' => false,
-            'php_version' => 'php82', 'tags' => [], 'failure_deployment_emails' => null,
-            'telegram_secret' => null, 'web_directory' => null,
+            'id' => 1, 'server_id' => 1, 'name' => 'example.com',
+            'status' => 'installed', 'created_at' => '2024-01-01T00:00:00Z',
+            'user' => 'forge', 'https' => false, 'web_directory' => '/public',
+            'root_directory' => '/home/forge/example.com', 'aliases' => [],
+            'php_version' => 'php82', 'quick_deploy' => false, 'wildcards' => false,
+            'repository' => ['provider' => 'github', 'url' => 'user/repo', 'branch' => 'main', 'status' => 'installed'],
+            'app_type' => 'php', 'tags' => [],
         ]);
 
         $this->mock(ForgeClient::class, function ($mock) use ($mockSite): void {

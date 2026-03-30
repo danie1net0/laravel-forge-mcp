@@ -19,6 +19,6 @@ class DeleteJobRequest extends Request
 
     public function resolveEndpoint(): string
     {
-        return "/servers/{$this->serverId}/jobs/{$this->jobId}";
+        return "/servers/{$this->serverId}/scheduled-jobs/{$this->jobId}";
     }
 }

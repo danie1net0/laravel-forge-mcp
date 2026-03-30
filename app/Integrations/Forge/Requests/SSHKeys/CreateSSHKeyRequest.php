@@ -24,7 +24,7 @@ class CreateSSHKeyRequest extends Request implements HasBody
 
     public function resolveEndpoint(): string
     {
-        return "/servers/{$this->serverId}/keys";
+        return "/servers/{$this->serverId}/ssh-keys";
     }
 
     public function createDtoFromResponse(Response $response): SSHKeyData

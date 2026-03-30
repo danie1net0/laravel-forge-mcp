@@ -67,8 +67,8 @@ class InstallGitRepositoryTool extends Tool
                     'id' => $site->id,
                     'name' => $site->name,
                     'repository' => $site->repository,
-                    'repository_branch' => $site->repositoryBranch,
-                    'repository_status' => $site->repositoryStatus,
+                    'repository_branch' => $site->repository['branch'] ?? null,
+                    'repository_status' => $site->repository['status'] ?? null,
                 ],
                 'message' => 'Git repository installed successfully',
             ], JSON_PRETTY_PRINT));

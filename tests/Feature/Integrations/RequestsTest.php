@@ -474,14 +474,14 @@ describe('Jobs', function (): void {
     it('resolves ListJobsRequest endpoint and method', function (): void {
         $request = new ListJobsRequest(1);
 
-        expect($request->resolveEndpoint())->toBe('/servers/1/jobs')
+        expect($request->resolveEndpoint())->toBe('/servers/1/scheduled-jobs')
             ->and(getHttpMethod($request))->toBe('GET');
     });
 
     it('resolves GetJobRequest endpoint and method', function (): void {
         $request = new GetJobRequest(1, 2);
 
-        expect($request->resolveEndpoint())->toBe('/servers/1/jobs/2')
+        expect($request->resolveEndpoint())->toBe('/servers/1/scheduled-jobs/2')
             ->and(getHttpMethod($request))->toBe('GET');
     });
 
@@ -489,7 +489,7 @@ describe('Jobs', function (): void {
         $data = CreateJobData::from(['command' => 'php artisan schedule:run', 'frequency' => 'minutely']);
         $request = new CreateJobRequest(1, $data);
 
-        expect($request->resolveEndpoint())->toBe('/servers/1/jobs')
+        expect($request->resolveEndpoint())->toBe('/servers/1/scheduled-jobs')
             ->and(getHttpMethod($request))->toBe('POST');
     });
 
@@ -508,14 +508,14 @@ describe('Jobs', function (): void {
     it('resolves DeleteJobRequest endpoint and method', function (): void {
         $request = new DeleteJobRequest(1, 2);
 
-        expect($request->resolveEndpoint())->toBe('/servers/1/jobs/2')
+        expect($request->resolveEndpoint())->toBe('/servers/1/scheduled-jobs/2')
             ->and(getHttpMethod($request))->toBe('DELETE');
     });
 
     it('resolves GetJobOutputRequest endpoint and method', function (): void {
         $request = new GetJobOutputRequest(1, 2);
 
-        expect($request->resolveEndpoint())->toBe('/servers/1/jobs/2/output')
+        expect($request->resolveEndpoint())->toBe('/servers/1/scheduled-jobs/2/output')
             ->and(getHttpMethod($request))->toBe('GET');
     });
 });
@@ -915,14 +915,14 @@ describe('SSHKeys', function (): void {
     it('resolves ListSSHKeysRequest endpoint and method', function (): void {
         $request = new ListSSHKeysRequest(1);
 
-        expect($request->resolveEndpoint())->toBe('/servers/1/keys')
+        expect($request->resolveEndpoint())->toBe('/servers/1/ssh-keys')
             ->and(getHttpMethod($request))->toBe('GET');
     });
 
     it('resolves GetSSHKeyRequest endpoint and method', function (): void {
         $request = new GetSSHKeyRequest(1, 2);
 
-        expect($request->resolveEndpoint())->toBe('/servers/1/keys/2')
+        expect($request->resolveEndpoint())->toBe('/servers/1/ssh-keys/2')
             ->and(getHttpMethod($request))->toBe('GET');
     });
 
@@ -930,7 +930,7 @@ describe('SSHKeys', function (): void {
         $data = CreateSSHKeyData::from(['name' => 'my-key', 'key' => 'ssh-rsa AAAA...']);
         $request = new CreateSSHKeyRequest(1, $data);
 
-        expect($request->resolveEndpoint())->toBe('/servers/1/keys')
+        expect($request->resolveEndpoint())->toBe('/servers/1/ssh-keys')
             ->and(getHttpMethod($request))->toBe('POST');
     });
 
@@ -947,7 +947,7 @@ describe('SSHKeys', function (): void {
     it('resolves DeleteSSHKeyRequest endpoint and method', function (): void {
         $request = new DeleteSSHKeyRequest(1, 2);
 
-        expect($request->resolveEndpoint())->toBe('/servers/1/keys/2')
+        expect($request->resolveEndpoint())->toBe('/servers/1/ssh-keys/2')
             ->and(getHttpMethod($request))->toBe('DELETE');
     });
 });
@@ -963,7 +963,7 @@ describe('Sites', function (): void {
     it('resolves GetSiteRequest endpoint and method', function (): void {
         $request = new GetSiteRequest(1, 2);
 
-        expect($request->resolveEndpoint())->toBe('/servers/1/sites/2')
+        expect($request->resolveEndpoint())->toBe('/sites/2')
             ->and(getHttpMethod($request))->toBe('GET');
     });
 
@@ -1053,14 +1053,14 @@ describe('Sites', function (): void {
     it('resolves GetDeploymentScriptRequest endpoint and method', function (): void {
         $request = new GetDeploymentScriptRequest(1, 2);
 
-        expect($request->resolveEndpoint())->toBe('/servers/1/sites/2/deployment/script')
+        expect($request->resolveEndpoint())->toBe('/servers/1/sites/2/deployments/script')
             ->and(getHttpMethod($request))->toBe('GET');
     });
 
     it('resolves UpdateDeploymentScriptRequest endpoint and method', function (): void {
         $request = new UpdateDeploymentScriptRequest(1, 2, 'cd /home/forge && git pull');
 
-        expect($request->resolveEndpoint())->toBe('/servers/1/sites/2/deployment/script')
+        expect($request->resolveEndpoint())->toBe('/servers/1/sites/2/deployments/script')
             ->and(getHttpMethod($request))->toBe('PUT');
     });
 
@@ -1088,14 +1088,14 @@ describe('Sites', function (): void {
     it('resolves GetDeploymentHistoryRequest endpoint and method', function (): void {
         $request = new GetDeploymentHistoryRequest(1, 2);
 
-        expect($request->resolveEndpoint())->toBe('/servers/1/sites/2/deployment-history')
+        expect($request->resolveEndpoint())->toBe('/servers/1/sites/2/deployments')
             ->and(getHttpMethod($request))->toBe('GET');
     });
 
     it('resolves GetDeploymentHistoryDeploymentRequest endpoint and method', function (): void {
         $request = new GetDeploymentHistoryDeploymentRequest(1, 2, 3);
 
-        expect($request->resolveEndpoint())->toBe('/servers/1/sites/2/deployment-history/3')
+        expect($request->resolveEndpoint())->toBe('/servers/1/sites/2/deployments/3')
             ->and(getHttpMethod($request))->toBe('GET');
     });
 

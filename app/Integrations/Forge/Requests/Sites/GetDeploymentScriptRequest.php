@@ -17,6 +17,6 @@ class GetDeploymentScriptRequest extends Request
 
     public function resolveEndpoint(): string
     {
-        return "/servers/{$this->serverId}/sites/{$this->siteId}/deployment/script";
+        return "/servers/{$this->serverId}/sites/{$this->siteId}/deployments/script";
     }
 }

@@ -52,35 +52,20 @@ function createMockSiteData(array $overrides = []): SiteData
         'id' => 1,
         'server_id' => 1,
         'name' => 'example.com',
-        'aliases' => null,
-        'directory' => '/home/forge/example.com',
-        'wildcards' => false,
         'status' => 'installed',
-        'repository' => null,
-        'repository_provider' => null,
-        'repository_branch' => null,
-        'repository_status' => null,
-        'quick_deploy' => true,
-        'deployment_status' => null,
-        'project_type' => 'php',
-        'app' => null,
-        'app_status' => null,
-        'hipchat_room' => null,
-        'slack_channel' => null,
-        'telegram_chat_id' => null,
-        'telegram_chat_title' => null,
-        'teams_webhook_url' => null,
-        'discord_webhook_url' => null,
-        'username' => 'forge',
-        'balancing_status' => null,
         'created_at' => '2024-01-01T00:00:00Z',
-        'deployment_url' => null,
-        'is_secured' => false,
+        'url' => 'http://example.com',
+        'user' => 'forge',
+        'https' => false,
+        'web_directory' => '/home/forge/example.com/public',
+        'root_directory' => '/home/forge/example.com',
+        'aliases' => [],
         'php_version' => 'php84',
+        'quick_deploy' => true,
+        'wildcards' => false,
+        'repository' => null,
+        'app_type' => 'php',
         'tags' => [],
-        'failure_deployment_emails' => null,
-        'telegram_secret' => null,
-        'web_directory' => '/public',
     ], $overrides));
 }
 
@@ -170,9 +155,7 @@ describe('SiteStatusDashboardTool', function (): void {
         $mockSite = createMockSiteData([
             'id' => 1,
             'name' => 'example.com',
-            'repository' => 'user/repo',
-            'repository_provider' => 'github',
-            'repository_branch' => 'main',
+            'repository' => ['provider' => 'github', 'url' => 'user/repo', 'branch' => 'main', 'status' => 'installed'],
         ]);
 
         $this->mock(ForgeClient::class, function ($mock) use ($mockSite): void {
@@ -367,9 +350,7 @@ describe('CloneSiteTool', function (): void {
         $mockSourceSite = createMockSiteData([
             'id' => 1,
             'name' => 'source.com',
-            'repository' => 'user/repo',
-            'repository_provider' => 'github',
-            'repository_branch' => 'main',
+            'repository' => ['provider' => 'github', 'url' => 'user/repo', 'branch' => 'main', 'status' => 'installed'],
         ]);
 
         $mockNewSite = createMockSiteData([

@@ -18,7 +18,7 @@ class GetSiteRequest extends Request
 
     public function resolveEndpoint(): string
     {
-        return "/servers/{$this->serverId}/sites/{$this->siteId}";
+        return "/sites/{$this->siteId}";
     }
 
     public function createDtoFromResponse(Response $response): SiteData

@@ -58,8 +58,8 @@ class CloneSiteTool extends Tool
 
             $siteData = CreateSiteData::from([
                 'domain' => $newDomain,
-                'project_type' => $sourceSite->projectType ?? 'php',
-                'directory' => $sourceSite->directory ?? '/public',
+                'project_type' => $sourceSite->appType ?? 'php',
+                'directory' => $sourceSite->rootDirectory ?? '/public',
                 'php_version' => $sourceSite->phpVersion ?? 'php84',
             ]);
 
@@ -69,12 +69,13 @@ class CloneSiteTool extends Tool
             if ($sourceSite->repository) {
                 try {
                     $repoData = InstallGitRepositoryData::from([
-                        'provider' => $sourceSite->repositoryProvider ?? 'github',
-                        'repository' => $sourceSite->repository,
-                        'branch' => $sourceSite->repositoryBranch ?? 'main',
+                        'provider' => $sourceSite->repository['provider'] ?? 'github',
+                        'repository' => $sourceSite->repository['url'] ?? '',
+                        'branch' => $sourceSite->repository['branch'] ?? 'main',
                     ]);
                     $client->sites()->installGitRepository($targetServerId, $newSite->id, $repoData);
-                    $steps[] = ['action' => 'install_git', 'status' => 'success', 'message' => "Installed git repository: {$sourceSite->repository}"];
+                    $repositoryUrl = $sourceSite->repository['url'] ?? 'unknown';
+                    $steps[] = ['action' => 'install_git', 'status' => 'success', 'message' => "Installed git repository: {$repositoryUrl}"];
                 } catch (Exception $e) {
                     $steps[] = ['action' => 'install_git', 'status' => 'failed', 'message' => $e->getMessage()];
                 }

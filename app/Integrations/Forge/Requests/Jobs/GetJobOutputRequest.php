@@ -19,6 +19,6 @@ class GetJobOutputRequest extends Request
 
     public function resolveEndpoint(): string
     {
-        return "/servers/{$this->serverId}/jobs/{$this->jobId}/output";
+        return "/servers/{$this->serverId}/scheduled-jobs/{$this->jobId}/output";
     }
 }

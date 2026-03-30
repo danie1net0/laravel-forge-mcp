@@ -10,6 +10,35 @@ use Saloon\Http\Response;
 
 class ForgeResponse extends Response
 {
+    /**
+     * @var array<string, string>
+     */
+    private const COLLECTION_TYPE_MAP = [
+        // camelCase types from JSON:API response items
+        'backgroundProcesses' => 'daemons',
+        'scheduledJobs' => 'jobs',
+        'firewallRules' => 'rules',
+        'nginxTemplates' => 'templates',
+        'domainRecords' => 'domains',
+        'deploymentScripts' => 'deployment-scripts',
+        'deploymentWebhooks' => 'webhooks',
+        'backupConfigurations' => 'backups',
+        'securityRules' => 'security_rules',
+        'redirectRules' => 'redirect_rules',
+        'sshKeys' => 'keys',
+        'databaseSchemas' => 'databases',
+        'databaseUsers' => 'database-users',
+        // kebab-case types from URL path (used for empty collections)
+        'background-processes' => 'daemons',
+        'scheduled-jobs' => 'jobs',
+        'firewall-rules' => 'rules',
+        'nginx-templates' => 'templates',
+        'security-rules' => 'security_rules',
+        'redirect-rules' => 'redirect_rules',
+        'ssh-keys' => 'keys',
+        'database-schemas' => 'databases',
+    ];
+
     /** @var array<array-key, mixed>|null */
     private ?array $normalizedJson = null;
 
@@ -104,7 +133,8 @@ class ForgeResponse extends Response
      */
     private function normalizeSingleResource(array $resource): array
     {
-        $type = $this->singularizeType((string) $resource['type']);
+        $normalizedType = $this->normalizeCollectionType((string) $resource['type']);
+        $type = $this->singularizeType($normalizedType);
 
         return [$type => $this->extractAttributes($resource)];
     }
@@ -119,10 +149,11 @@ class ForgeResponse extends Response
         if ($collection === []) {
             $type = $this->guessCollectionType($fullResponse);
 
-            return [$type => []];
+            return [$this->normalizeCollectionType($type) => []];
         }
 
-        $type = (string) ($collection[0]['type'] ?? 'items');
+        $rawType = (string) ($collection[0]['type'] ?? 'items');
+        $type = $this->normalizeCollectionType($rawType);
         $items = array_map(
             fn (array $item): array => $this->extractAttributes($item),
             $collection
@@ -135,6 +166,11 @@ class ForgeResponse extends Response
         }
 
         return $result;
+    }
+
+    private function normalizeCollectionType(string $type): string
+    {
+        return self::COLLECTION_TYPE_MAP[$type] ?? $type;
     }
 
     private function singularizeType(string $type): string
@@ -157,7 +193,11 @@ class ForgeResponse extends Response
             'deployment-webhooks' => 'webhook',
             'ssh-keys' => 'key',
             'security-rules' => 'rule',
+            'security_rules' => 'rule',
             'redirect-rules' => 'rule',
+            'redirect_rules' => 'rule',
+            'rules' => 'rule',
+            'templates' => 'template',
             'nginx-templates' => 'template',
             'backup-configurations' => 'backup_configuration',
             'backups' => 'backup',
@@ -179,14 +219,29 @@ class ForgeResponse extends Response
      */
     private function guessCollectionType(array $fullResponse): string
     {
-        $links = $fullResponse['links'] ?? [];
-        $path = $links['first'] ?? '';
+        $meta = $fullResponse['meta'] ?? [];
+        $path = is_array($meta) ? ($meta['path'] ?? '') : '';
 
-        if (! is_string($path) || $path === '') {
+        if (is_string($path) && $path !== '') {
+            $pathWithoutQuery = explode('?', $path)[0];
+            $segments = explode('/', $pathWithoutQuery);
+
+            return end($segments) ?: 'items';
+        }
+
+        $links = $fullResponse['links'] ?? [];
+
+        if (! is_array($links)) {
             return 'items';
         }
 
-        $pathWithoutQuery = explode('?', $path)[0];
+        $linkPath = $links['first'] ?? '';
+
+        if (! is_string($linkPath) || $linkPath === '') {
+            return 'items';
+        }
+
+        $pathWithoutQuery = explode('?', $linkPath)[0];
         $segments = explode('/', $pathWithoutQuery);
 
         return end($segments) ?: 'items';

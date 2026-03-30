@@ -21,7 +21,7 @@ class ListJobsRequest extends Request
 
     public function resolveEndpoint(): string
     {
-        return "/servers/{$this->serverId}/jobs";
+        return "/servers/{$this->serverId}/scheduled-jobs";
     }
 
     public function createDtoFromResponse(Response $response): JobCollectionData

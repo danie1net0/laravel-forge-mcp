@@ -11,39 +11,42 @@ use Spatie\LaravelData\Mappers\SnakeCaseMapper;
 #[MapInputName(SnakeCaseMapper::class)]
 class SiteData extends Data
 {
+    /**
+     * @param array<string, mixed>|null $repository
+     * @param array<int, string>|null $aliases
+     * @param array<string, mixed>|null $maintenanceMode
+     * @param array<int, string>|null $sharedPaths
+     * @param array<int, string>|null $tags
+     */
     public function __construct(
         public int $id,
         public int $serverId,
         public string $name,
-        public ?array $aliases,
-        public ?string $directory,
-        public ?bool $wildcards,
         public string $status,
-        public ?string $repository,
-        public ?string $repositoryProvider,
-        public ?string $repositoryBranch,
-        public ?string $repositoryStatus,
-        public ?bool $quickDeploy,
-        public ?string $deploymentStatus,
-        public ?string $projectType,
-        public ?string $app,
-        public ?string $appStatus,
-        public ?string $hipchatRoom,
-        public ?string $slackChannel,
-        public ?int $telegramChatId,
-        public ?string $telegramChatTitle,
-        public ?string $teamsWebhookUrl,
-        public ?string $discordWebhookUrl,
-        public ?string $username,
-        public ?string $balancingStatus,
         public string $createdAt,
-        public ?string $deploymentUrl,
-        public ?bool $isSecured,
-        public ?string $phpVersion,
-        public ?array $tags,
-        public ?array $failureDeploymentEmails,
-        public ?string $telegramSecret,
-        public ?string $webDirectory,
+        public ?string $url = null,
+        public ?string $user = null,
+        public ?bool $https = null,
+        public ?string $webDirectory = null,
+        public ?string $rootDirectory = null,
+        public ?array $aliases = null,
+        public ?string $phpVersion = null,
+        public ?string $deploymentStatus = null,
+        public ?bool $quickDeploy = null,
+        public ?bool $isolated = null,
+        public ?array $sharedPaths = null,
+        public ?array $repository = null,
+        public ?string $database = null,
+        public ?array $maintenanceMode = null,
+        public ?bool $zeroDowntimeDeployments = null,
+        public ?string $deploymentScript = null,
+        public ?bool $wildcards = null,
+        public ?string $appType = null,
+        public ?bool $usesEnvoyer = null,
+        public ?string $deploymentUrl = null,
+        public ?string $healthcheckUrl = null,
+        public ?string $updatedAt = null,
+        public ?array $tags = null,
     ) {
     }
 }
