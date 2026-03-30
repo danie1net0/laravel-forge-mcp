@@ -34,6 +34,10 @@ class ServerData extends Data
         public bool $revoked,
         public string $createdAt,
         public bool $isReady,
+        public ?string $slug = null,
+        public ?string $updatedAt = null,
+        public ?string $connectionStatus = null,
+        public ?string $timezone = null,
         /** @var array<int, string> */
         public array $tags = [],
         /** @var array<int, int> */

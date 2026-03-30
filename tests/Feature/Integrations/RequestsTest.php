@@ -835,7 +835,7 @@ describe('Servers', function (): void {
     it('resolves GetEventOutputRequest endpoint and method', function (): void {
         $request = new GetEventOutputRequest(1, 2);
 
-        expect($request->resolveEndpoint())->toBe('/servers/1/events/2')
+        expect($request->resolveEndpoint())->toBe('/servers/1/events/2/output')
             ->and(getHttpMethod($request))->toBe('GET');
     });
 

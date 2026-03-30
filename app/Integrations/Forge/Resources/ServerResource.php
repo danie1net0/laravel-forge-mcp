@@ -61,9 +61,9 @@ class ServerResource
         return $request->createDtoFromResponse($response);
     }
 
-    public function delete(int $serverId): void
+    public function delete(int $serverId, bool $preserveAtProvider = false): void
     {
-        $this->connector->send(new DeleteServerRequest($serverId));
+        $this->connector->send(new DeleteServerRequest($serverId, $preserveAtProvider));
     }
 
     public function reboot(int $serverId): void
@@ -71,9 +71,9 @@ class ServerResource
         $this->connector->send(new RebootServerRequest($serverId));
     }
 
-    public function updateDatabasePassword(int $serverId): void
+    public function updateDatabasePassword(int $serverId, ?string $password = null): void
     {
-        $this->connector->send(new UpdateDatabasePasswordRequest($serverId));
+        $this->connector->send(new UpdateDatabasePasswordRequest($serverId, $password));
     }
 
     public function revokeAccess(int $serverId): void
@@ -100,9 +100,6 @@ class ServerResource
         return $response->json('content') ?? '';
     }
 
-    /**
-     * @return array<int, array<string, mixed>>
-     */
     /**
      * @return array<int, array<string, mixed>>
      */

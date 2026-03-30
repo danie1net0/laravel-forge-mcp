@@ -16,7 +16,8 @@ class UpdateDatabasePasswordRequest extends Request implements HasBody
     protected Method $method = Method::PUT;
 
     public function __construct(
-        protected int $serverId
+        private readonly int $serverId,
+        private readonly ?string $password = null,
     ) {
     }
 
@@ -25,8 +26,13 @@ class UpdateDatabasePasswordRequest extends Request implements HasBody
         return "/servers/{$this->serverId}/database/password";
     }
 
+    /** @return array<string, string> */
     protected function defaultBody(): array
     {
-        return [];
+        if ($this->password === null) {
+            return [];
+        }
+
+        return ['password' => $this->password];
     }
 }
