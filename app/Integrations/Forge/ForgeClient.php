@@ -138,7 +138,7 @@ class ForgeClient
             $response = Http::withToken($apiToken)
                 ->acceptJson()
                 ->timeout(10)
-                ->get('https://forge.laravel.com/api/user');
+                ->get('https://forge.laravel.com/api/orgs');
         } catch (ConnectionException $exception) {
             throw new RuntimeException(
                 'Could not connect to Forge API to discover organization. Set FORGE_ORGANIZATION in your environment.',
@@ -152,28 +152,23 @@ class ForgeClient
             );
         }
 
-        $body = $response->json();
-        $organizations = $body['organizations']
-            ?? $body['data']['attributes']['organizations']
-            ?? $body['data']['organizations']
-            ?? null;
+        /** @var array<int, array<string, mixed>>|null $organizations */
+        $organizations = $response->json('data');
 
         if (! is_array($organizations) || $organizations === []) {
-            $rawKeys = is_array($body) ? implode(', ', array_keys($body)) : 'non-array response';
-
             throw new RuntimeException(
-                "Could not auto-discover Forge organization (API response keys: {$rawKeys}). "
+                'No Forge organizations found for this API token. '
                 . 'Please set FORGE_ORGANIZATION in your environment (e.g., FORGE_ORGANIZATION=my-org-slug). '
                 . 'Find your org slug in the Forge dashboard URL: forge.laravel.com/app/orgs/{your-slug}',
             );
         }
 
         if (count($organizations) === 1) {
-            return (string) ($organizations[0]['slug'] ?? $organizations[0]['id'] ?? '');
+            return (string) ($organizations[0]['attributes']['slug'] ?? $organizations[0]['id'] ?? '');
         }
 
         $slugs = implode(', ', array_map(
-            fn (array $org): string => (string) ($org['slug'] ?? $org['id'] ?? 'unknown'),
+            fn (array $organization): string => (string) ($organization['attributes']['slug'] ?? $organization['id'] ?? 'unknown'),
             $organizations,
         ));
 

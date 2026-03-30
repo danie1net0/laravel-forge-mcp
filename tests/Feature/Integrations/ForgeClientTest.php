@@ -48,9 +48,9 @@ describe('ForgeClient', function (): void {
         config(['services.forge.organization' => null]);
 
         Http::fake([
-            'forge.laravel.com/api/user' => Http::response([
-                'organizations' => [
-                    ['slug' => 'my-org', 'name' => 'My Org'],
+            'forge.laravel.com/api/orgs' => Http::response([
+                'data' => [
+                    ['type' => 'organizations', 'attributes' => ['slug' => 'my-org', 'name' => 'My Org']],
                 ],
             ]),
         ]);
@@ -64,10 +64,10 @@ describe('ForgeClient', function (): void {
         config(['services.forge.organization' => null]);
 
         Http::fake([
-            'forge.laravel.com/api/user' => Http::response([
-                'organizations' => [
-                    ['slug' => 'org-one', 'name' => 'Org One'],
-                    ['slug' => 'org-two', 'name' => 'Org Two'],
+            'forge.laravel.com/api/orgs' => Http::response([
+                'data' => [
+                    ['type' => 'organizations', 'attributes' => ['slug' => 'org-one', 'name' => 'Org One']],
+                    ['type' => 'organizations', 'attributes' => ['slug' => 'org-two', 'name' => 'Org Two']],
                 ],
             ]),
         ]);
@@ -79,17 +79,17 @@ describe('ForgeClient', function (): void {
         config(['services.forge.organization' => null]);
 
         Http::fake([
-            'forge.laravel.com/api/user' => Http::response(['organizations' => []]),
+            'forge.laravel.com/api/orgs' => Http::response(['data' => []]),
         ]);
 
         new ForgeClient('test-token');
-    })->throws(RuntimeException::class, 'Could not auto-discover Forge organization');
+    })->throws(RuntimeException::class, 'No Forge organizations found');
 
     it('throws when auto-discovery API call fails', function (): void {
         config(['services.forge.organization' => null]);
 
         Http::fake([
-            'forge.laravel.com/api/user' => Http::response([], 401),
+            'forge.laravel.com/api/orgs' => Http::response([], 401),
         ]);
 
         new ForgeClient('test-token');
