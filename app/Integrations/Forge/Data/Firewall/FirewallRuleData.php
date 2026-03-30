@@ -14,11 +14,11 @@ class FirewallRuleData extends Data
     public function __construct(
         public int $id,
         public int $serverId,
-        public string $name,
-        public int $port,
-        public ?string $ipAddress,
-        public string $status,
-        public string $createdAt,
+        public ?string $name = null,
+        public ?int $port = null,
+        public ?string $ipAddress = null,
+        public ?string $status = null,
+        public ?string $createdAt = null,
     ) {
     }
 }

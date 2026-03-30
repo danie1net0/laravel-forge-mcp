@@ -15,14 +15,14 @@ class DeploymentData extends Data
         public int $id,
         public int $serverId,
         public int $siteId,
-        public int $type,
-        public ?string $commitHash,
-        public ?string $commitAuthor,
-        public ?string $commitMessage,
-        public string $status,
-        public ?string $startedAt,
-        public ?string $endedAt,
-        public string $createdAt,
+        public ?int $type = null,
+        public ?string $commitHash = null,
+        public ?string $commitAuthor = null,
+        public ?string $commitMessage = null,
+        public ?string $status = null,
+        public ?string $startedAt = null,
+        public ?string $endedAt = null,
+        public ?string $createdAt = null,
     ) {
     }
 }

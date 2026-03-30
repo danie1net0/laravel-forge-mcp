@@ -14,12 +14,12 @@ class JobData extends Data
     public function __construct(
         public int $id,
         public int $serverId,
-        public string $command,
-        public string $user,
-        public string $frequency,
-        public string $cron,
-        public string $status,
-        public string $createdAt,
+        public ?string $command = null,
+        public ?string $user = null,
+        public ?string $frequency = null,
+        public ?string $cron = null,
+        public ?string $status = null,
+        public ?string $createdAt = null,
     ) {
     }
 }

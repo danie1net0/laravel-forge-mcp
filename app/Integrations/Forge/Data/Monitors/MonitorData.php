@@ -14,13 +14,13 @@ class MonitorData extends Data
     public function __construct(
         public int $id,
         public int $serverId,
-        public string $status,
-        public string $type,
-        public string $operator,
-        public int $threshold,
-        public int $minutes,
-        public string $state,
-        public string $stateChangedAt,
+        public ?string $status = null,
+        public ?string $type = null,
+        public ?string $operator = null,
+        public ?int $threshold = null,
+        public ?int $minutes = null,
+        public ?string $state = null,
+        public ?string $stateChangedAt = null,
     ) {
     }
 }

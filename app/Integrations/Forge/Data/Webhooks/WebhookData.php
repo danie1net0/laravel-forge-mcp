@@ -15,8 +15,8 @@ class WebhookData extends Data
         public int $id,
         public int $serverId,
         public int $siteId,
-        public string $url,
-        public string $createdAt,
+        public ?string $url = null,
+        public ?string $createdAt = null,
     ) {
     }
 }

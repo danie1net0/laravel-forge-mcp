@@ -12,11 +12,11 @@ use Spatie\LaravelData\Mappers\SnakeCaseMapper;
 class PhpVersionData extends Data
 {
     public function __construct(
-        public string $version,
-        public string $displayableVersion,
-        public string $status,
-        public bool $usedAsDefault,
-        public bool $usedOnCli,
+        public ?string $version = null,
+        public ?string $displayableVersion = null,
+        public ?string $status = null,
+        public ?bool $usedAsDefault = null,
+        public ?bool $usedOnCli = null,
     ) {
     }
 }

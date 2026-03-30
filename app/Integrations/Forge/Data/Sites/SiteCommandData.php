@@ -15,7 +15,7 @@ class SiteCommandData extends Data
         public int $id,
         public int $serverId,
         public int $siteId,
-        public string $command,
+        public ?string $command = null,
         public ?string $status = null,
         public ?string $output = null,
         public ?string $createdAt = null,

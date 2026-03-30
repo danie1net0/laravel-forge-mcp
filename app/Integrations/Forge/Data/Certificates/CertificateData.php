@@ -15,14 +15,14 @@ class CertificateData extends Data
         public int $id,
         public int $serverId,
         public int $siteId,
-        public string $domain,
-        public ?string $requestStatus,
-        public string $status,
-        public string $type,
-        public bool $active,
-        public ?string $expiresAt,
-        public string $createdAt,
-        public ?string $activationError,
+        public ?string $domain = null,
+        public ?string $requestStatus = null,
+        public ?string $status = null,
+        public ?string $type = null,
+        public ?bool $active = null,
+        public ?string $expiresAt = null,
+        public ?string $createdAt = null,
+        public ?string $activationError = null,
     ) {
     }
 }

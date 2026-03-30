@@ -15,11 +15,11 @@ class RedirectRuleData extends Data
         public int $id,
         public int $serverId,
         public int $siteId,
-        public string $from,
-        public string $to,
-        public string $type,
-        public string $status,
-        public string $createdAt,
+        public ?string $from = null,
+        public ?string $to = null,
+        public ?string $type = null,
+        public ?string $status = null,
+        public ?string $createdAt = null,
     ) {
     }
 }

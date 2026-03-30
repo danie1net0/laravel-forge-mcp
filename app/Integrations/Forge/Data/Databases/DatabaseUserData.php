@@ -14,11 +14,11 @@ class DatabaseUserData extends Data
     public function __construct(
         public int $id,
         public int $serverId,
-        public string $name,
-        public string $status,
-        public string $createdAt,
-        /** @var array<int> */
-        public array $databases = [],
+        public ?string $name = null,
+        public ?string $status = null,
+        public ?string $createdAt = null,
+        /** @var array<int>|null */
+        public ?array $databases = null,
     ) {
     }
 }

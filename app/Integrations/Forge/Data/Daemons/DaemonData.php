@@ -14,11 +14,11 @@ class DaemonData extends Data
     public function __construct(
         public int $id,
         public int $serverId,
-        public string $command,
-        public string $user,
-        public string $status,
-        public string $directory,
-        public string $createdAt,
+        public ?string $command = null,
+        public ?string $user = null,
+        public ?string $status = null,
+        public ?string $directory = null,
+        public ?string $createdAt = null,
     ) {
     }
 }

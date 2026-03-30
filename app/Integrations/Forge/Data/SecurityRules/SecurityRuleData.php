@@ -15,10 +15,10 @@ class SecurityRuleData extends Data
         public int $id,
         public int $serverId,
         public int $siteId,
-        public string $name,
-        public string $path,
-        public string $credentials,
-        public string $createdAt,
+        public ?string $name = null,
+        public ?string $path = null,
+        public ?string $credentials = null,
+        public ?string $createdAt = null,
     ) {
     }
 }

@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Integrations\Forge\Data\Sites;
 
 use Spatie\LaravelData\Attributes\MapInputName;
@@ -14,16 +16,16 @@ class SiteData extends Data
         public int $serverId,
         public string $name,
         public ?array $aliases,
-        public string $directory,
-        public bool $wildcards,
+        public ?string $directory,
+        public ?bool $wildcards,
         public string $status,
         public ?string $repository,
         public ?string $repositoryProvider,
         public ?string $repositoryBranch,
         public ?string $repositoryStatus,
-        public bool $quickDeploy,
+        public ?bool $quickDeploy,
         public ?string $deploymentStatus,
-        public string $projectType,
+        public ?string $projectType,
         public ?string $app,
         public ?string $appStatus,
         public ?string $hipchatRoom,
@@ -32,11 +34,11 @@ class SiteData extends Data
         public ?string $telegramChatTitle,
         public ?string $teamsWebhookUrl,
         public ?string $discordWebhookUrl,
-        public string $username,
+        public ?string $username,
         public ?string $balancingStatus,
         public string $createdAt,
         public ?string $deploymentUrl,
-        public bool $isSecured,
+        public ?bool $isSecured,
         public ?string $phpVersion,
         public ?array $tags,
         public ?array $failureDeploymentEmails,

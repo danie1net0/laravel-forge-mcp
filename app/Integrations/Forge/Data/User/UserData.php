@@ -13,8 +13,8 @@ class UserData extends Data
 {
     public function __construct(
         public int $id,
-        public string $name,
-        public string $email,
+        public ?string $name = null,
+        public ?string $email = null,
         public ?string $cardLastFour = null,
         public ?string $connectedToGithub = null,
         public ?string $connectedToGitlab = null,

@@ -14,10 +14,10 @@ class SSHKeyData extends Data
     public function __construct(
         public int $id,
         public int $serverId,
-        public string $name,
-        public string $status,
-        public string $username,
-        public string $createdAt,
+        public ?string $name = null,
+        public ?string $status = null,
+        public ?string $username = null,
+        public ?string $createdAt = null,
     ) {
     }
 }

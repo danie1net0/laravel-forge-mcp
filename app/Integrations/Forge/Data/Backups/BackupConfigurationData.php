@@ -14,12 +14,12 @@ class BackupConfigurationData extends Data
     public function __construct(
         public int $id,
         public int $serverId,
-        public ?int $dayOfWeek,
-        public string $time,
-        public string $provider,
-        public string $providerName,
-        public ?string $lastBackupTime,
-        public string $createdAt,
+        public ?int $dayOfWeek = null,
+        public ?string $time = null,
+        public ?string $provider = null,
+        public ?string $providerName = null,
+        public ?string $lastBackupTime = null,
+        public ?string $createdAt = null,
     ) {
     }
 }
