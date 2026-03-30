@@ -7,7 +7,7 @@ namespace App\Mcp\Tools\Databases;
 use App\Integrations\Forge\Data\Databases\UpdateDatabaseUserData;
 use App\Integrations\Forge\ForgeClient;
 use Exception;
-use Illuminate\JsonSchema\JsonSchema;
+use Illuminate\Contracts\JsonSchema\JsonSchema;
 use Laravel\Mcp\{Request, Response};
 use Laravel\Mcp\Server\Tool;
 use Laravel\Mcp\Server\Tools\Annotations\IsDestructive;

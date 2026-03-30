@@ -9,7 +9,7 @@ use App\Integrations\Forge\Data\Sites\{CreateSiteData, InstallGitRepositoryData}
 use App\Integrations\Forge\Data\Workers\CreateWorkerData;
 use App\Integrations\Forge\ForgeClient;
 use Exception;
-use Illuminate\JsonSchema\JsonSchema;
+use Illuminate\Contracts\JsonSchema\JsonSchema;
 use Laravel\Mcp\{Request, Response};
 use Laravel\Mcp\Server\Tool;
 

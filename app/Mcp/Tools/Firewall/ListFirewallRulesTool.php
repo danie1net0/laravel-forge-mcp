@@ -6,7 +6,7 @@ namespace App\Mcp\Tools\Firewall;
 
 use App\Integrations\Forge\ForgeClient;
 use Exception;
-use Illuminate\JsonSchema\JsonSchema;
+use Illuminate\Contracts\JsonSchema\JsonSchema;
 use App\Integrations\Forge\Data\Firewall\FirewallRuleData;
 use Laravel\Mcp\{Request, Response};
 use Laravel\Mcp\Server\Tool;

@@ -5,7 +5,7 @@ declare(strict_types=1);
 namespace App\Mcp\Tools\Servers;
 
 use App\Integrations\Forge\ForgeClient;
-use Illuminate\JsonSchema\JsonSchema;
+use Illuminate\Contracts\JsonSchema\JsonSchema;
 use Laravel\Mcp\{Request, Response};
 use Laravel\Mcp\Server\Tools\Annotations\{IsIdempotent, IsReadOnly};
 use Laravel\Mcp\Server\Tool;

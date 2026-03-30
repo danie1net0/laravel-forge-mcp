@@ -7,7 +7,7 @@ namespace App\Mcp\Tools\Composite;
 use App\Integrations\Forge\ForgeClient;
 use Carbon\Carbon;
 use Exception;
-use Illuminate\JsonSchema\JsonSchema;
+use Illuminate\Contracts\JsonSchema\JsonSchema;
 use Laravel\Mcp\{Request, Response};
 use Laravel\Mcp\Server\Tool;
 

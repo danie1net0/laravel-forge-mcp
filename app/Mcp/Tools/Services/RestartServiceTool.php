@@ -6,7 +6,7 @@ namespace App\Mcp\Tools\Services;
 
 use App\Integrations\Forge\ForgeClient;
 use Exception;
-use Illuminate\JsonSchema\JsonSchema;
+use Illuminate\Contracts\JsonSchema\JsonSchema;
 use Laravel\Mcp\{Request, Response};
 use Laravel\Mcp\Server\Tool;
 
