@@ -9,7 +9,7 @@ use App\Mcp\Tools\Certificates\ActivateCertificateTool;
 use App\Mcp\Tools\Databases\SyncDatabaseTool;
 use App\Mcp\Tools\Deployments\{ResetDeploymentStateTool, SetDeploymentFailureEmailsTool};
 use App\Mcp\Tools\Jobs\GetJobOutputTool;
-use App\Mcp\Tools\Servers\{GetEventOutputTool, GetServerLogTool, ListEventsTool, ReactivateServerTool, ReconnectServerTool, RevokeServerAccessTool, UpdateDatabasePasswordTool};
+use App\Mcp\Tools\Servers\{GetEventOutputTool, GetServerLogTool, ListEventsTool, UpdateDatabasePasswordTool};
 use App\Mcp\Tools\Services\{RestartServiceTool, StartServiceTool, StopServiceTool};
 use App\Mcp\Tools\Sites\{GetPackagesAuthTool, InstallPhpMyAdminTool, InstallWordPressTool, UninstallPhpMyAdminTool, UninstallWordPressTool, UpdatePackagesAuthTool};
 use App\Mcp\Tools\Workers\GetWorkerOutputTool;
@@ -28,7 +28,7 @@ describe('UpdateDatabasePasswordTool', function (): void {
     });
 
     it('updates database password successfully', function (): void {
-        $this->mock(ForgeClient::class, function ($mock): void {
+        $this->mock(ForgeClient::class, function (Mockery\MockInterface $mock): void {
             $serverResource = Mockery::mock(ServerResource::class);
             $serverResource->shouldReceive('updateDatabasePassword')
                 ->with(1)
@@ -47,7 +47,7 @@ describe('UpdateDatabasePasswordTool', function (): void {
     });
 
     it('handles errors', function (): void {
-        $this->mock(ForgeClient::class, function ($mock): void {
+        $this->mock(ForgeClient::class, function (Mockery\MockInterface $mock): void {
             $serverResource = Mockery::mock(ServerResource::class);
             $serverResource->shouldReceive('updateDatabasePassword')
                 ->with(999)
@@ -66,87 +66,6 @@ describe('UpdateDatabasePasswordTool', function (): void {
     });
 });
 
-describe('RevokeServerAccessTool', function (): void {
-    it('requires server_id parameter', function (): void {
-        $response = ForgeServer::tool(RevokeServerAccessTool::class, []);
-        $response->assertHasErrors();
-    });
-
-    it('revokes access successfully', function (): void {
-        $this->mock(ForgeClient::class, function ($mock): void {
-            $serverResource = Mockery::mock(ServerResource::class);
-            $serverResource->shouldReceive('revokeAccess')
-                ->with(1)
-                ->once();
-            $mock->shouldReceive('servers')->once()->andReturn($serverResource);
-        });
-
-        $response = ForgeServer::tool(RevokeServerAccessTool::class, [
-            'server_id' => 1,
-        ]);
-
-        $response
-            ->assertOk()
-            ->assertSee('"success": true')
-            ->assertSee('revoked');
-    });
-});
-
-describe('ReconnectServerTool', function (): void {
-    it('requires server_id parameter', function (): void {
-        $response = ForgeServer::tool(ReconnectServerTool::class, []);
-        $response->assertHasErrors();
-    });
-
-    it('reconnects server successfully', function (): void {
-        $mockKey = 'ssh-rsa AAAAB3NzaC1yc2EAAAA...';
-
-        $this->mock(ForgeClient::class, function ($mock) use ($mockKey): void {
-            $serverResource = Mockery::mock(ServerResource::class);
-            $serverResource->shouldReceive('reconnect')
-                ->with(1)
-                ->once()
-                ->andReturn($mockKey);
-            $mock->shouldReceive('servers')->once()->andReturn($serverResource);
-        });
-
-        $response = ForgeServer::tool(ReconnectServerTool::class, [
-            'server_id' => 1,
-        ]);
-
-        $response
-            ->assertOk()
-            ->assertSee('"success": true')
-            ->assertSee('ssh-rsa');
-    });
-});
-
-describe('ReactivateServerTool', function (): void {
-    it('requires server_id parameter', function (): void {
-        $response = ForgeServer::tool(ReactivateServerTool::class, []);
-        $response->assertHasErrors();
-    });
-
-    it('reactivates server successfully', function (): void {
-        $this->mock(ForgeClient::class, function ($mock): void {
-            $serverResource = Mockery::mock(ServerResource::class);
-            $serverResource->shouldReceive('reactivate')
-                ->with(1)
-                ->once();
-            $mock->shouldReceive('servers')->once()->andReturn($serverResource);
-        });
-
-        $response = ForgeServer::tool(ReactivateServerTool::class, [
-            'server_id' => 1,
-        ]);
-
-        $response
-            ->assertOk()
-            ->assertSee('"success": true')
-            ->assertSee('reactivated');
-    });
-});
-
 describe('GetServerLogTool', function (): void {
     it('requires server_id parameter', function (): void {
         $response = ForgeServer::tool(GetServerLogTool::class, []);
@@ -156,7 +75,7 @@ describe('GetServerLogTool', function (): void {
     it('gets server log successfully', function (): void {
         $mockLog = "Jan 1 00:00:00 server sshd[1234]: Accepted publickey for forge";
 
-        $this->mock(ForgeClient::class, function ($mock) use ($mockLog): void {
+        $this->mock(ForgeClient::class, function (Mockery\MockInterface $mock) use ($mockLog): void {
             $serverResource = Mockery::mock(ServerResource::class);
             $serverResource->shouldReceive('getLog')
                 ->with(1, 'auth')
@@ -188,7 +107,7 @@ describe('ListEventsTool', function (): void {
             ['id' => 1, 'description' => 'Site deployed', 'created_at' => '2024-01-01T00:00:00Z'],
         ];
 
-        $this->mock(ForgeClient::class, function ($mock) use ($mockEvents): void {
+        $this->mock(ForgeClient::class, function (Mockery\MockInterface $mock) use ($mockEvents): void {
             $serverResource = Mockery::mock(ServerResource::class);
             $serverResource->shouldReceive('listEvents')
                 ->with(1, null, 30)
@@ -217,7 +136,7 @@ describe('GetEventOutputTool', function (): void {
     it('gets event output successfully', function (): void {
         $mockOutput = "Deploying site...\nCompleted successfully";
 
-        $this->mock(ForgeClient::class, function ($mock) use ($mockOutput): void {
+        $this->mock(ForgeClient::class, function (Mockery\MockInterface $mock) use ($mockOutput): void {
             $serverResource = Mockery::mock(ServerResource::class);
             $serverResource->shouldReceive('getEventOutput')
                 ->with(1, 1)
@@ -245,7 +164,7 @@ describe('InstallWordPressTool', function (): void {
     });
 
     it('installs WordPress successfully', function (): void {
-        $this->mock(ForgeClient::class, function ($mock): void {
+        $this->mock(ForgeClient::class, function (Mockery\MockInterface $mock): void {
             $siteResource = Mockery::mock(SiteResource::class);
             $siteResource->shouldReceive('installWordPress')
                 ->with(1, 1, 'wordpress_db', 'wp_user', null)
@@ -274,7 +193,7 @@ describe('UninstallWordPressTool', function (): void {
     });
 
     it('uninstalls WordPress successfully', function (): void {
-        $this->mock(ForgeClient::class, function ($mock): void {
+        $this->mock(ForgeClient::class, function (Mockery\MockInterface $mock): void {
             $siteResource = Mockery::mock(SiteResource::class);
             $siteResource->shouldReceive('uninstallWordPress')
                 ->with(1, 1)
@@ -301,7 +220,7 @@ describe('InstallPhpMyAdminTool', function (): void {
     });
 
     it('installs phpMyAdmin successfully', function (): void {
-        $this->mock(ForgeClient::class, function ($mock): void {
+        $this->mock(ForgeClient::class, function (Mockery\MockInterface $mock): void {
             $siteResource = Mockery::mock(SiteResource::class);
             $siteResource->shouldReceive('installPhpMyAdmin')
                 ->with(1, 1)
@@ -328,7 +247,7 @@ describe('UninstallPhpMyAdminTool', function (): void {
     });
 
     it('uninstalls phpMyAdmin successfully', function (): void {
-        $this->mock(ForgeClient::class, function ($mock): void {
+        $this->mock(ForgeClient::class, function (Mockery\MockInterface $mock): void {
             $siteResource = Mockery::mock(SiteResource::class);
             $siteResource->shouldReceive('uninstallPhpMyAdmin')
                 ->with(1, 1)
@@ -359,7 +278,7 @@ describe('GetPackagesAuthTool', function (): void {
             'github-oauth' => ['github.com' => 'token123'],
         ];
 
-        $this->mock(ForgeClient::class, function ($mock) use ($mockPackages): void {
+        $this->mock(ForgeClient::class, function (Mockery\MockInterface $mock) use ($mockPackages): void {
             $siteResource = Mockery::mock(SiteResource::class);
             $siteResource->shouldReceive('getPackagesAuth')
                 ->with(1, 1)
@@ -387,7 +306,7 @@ describe('UpdatePackagesAuthTool', function (): void {
     });
 
     it('updates packages auth successfully', function (): void {
-        $this->mock(ForgeClient::class, function ($mock): void {
+        $this->mock(ForgeClient::class, function (Mockery\MockInterface $mock): void {
             $siteResource = Mockery::mock(SiteResource::class);
             $siteResource->shouldReceive('updatePackagesAuth')
                 ->with(1, 1, Mockery::type('array'))
@@ -415,7 +334,7 @@ describe('ResetDeploymentStateTool', function (): void {
     });
 
     it('resets deployment state successfully', function (): void {
-        $this->mock(ForgeClient::class, function ($mock): void {
+        $this->mock(ForgeClient::class, function (Mockery\MockInterface $mock): void {
             $siteResource = Mockery::mock(SiteResource::class);
             $siteResource->shouldReceive('resetDeploymentState')
                 ->with(1, 1)
@@ -442,7 +361,7 @@ describe('SetDeploymentFailureEmailsTool', function (): void {
     });
 
     it('sets deployment failure emails successfully', function (): void {
-        $this->mock(ForgeClient::class, function ($mock): void {
+        $this->mock(ForgeClient::class, function (Mockery\MockInterface $mock): void {
             $siteResource = Mockery::mock(SiteResource::class);
             $siteResource->shouldReceive('setDeploymentFailureEmails')
                 ->with(1, 1, ['dev@example.com', 'ops@example.com'])
@@ -470,7 +389,7 @@ describe('StartServiceTool', function (): void {
     });
 
     it('starts service successfully', function (): void {
-        $this->mock(ForgeClient::class, function ($mock): void {
+        $this->mock(ForgeClient::class, function (Mockery\MockInterface $mock): void {
             $serviceResource = Mockery::mock(ServiceResource::class);
             $serviceResource->shouldReceive('startService')
                 ->with(1, 'nginx')
@@ -498,7 +417,7 @@ describe('StopServiceTool', function (): void {
     });
 
     it('stops service successfully', function (): void {
-        $this->mock(ForgeClient::class, function ($mock): void {
+        $this->mock(ForgeClient::class, function (Mockery\MockInterface $mock): void {
             $serviceResource = Mockery::mock(ServiceResource::class);
             $serviceResource->shouldReceive('stopService')
                 ->with(1, 'mysql')
@@ -526,7 +445,7 @@ describe('RestartServiceTool', function (): void {
     });
 
     it('restarts service successfully', function (): void {
-        $this->mock(ForgeClient::class, function ($mock): void {
+        $this->mock(ForgeClient::class, function (Mockery\MockInterface $mock): void {
             $serviceResource = Mockery::mock(ServiceResource::class);
             $serviceResource->shouldReceive('restartService')
                 ->with(1, 'php8.4')
@@ -556,7 +475,7 @@ describe('GetJobOutputTool', function (): void {
     it('gets job output successfully', function (): void {
         $mockOutput = "Running scheduled task...\nCompleted";
 
-        $this->mock(ForgeClient::class, function ($mock) use ($mockOutput): void {
+        $this->mock(ForgeClient::class, function (Mockery\MockInterface $mock) use ($mockOutput): void {
             $jobResource = Mockery::mock(JobResource::class);
             $jobResource->shouldReceive('getOutput')
                 ->with(1, 1)
@@ -586,7 +505,7 @@ describe('GetWorkerOutputTool', function (): void {
     it('gets worker output successfully', function (): void {
         $mockOutput = "Processing: App\\Jobs\\SendEmail\nProcessed";
 
-        $this->mock(ForgeClient::class, function ($mock) use ($mockOutput): void {
+        $this->mock(ForgeClient::class, function (Mockery\MockInterface $mock) use ($mockOutput): void {
             $workerResource = Mockery::mock(WorkerResource::class);
             $workerResource->shouldReceive('getOutput')
                 ->with(1, 1, 1)
@@ -615,7 +534,7 @@ describe('ActivateCertificateTool', function (): void {
     });
 
     it('activates certificate successfully', function (): void {
-        $this->mock(ForgeClient::class, function ($mock): void {
+        $this->mock(ForgeClient::class, function (Mockery\MockInterface $mock): void {
             $certResource = Mockery::mock(CertificateResource::class);
             $certResource->shouldReceive('activate')
                 ->with(1, 1, 1)
@@ -643,7 +562,7 @@ describe('SyncDatabaseTool', function (): void {
     });
 
     it('syncs databases successfully', function (): void {
-        $this->mock(ForgeClient::class, function ($mock): void {
+        $this->mock(ForgeClient::class, function (Mockery\MockInterface $mock): void {
             $dbResource = Mockery::mock(DatabaseResource::class);
             $dbResource->shouldReceive('sync')
                 ->with(1)

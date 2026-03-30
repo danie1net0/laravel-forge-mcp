@@ -503,7 +503,7 @@ describe('Data Objects Structure Validation', function (): void {
             ->filter(fn ($file) => str_ends_with($file->getFilename(), 'Data.php'))
             ->values();
 
-        expect($dataFiles->count())->toBeGreaterThan(60);
+        expect($dataFiles->count())->toBeGreaterThan(58);
 
         foreach ($dataFiles as $file) {
             $relativePath = str_replace(

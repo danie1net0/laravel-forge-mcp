@@ -11,7 +11,7 @@ describe('All MCP Tools Validation', function (): void {
             ->filter(fn (SplFileInfo $file): bool => str_ends_with($file->getFilename(), 'Tool.php'))
             ->values();
 
-        expect($toolFiles)->toHaveCount(171, 'Expected exactly 171 tools to be found');
+        expect($toolFiles)->toHaveCount(168, 'Expected exactly 168 tools to be found');
 
         foreach ($toolFiles as $file) {
             $relativePath = str_replace([app_path('Mcp/Tools/'), '.php', '/'], ['', '', '\\'], $file->getPathname());

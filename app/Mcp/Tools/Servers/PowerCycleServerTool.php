@@ -7,21 +7,22 @@ namespace App\Mcp\Tools\Servers;
 use App\Integrations\Forge\ForgeClient;
 use Exception;
 use Illuminate\Contracts\JsonSchema\JsonSchema;
+use Laravel\Mcp\Server\Tools\Annotations\IsDestructive;
 use Laravel\Mcp\{Request, Response};
 use Laravel\Mcp\Server\Tool;
 
-class ReconnectServerTool extends Tool
+#[IsDestructive]
+class PowerCycleServerTool extends Tool
 {
     protected string $description = <<<'MARKDOWN'
-        Reconnect Forge to a server after access was revoked.
+        Power cycle a Laravel Forge server (force power off and back on).
 
-        This generates a new SSH public key that must be added to the server's
-        authorized_keys file manually.
+        **WARNING**: This is a destructive operation that performs a hard power cycle.
+        It is equivalent to physically unplugging and replugging the server.
+        Use this only when a normal reboot is not working, as it may cause data corruption.
 
         **Required Parameters:**
-        - `server_id`: The unique ID of the Forge server
-
-        Returns the public key that needs to be added to the server.
+        - `server_id`: The unique ID of the Forge server to power cycle
     MARKDOWN;
 
     public function handle(Request $request, ForgeClient $client): Response
@@ -33,19 +34,18 @@ class ReconnectServerTool extends Tool
         $serverId = $request->integer('server_id');
 
         try {
-            $publicKey = $client->servers()->reconnect($serverId);
+            $client->servers()->powerCycle($serverId);
 
             return Response::text((string) json_encode([
                 'success' => true,
-                'message' => 'Reconnection initiated. Add the public key to the server.',
+                'message' => 'Server power cycle initiated successfully.',
                 'server_id' => $serverId,
-                'public_key' => $publicKey,
-                'instructions' => 'Add this key to /root/.ssh/authorized_keys on the server.',
+                'warning' => 'The server will be unavailable while cycling. Use only when normal reboot fails.',
             ], JSON_PRETTY_PRINT));
-        } catch (Exception $e) {
+        } catch (Exception $exception) {
             return Response::text((string) json_encode([
                 'success' => false,
-                'error' => $e->getMessage(),
+                'error' => $exception->getMessage(),
             ], JSON_PRETTY_PRINT));
         }
     }
@@ -54,7 +54,7 @@ class ReconnectServerTool extends Tool
     {
         return [
             'server_id' => $schema->integer()
-                ->description('The unique ID of the Forge server')
+                ->description('The unique ID of the Forge server to power cycle')
                 ->min(1)
                 ->required(),
         ];

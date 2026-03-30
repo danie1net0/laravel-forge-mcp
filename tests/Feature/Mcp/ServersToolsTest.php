@@ -5,8 +5,8 @@ declare(strict_types=1);
 use App\Integrations\Forge\ForgeClient;
 use App\Integrations\Forge\Resources\ServerResource;
 use App\Mcp\Servers\ForgeServer;
-use App\Mcp\Tools\Servers\{CreateServerTool, DeleteServerTool, GetEventOutputTool, GetServerLogTool, GetServerTool, ListEventsTool, ListServersTool, ReactivateServerTool, RebootServerTool, ReconnectServerTool, RevokeServerAccessTool, UpdateDatabasePasswordTool, UpdateServerTool};
-use App\Integrations\Forge\Data\Servers\{ServerCollectionData, ServerData, UpdateServerData};
+use App\Mcp\Tools\Servers\{CreateServerTool, DeleteServerTool, GetEventOutputTool, GetServerLogTool, GetServerTool, ListEventsTool, ListServersTool, PowerCycleServerTool, RebootServerTool, UpdateDatabasePasswordTool};
+use App\Integrations\Forge\Data\Servers\{ServerCollectionData, ServerData};
 
 beforeEach(function (): void {
     config([
@@ -51,7 +51,7 @@ describe('ListServersTool', function (): void {
     it('lists servers successfully', function (): void {
         $mockServer = createMockServer();
 
-        $this->mock(ForgeClient::class, function ($mock) use ($mockServer): void {
+        $this->mock(ForgeClient::class, function (Mockery\MockInterface $mock) use ($mockServer): void {
             $serverResource = Mockery::mock(ServerResource::class);
             $collection = new ServerCollectionData(servers: [$mockServer]);
             $serverResource->shouldReceive('list')->once()->andReturn($collection);
@@ -64,7 +64,7 @@ describe('ListServersTool', function (): void {
     });
 
     it('returns empty list when no servers exist', function (): void {
-        $this->mock(ForgeClient::class, function ($mock): void {
+        $this->mock(ForgeClient::class, function (Mockery\MockInterface $mock): void {
             $serverResource = Mockery::mock(ServerResource::class);
             $collection = new ServerCollectionData(servers: []);
             $serverResource->shouldReceive('list')->once()->andReturn($collection);
@@ -77,7 +77,7 @@ describe('ListServersTool', function (): void {
     });
 
     it('handles API errors gracefully', function (): void {
-        $this->mock(ForgeClient::class, function ($mock): void {
+        $this->mock(ForgeClient::class, function (Mockery\MockInterface $mock): void {
             $serverResource = Mockery::mock(ServerResource::class);
             $serverResource->shouldReceive('list')->once()->andThrow(new Exception('API Error'));
             $mock->shouldReceive('servers')->once()->andReturn($serverResource);
@@ -117,7 +117,7 @@ describe('GetServerTool', function (): void {
     it('gets server details successfully', function (): void {
         $mockServer = createMockServer();
 
-        $this->mock(ForgeClient::class, function ($mock) use ($mockServer): void {
+        $this->mock(ForgeClient::class, function (Mockery\MockInterface $mock) use ($mockServer): void {
             $serverResource = Mockery::mock(ServerResource::class);
             $serverResource->shouldReceive('get')->with(Mockery::any())->once()->andReturn($mockServer);
             $mock->shouldReceive('servers')->once()->andReturn($serverResource);
@@ -129,7 +129,7 @@ describe('GetServerTool', function (): void {
     });
 
     it('handles server not found', function (): void {
-        $this->mock(ForgeClient::class, function ($mock): void {
+        $this->mock(ForgeClient::class, function (Mockery\MockInterface $mock): void {
             $serverResource = Mockery::mock(ServerResource::class);
             $serverResource->shouldReceive('get')->andThrow(new Exception('Server not found'));
             $mock->shouldReceive('servers')->andReturn($serverResource);
@@ -161,7 +161,7 @@ describe('CreateServerTool', function (): void {
     it('creates server successfully', function (): void {
         $mockServer = createMockServer();
 
-        $this->mock(ForgeClient::class, function ($mock) use ($mockServer): void {
+        $this->mock(ForgeClient::class, function (Mockery\MockInterface $mock) use ($mockServer): void {
             $serverResource = Mockery::mock(ServerResource::class);
             $serverResource->shouldReceive('create')->once()->andReturn($mockServer);
             $mock->shouldReceive('servers')->once()->andReturn($serverResource);
@@ -180,43 +180,6 @@ describe('CreateServerTool', function (): void {
     });
 });
 
-describe('UpdateServerTool', function (): void {
-    it('requires server_id parameter', function (): void {
-        $response = ForgeServer::tool(UpdateServerTool::class, []);
-
-        $response->assertHasErrors();
-    });
-
-    it('validates ip_address format', function (): void {
-        $response = ForgeServer::tool(UpdateServerTool::class, [
-            'server_id' => 1,
-            'ip_address' => 'not-an-ip',
-        ]);
-
-        $response->assertHasErrors();
-    });
-
-    it('updates server successfully', function (): void {
-        $mockServer = createMockServer();
-
-        $this->mock(ForgeClient::class, function ($mock) use ($mockServer): void {
-            $serverResource = Mockery::mock(ServerResource::class);
-            $serverResource->shouldReceive('update')
-                ->with(1, Mockery::type(UpdateServerData::class))
-                ->once()
-                ->andReturn($mockServer);
-            $mock->shouldReceive('servers')->once()->andReturn($serverResource);
-        });
-
-        $response = ForgeServer::tool(UpdateServerTool::class, [
-            'server_id' => 1,
-            'name' => 'updated-server',
-        ]);
-
-        $response->assertOk()->assertSee('"success": true');
-    });
-});
-
 describe('DeleteServerTool', function (): void {
     it('requires server_id parameter', function (): void {
         $response = ForgeServer::tool(DeleteServerTool::class, []);
@@ -225,7 +188,7 @@ describe('DeleteServerTool', function (): void {
     });
 
     it('deletes server successfully', function (): void {
-        $this->mock(ForgeClient::class, function ($mock): void {
+        $this->mock(ForgeClient::class, function (Mockery\MockInterface $mock): void {
             $serverResource = Mockery::mock(ServerResource::class);
             $serverResource->shouldReceive('delete')->with(1)->once();
             $mock->shouldReceive('servers')->once()->andReturn($serverResource);
@@ -245,13 +208,33 @@ describe('RebootServerTool', function (): void {
     });
 
     it('reboots server successfully', function (): void {
-        $this->mock(ForgeClient::class, function ($mock): void {
+        $this->mock(ForgeClient::class, function (Mockery\MockInterface $mock): void {
             $serverResource = Mockery::mock(ServerResource::class);
             $serverResource->shouldReceive('reboot')->with(1)->once();
             $mock->shouldReceive('servers')->once()->andReturn($serverResource);
         });
 
         $response = ForgeServer::tool(RebootServerTool::class, ['server_id' => 1]);
+
+        $response->assertOk()->assertSee('"success": true');
+    });
+});
+
+describe('PowerCycleServerTool', function (): void {
+    it('requires server_id parameter', function (): void {
+        $response = ForgeServer::tool(PowerCycleServerTool::class, []);
+
+        $response->assertHasErrors();
+    });
+
+    it('power cycles server successfully', function (): void {
+        $this->mock(ForgeClient::class, function (Mockery\MockInterface $mock): void {
+            $serverResource = Mockery::mock(ServerResource::class);
+            $serverResource->shouldReceive('powerCycle')->with(1)->once();
+            $mock->shouldReceive('servers')->once()->andReturn($serverResource);
+        });
+
+        $response = ForgeServer::tool(PowerCycleServerTool::class, ['server_id' => 1]);
 
         $response->assertOk()->assertSee('"success": true');
     });
@@ -265,7 +248,7 @@ describe('GetServerLogTool', function (): void {
     });
 
     it('uses default auth file when file not provided', function (): void {
-        $this->mock(ForgeClient::class, function ($mock): void {
+        $this->mock(ForgeClient::class, function (Mockery\MockInterface $mock): void {
             $serverResource = Mockery::mock(ServerResource::class);
             $serverResource->shouldReceive('getLog')->with(1, 'auth')->once()->andReturn('auth log content');
             $mock->shouldReceive('servers')->once()->andReturn($serverResource);
@@ -277,7 +260,7 @@ describe('GetServerLogTool', function (): void {
     });
 
     it('gets server log successfully', function (): void {
-        $this->mock(ForgeClient::class, function ($mock): void {
+        $this->mock(ForgeClient::class, function (Mockery\MockInterface $mock): void {
             $serverResource = Mockery::mock(ServerResource::class);
             $serverResource->shouldReceive('getLog')->with(1, 'syslog')->once()->andReturn('syslog content here');
             $mock->shouldReceive('servers')->once()->andReturn($serverResource);
@@ -310,7 +293,7 @@ describe('ListEventsTool', function (): void {
             ],
         ];
 
-        $this->mock(ForgeClient::class, function ($mock) use ($mockEvents): void {
+        $this->mock(ForgeClient::class, function (Mockery\MockInterface $mock) use ($mockEvents): void {
             $serverResource = Mockery::mock(ServerResource::class);
             $serverResource->shouldReceive('listEvents')->with(1, null, 30)->once()->andReturn($mockEvents);
             $mock->shouldReceive('servers')->once()->andReturn($serverResource);
@@ -330,7 +313,7 @@ describe('GetEventOutputTool', function (): void {
     });
 
     it('gets event output successfully', function (): void {
-        $this->mock(ForgeClient::class, function ($mock): void {
+        $this->mock(ForgeClient::class, function (Mockery\MockInterface $mock): void {
             $serverResource = Mockery::mock(ServerResource::class);
             $serverResource->shouldReceive('getEventOutput')->with(1, 1)->once()->andReturn('Event output content');
             $mock->shouldReceive('servers')->once()->andReturn($serverResource);
@@ -345,66 +328,6 @@ describe('GetEventOutputTool', function (): void {
     });
 });
 
-describe('RevokeServerAccessTool', function (): void {
-    it('requires server_id parameter', function (): void {
-        $response = ForgeServer::tool(RevokeServerAccessTool::class, []);
-
-        $response->assertHasErrors();
-    });
-
-    it('revokes access successfully', function (): void {
-        $this->mock(ForgeClient::class, function ($mock): void {
-            $serverResource = Mockery::mock(ServerResource::class);
-            $serverResource->shouldReceive('revokeAccess')->with(1)->once();
-            $mock->shouldReceive('servers')->once()->andReturn($serverResource);
-        });
-
-        $response = ForgeServer::tool(RevokeServerAccessTool::class, ['server_id' => 1]);
-
-        $response->assertOk()->assertSee('"success": true');
-    });
-});
-
-describe('ReconnectServerTool', function (): void {
-    it('requires server_id parameter', function (): void {
-        $response = ForgeServer::tool(ReconnectServerTool::class, []);
-
-        $response->assertHasErrors();
-    });
-
-    it('reconnects server successfully', function (): void {
-        $this->mock(ForgeClient::class, function ($mock): void {
-            $serverResource = Mockery::mock(ServerResource::class);
-            $serverResource->shouldReceive('reconnect')->with(1)->once()->andReturn('ssh-public-key');
-            $mock->shouldReceive('servers')->once()->andReturn($serverResource);
-        });
-
-        $response = ForgeServer::tool(ReconnectServerTool::class, ['server_id' => 1]);
-
-        $response->assertOk()->assertSee('"success": true');
-    });
-});
-
-describe('ReactivateServerTool', function (): void {
-    it('requires server_id parameter', function (): void {
-        $response = ForgeServer::tool(ReactivateServerTool::class, []);
-
-        $response->assertHasErrors();
-    });
-
-    it('reactivates server successfully', function (): void {
-        $this->mock(ForgeClient::class, function ($mock): void {
-            $serverResource = Mockery::mock(ServerResource::class);
-            $serverResource->shouldReceive('reactivate')->with(1)->once();
-            $mock->shouldReceive('servers')->once()->andReturn($serverResource);
-        });
-
-        $response = ForgeServer::tool(ReactivateServerTool::class, ['server_id' => 1]);
-
-        $response->assertOk()->assertSee('"success": true');
-    });
-});
-
 describe('UpdateDatabasePasswordTool', function (): void {
     it('requires server_id parameter', function (): void {
         $response = ForgeServer::tool(UpdateDatabasePasswordTool::class, []);
@@ -413,7 +336,7 @@ describe('UpdateDatabasePasswordTool', function (): void {
     });
 
     it('updates database password successfully', function (): void {
-        $this->mock(ForgeClient::class, function ($mock): void {
+        $this->mock(ForgeClient::class, function (Mockery\MockInterface $mock): void {
             $serverResource = Mockery::mock(ServerResource::class);
             $serverResource->shouldReceive('updateDatabasePassword')->with(1)->once();
             $mock->shouldReceive('servers')->once()->andReturn($serverResource);
@@ -431,15 +354,12 @@ describe('Server Tools Structure', function (): void {
             ListServersTool::class,
             GetServerTool::class,
             CreateServerTool::class,
-            UpdateServerTool::class,
             DeleteServerTool::class,
             RebootServerTool::class,
+            PowerCycleServerTool::class,
             GetServerLogTool::class,
             ListEventsTool::class,
             GetEventOutputTool::class,
-            RevokeServerAccessTool::class,
-            ReconnectServerTool::class,
-            ReactivateServerTool::class,
             UpdateDatabasePasswordTool::class,
         ];
 

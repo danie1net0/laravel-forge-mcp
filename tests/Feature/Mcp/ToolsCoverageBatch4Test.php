@@ -6,7 +6,7 @@ use App\Integrations\Forge\Data\Deployments\DeploymentData;
 use App\Integrations\Forge\ForgeClient;
 use App\Mcp\Servers\ForgeServer;
 use App\Mcp\Tools\Sites\{ChangePhpVersionTool, ClearSiteLogTool, CreateSiteTool, DeleteSiteTool, GetLoadBalancingTool, GetPackagesAuthTool, GetSiteLogTool, InstallPhpMyAdminTool, InstallWordPressTool, ListAliasesTool, ListSitesTool, UninstallPhpMyAdminTool, UninstallWordPressTool, UpdateAliasesTool, UpdateLoadBalancingTool, UpdatePackagesAuthTool, UpdateSiteTool};
-use App\Mcp\Tools\Servers\{CreateServerTool, DeleteServerTool, GetEventOutputTool, GetServerLogTool, ListEventsTool, ReactivateServerTool, RebootServerTool, ReconnectServerTool, RevokeServerAccessTool, UpdateDatabasePasswordTool, UpdateServerTool};
+use App\Mcp\Tools\Servers\{CreateServerTool, DeleteServerTool, GetEventOutputTool, GetServerLogTool, ListEventsTool, RebootServerTool, UpdateDatabasePasswordTool};
 use App\Mcp\Tools\Services\{InstallBlackfireTool, InstallPapertrailTool, RebootMysqlTool, RebootNginxTool, RebootPhpTool, RebootPostgresTool, RemoveBlackfireTool, RemovePapertrailTool, RestartServiceTool, StartServiceTool, StopMysqlTool, StopNginxTool, StopPostgresTool, StopServiceTool, TestNginxTool};
 use App\Mcp\Tools\Composite\{BulkDeployTool, CloneSiteTool, SSLExpirationCheckTool, ServerHealthCheckTool, SiteStatusDashboardTool};
 use App\Mcp\Tools\Integrations\{DisableHorizonTool, DisableInertiaTool, DisableMaintenanceTool, DisableOctaneTool, DisablePulseTool, DisableReverbTool, DisableSchedulerTool, EnableHorizonTool, EnableInertiaTool, EnableMaintenanceTool, EnableOctaneTool, EnablePulseTool, EnableReverbTool, EnableSchedulerTool, GetHorizonTool, GetInertiaTool, GetMaintenanceTool, GetOctaneTool, GetPulseTool, GetReverbTool, GetSchedulerTool};
@@ -21,7 +21,7 @@ use App\Integrations\Forge\Data\Certificates\{CertificateCollectionData, Certifi
 use App\Mcp\Tools\Certificates\InstallCertificateTool;
 use App\Mcp\Tools\Workers\GetWorkerOutputTool;
 use App\Integrations\Forge\Data\Sites\{CreateSiteData, UpdateSiteData};
-use App\Integrations\Forge\Data\Servers\{CreateServerData, UpdateServerData};
+use App\Integrations\Forge\Data\Servers\CreateServerData;
 
 beforeEach(function (): void {
     config([
@@ -525,21 +525,6 @@ describe('Server tools error paths', function (): void {
         $response->assertOk()->assertSee('"success": false')->assertSee('Invalid credentials');
     });
 
-    it('handles UpdateServerTool API errors', function (): void {
-        $this->mock(ForgeClient::class, function (Mockery\MockInterface $mock): void {
-            $serverResource = Mockery::mock(ServerResource::class);
-            $serverResource->shouldReceive('update')->once()->andThrow(new Exception('Update failed'));
-            $mock->shouldReceive('servers')->once()->andReturn($serverResource);
-        });
-
-        $response = ForgeServer::tool(UpdateServerTool::class, [
-            'server_id' => 1,
-            'name' => 'updated-server',
-        ]);
-
-        $response->assertOk()->assertSee('"success": false')->assertSee('Update failed');
-    });
-
     it('handles DeleteServerTool API errors', function (): void {
         $this->mock(ForgeClient::class, function (Mockery\MockInterface $mock): void {
             $serverResource = Mockery::mock(ServerResource::class);
@@ -562,42 +547,6 @@ describe('Server tools error paths', function (): void {
         $response = ForgeServer::tool(RebootServerTool::class, ['server_id' => 1]);
 
         $response->assertOk()->assertSee('"success": false')->assertSee('Reboot failed');
-    });
-
-    it('handles ReconnectServerTool API errors', function (): void {
-        $this->mock(ForgeClient::class, function (Mockery\MockInterface $mock): void {
-            $serverResource = Mockery::mock(ServerResource::class);
-            $serverResource->shouldReceive('reconnect')->once()->andThrow(new Exception('Reconnect failed'));
-            $mock->shouldReceive('servers')->once()->andReturn($serverResource);
-        });
-
-        $response = ForgeServer::tool(ReconnectServerTool::class, ['server_id' => 1]);
-
-        $response->assertOk()->assertSee('"success": false')->assertSee('Reconnect failed');
-    });
-
-    it('handles ReactivateServerTool API errors', function (): void {
-        $this->mock(ForgeClient::class, function (Mockery\MockInterface $mock): void {
-            $serverResource = Mockery::mock(ServerResource::class);
-            $serverResource->shouldReceive('reactivate')->once()->andThrow(new Exception('Reactivation failed'));
-            $mock->shouldReceive('servers')->once()->andReturn($serverResource);
-        });
-
-        $response = ForgeServer::tool(ReactivateServerTool::class, ['server_id' => 1]);
-
-        $response->assertOk()->assertSee('"success": false')->assertSee('Reactivation failed');
-    });
-
-    it('handles RevokeServerAccessTool API errors', function (): void {
-        $this->mock(ForgeClient::class, function (Mockery\MockInterface $mock): void {
-            $serverResource = Mockery::mock(ServerResource::class);
-            $serverResource->shouldReceive('revokeAccess')->once()->andThrow(new Exception('Revoke failed'));
-            $mock->shouldReceive('servers')->once()->andReturn($serverResource);
-        });
-
-        $response = ForgeServer::tool(RevokeServerAccessTool::class, ['server_id' => 1]);
-
-        $response->assertOk()->assertSee('"success": false')->assertSee('Revoke failed');
     });
 
     it('handles UpdateDatabasePasswordTool API errors', function (): void {
@@ -1940,41 +1889,6 @@ describe('CreateServerTool optional parameters', function (): void {
             ->assertOk()
             ->assertSee('"success": true')
             ->assertSee('custom-server');
-    });
-});
-
-describe('UpdateServerTool optional parameters', function (): void {
-    it('accepts all optional parameters', function (): void {
-        $mockServer = makeMockServerData([
-            'name' => 'updated-server',
-            'size' => 's-4vcpu-8gb',
-            'ip_address' => '10.0.0.100',
-            'private_ip_address' => '192.168.0.100',
-        ]);
-
-        $this->mock(ForgeClient::class, function (Mockery\MockInterface $mock) use ($mockServer): void {
-            $serverResource = Mockery::mock(ServerResource::class);
-            $serverResource->shouldReceive('update')
-                ->with(1, Mockery::type(UpdateServerData::class))
-                ->once()
-                ->andReturn($mockServer);
-            $mock->shouldReceive('servers')->andReturn($serverResource);
-        });
-
-        $response = ForgeServer::tool(UpdateServerTool::class, [
-            'server_id' => 1,
-            'name' => 'updated-server',
-            'size' => 's-4vcpu-8gb',
-            'ip_address' => '10.0.0.100',
-            'private_ip_address' => '192.168.0.100',
-            'max_upload_size' => 512,
-            'network' => [1, 2, 3],
-        ]);
-
-        $response
-            ->assertOk()
-            ->assertSee('"success": true')
-            ->assertSee('updated-server');
     });
 });
 

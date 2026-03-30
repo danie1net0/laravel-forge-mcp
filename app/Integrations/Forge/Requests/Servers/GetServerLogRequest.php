@@ -12,20 +12,13 @@ class GetServerLogRequest extends Request
     protected Method $method = Method::GET;
 
     public function __construct(
-        protected int $serverId,
-        protected string $file = 'auth'
+        private readonly int $serverId,
+        private readonly string $logKey = 'auth',
     ) {
     }
 
     public function resolveEndpoint(): string
     {
-        return "/servers/{$this->serverId}/logs";
-    }
-
-    protected function defaultQuery(): array
-    {
-        return [
-            'file' => $this->file,
-        ];
+        return "/servers/{$this->serverId}/logs/{$this->logKey}";
     }
 }

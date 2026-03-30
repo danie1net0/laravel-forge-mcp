@@ -8,7 +8,7 @@ use App\Integrations\Forge\Data\Sites\{CreateSiteData, ExecuteSiteCommandData, I
 use App\Integrations\Forge\Data\Backups\{BackupConfigurationCollectionData, BackupConfigurationData, BackupData, CreateBackupConfigurationData, UpdateBackupConfigurationData};
 use App\Integrations\Forge\Data\Daemons\{CreateDaemonData, DaemonCollectionData, DaemonData};
 use App\Integrations\Forge\Data\SSHKeys\{CreateSSHKeyData, SSHKeyCollectionData, SSHKeyData};
-use App\Integrations\Forge\Data\Servers\{CreateServerData, EventData, ServerCollectionData, ServerData, UpdateServerData};
+use App\Integrations\Forge\Data\Servers\{CreateServerData, EventData, ServerCollectionData, ServerData};
 use App\Integrations\Forge\Data\Workers\{CreateWorkerData, WorkerCollectionData, WorkerData};
 use App\Integrations\Forge\Data\Firewall\{CreateFirewallRuleData, FirewallRuleCollectionData, FirewallRuleData};
 use App\Integrations\Forge\Data\Monitors\{CreateMonitorData, MonitorCollectionData, MonitorData};
@@ -897,21 +897,6 @@ describe('Servers', function (): void {
             ->database->toBe('forge')
             ->tags->toBe(['production', 'api'])
             ->ocean2->toBe(['region_id' => 'nyc1', 'size_id' => 's-1vcpu-1gb']);
-    });
-
-    it('creates UpdateServerData with partial fields', function (): void {
-        $data = UpdateServerData::from([
-            'name' => 'renamed-server',
-            'ip_address' => '10.0.0.1',
-        ]);
-
-        expect($data)
-            ->name->toBe('renamed-server')
-            ->ipAddress->toBe('10.0.0.1')
-            ->size->toBeNull()
-            ->privateIpAddress->toBeNull()
-            ->maxUploadSize->toBeNull()
-            ->network->toBeNull();
     });
 
     it('creates EventData from snake_case input', function (): void {

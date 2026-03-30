@@ -9,14 +9,14 @@ use Saloon\Enums\Method;
 use Saloon\Http\Request;
 use Saloon\Traits\Body\HasJsonBody;
 
-class ReconnectServerRequest extends Request implements HasBody
+class PowerCycleServerRequest extends Request implements HasBody
 {
     use HasJsonBody;
 
     protected Method $method = Method::POST;
 
     public function __construct(
-        protected int $serverId
+        private readonly int $serverId,
     ) {
     }
 
@@ -25,13 +25,9 @@ class ReconnectServerRequest extends Request implements HasBody
         return "/servers/{$this->serverId}/actions";
     }
 
-    /**
-     * @return array{action: string}
-     */
+    /** @return array{action: string} */
     protected function defaultBody(): array
     {
-        return [
-            'action' => 'reconnect',
-        ];
+        return ['action' => 'power-cycle'];
     }
 }

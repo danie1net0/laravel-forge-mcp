@@ -9,10 +9,10 @@ describe('Saloon Requests Structure', function (): void {
     it('validates all Requests have createDtoFromResponse method', function (): void {
         $requestsPath = app_path('Integrations/Forge/Requests');
         $requestFiles = collect(File::allFiles($requestsPath))
-            ->filter(fn ($file) => str_ends_with($file->getFilename(), 'Request.php'))
+            ->filter(fn (Symfony\Component\Finder\SplFileInfo $file): bool => str_ends_with($file->getFilename(), 'Request.php'))
             ->values();
 
-        expect($requestFiles->count())->toBeGreaterThan(130);
+        expect($requestFiles->count())->toBeGreaterThan(125);
 
         $failures = [];
 
@@ -49,7 +49,7 @@ describe('Saloon Requests Structure', function (): void {
     it('validates all Requests extend SaloonRequest', function (): void {
         $requestsPath = app_path('Integrations/Forge/Requests');
         $requestFiles = collect(File::allFiles($requestsPath))
-            ->filter(fn ($file) => str_ends_with($file->getFilename(), 'Request.php'))
+            ->filter(fn (Symfony\Component\Finder\SplFileInfo $file): bool => str_ends_with($file->getFilename(), 'Request.php'))
             ->values();
 
         $failures = [];
@@ -82,7 +82,7 @@ describe('Saloon Requests Structure', function (): void {
     it('validates Requests have correct HTTP methods', function (): void {
         $requestsPath = app_path('Integrations/Forge/Requests');
         $requestFiles = collect(File::allFiles($requestsPath))
-            ->filter(fn ($file) => str_ends_with($file->getFilename(), 'Request.php'))
+            ->filter(fn (Symfony\Component\Finder\SplFileInfo $file): bool => str_ends_with($file->getFilename(), 'Request.php'))
             ->values();
 
         foreach ($requestFiles as $file) {
@@ -186,7 +186,7 @@ describe('Request Categories Coverage', function (): void {
         'Php' => ['InstallPhp', 'UpdatePhp'],
         'RedirectRules' => ['ListRedirectRules', 'GetRedirectRule', 'CreateRedirectRule', 'DeleteRedirectRule'],
         'SecurityRules' => ['ListSecurityRules', 'GetSecurityRule', 'CreateSecurityRule', 'DeleteSecurityRule'],
-        'Servers' => ['ListServers', 'GetServer', 'CreateServer', 'UpdateServer', 'DeleteServer', 'RebootServer', 'ListEvents', 'GetEventOutput', 'GetServerLog', 'ReactivateServer', 'ReconnectServer', 'RevokeServerAccess', 'UpdateDatabasePassword'],
+        'Servers' => ['ListServers', 'GetServer', 'CreateServer', 'DeleteServer', 'RebootServer', 'PowerCycleServer', 'ListEvents', 'GetEventOutput', 'GetServerLog', 'UpdateDatabasePassword'],
         'Services' => ['InstallBlackfire', 'InstallPapertrail', 'ManageService'],
         'Sites' => ['ListSites', 'GetSite', 'CreateSite', 'UpdateSite', 'DeleteSite', 'GetSiteLog', 'ClearSiteLog', 'ChangePhpVersion', 'DeploySite', 'GetDeploymentLog', 'GetDeploymentScript', 'UpdateDeploymentScript', 'EnableQuickDeploy', 'DisableQuickDeploy', 'GetDeploymentHistory', 'GetDeploymentHistoryDeployment', 'GetDeploymentHistoryOutput', 'ResetDeploymentState', 'InstallGitRepository', 'UpdateGitRepository', 'DestroyGitRepository', 'CreateDeployKey', 'DeleteDeployKey', 'GetEnvFile', 'UpdateEnvFile', 'GetNginxConfig', 'UpdateNginxConfig', 'ExecuteSiteCommand', 'GetSiteCommand', 'ListCommandHistory', 'InstallWordPress', 'UninstallWordPress', 'InstallPhpMyAdmin', 'UninstallPhpMyAdmin', 'GetPackagesAuth', 'UpdatePackagesAuth', 'SetDeploymentFailureEmails', 'ListAliases', 'UpdateAliases', 'GetLoadBalancing', 'UpdateLoadBalancing'],
         'SSHKeys' => ['ListSSHKeys', 'GetSSHKey', 'CreateSSHKey', 'DeleteSSHKey'],

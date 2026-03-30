@@ -344,7 +344,7 @@ describe('MCP Protocol Integration', function (): void {
             ->filter(fn ($file) => str_ends_with($file->getFilename(), 'Tool.php'))
             ->values();
 
-        expect($toolFiles->count())->toBe(171);
+        expect($toolFiles->count())->toBe(168);
     });
 
     it('validates all resources are discoverable', function (): void {
@@ -454,7 +454,7 @@ describe('Application Health Check', function (): void {
             'RedirectRules' => 4,
             'Regions' => 1,
             'SecurityRules' => 4,
-            'Servers' => 13,
+            'Servers' => 10,
             'Services' => 15,
             'Sites' => 18,
             'SSHKeys' => 4,

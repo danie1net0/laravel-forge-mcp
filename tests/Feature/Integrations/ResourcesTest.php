@@ -11,7 +11,7 @@ use App\Integrations\Forge\Data\Sites\{CreateSiteData, ExecuteSiteCommandData, I
 use App\Integrations\Forge\Data\Backups\{BackupConfigurationCollectionData, BackupConfigurationData, CreateBackupConfigurationData, UpdateBackupConfigurationData};
 use App\Integrations\Forge\Data\Daemons\{CreateDaemonData, DaemonCollectionData, DaemonData};
 use App\Integrations\Forge\Data\SSHKeys\{CreateSSHKeyData, SSHKeyCollectionData, SSHKeyData};
-use App\Integrations\Forge\Data\Servers\{CreateServerData, ServerCollectionData, ServerData, UpdateServerData};
+use App\Integrations\Forge\Data\Servers\{CreateServerData, ServerCollectionData, ServerData};
 use App\Integrations\Forge\Data\Workers\{CreateWorkerData, WorkerCollectionData, WorkerData};
 use App\Integrations\Forge\Data\Firewall\{CreateFirewallRuleData, FirewallRuleCollectionData, FirewallRuleData};
 use App\Integrations\Forge\Data\Monitors\{CreateMonitorData, MonitorCollectionData, MonitorData};
@@ -370,20 +370,6 @@ describe('ServerResource', function (): void {
             ->name->toBe('test-server');
     });
 
-    it('updates a server', function (): void {
-        $connector = createMockedConnector([
-            MockResponse::make(['server' => serverMockData(['name' => 'updated-server'])]),
-        ]);
-
-        $resource = new ServerResource($connector);
-        $data = UpdateServerData::from(['name' => 'updated-server']);
-        $result = $resource->update(1, $data);
-
-        expect($result)
-            ->toBeInstanceOf(ServerData::class)
-            ->name->toBe('updated-server');
-    });
-
     it('deletes a server', function (): void {
         [$connector, $mockClient] = createMockedConnectorWithClient([
             MockResponse::make([], 200),
@@ -417,35 +403,13 @@ describe('ServerResource', function (): void {
         $mockClient->assertSentCount(1);
     });
 
-    it('revokes access', function (): void {
+    it('power-cycles a server', function (): void {
         [$connector, $mockClient] = createMockedConnectorWithClient([
-            MockResponse::make([], 200),
+            MockResponse::make([], 202),
         ]);
 
         $resource = new ServerResource($connector);
-        $resource->revokeAccess(1);
-
-        $mockClient->assertSentCount(1);
-    });
-
-    it('reconnects a server and returns public key', function (): void {
-        $connector = createMockedConnector([
-            MockResponse::make(['public_key' => 'ssh-rsa AAAA...']),
-        ]);
-
-        $resource = new ServerResource($connector);
-        $result = $resource->reconnect(1);
-
-        expect($result)->toBe('ssh-rsa AAAA...');
-    });
-
-    it('reactivates a server', function (): void {
-        [$connector, $mockClient] = createMockedConnectorWithClient([
-            MockResponse::make([], 200),
-        ]);
-
-        $resource = new ServerResource($connector);
-        $resource->reactivate(1);
+        $resource->powerCycle(1);
 
         $mockClient->assertSentCount(1);
     });

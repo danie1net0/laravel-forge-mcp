@@ -10,7 +10,7 @@ use App\Integrations\Forge\Data\RedirectRules\CreateRedirectRuleData;
 use App\Integrations\Forge\Data\SecurityRules\CreateSecurityRuleData;
 use App\Integrations\Forge\Data\Sites\{CreateSiteData, ExecuteSiteCommandData, InstallGitRepositoryData, UpdateGitRepositoryData, UpdateSiteData};
 use App\Integrations\Forge\Data\Backups\{CreateBackupConfigurationData, UpdateBackupConfigurationData};
-use App\Integrations\Forge\Data\Servers\{CreateServerData, UpdateServerData};
+use App\Integrations\Forge\Data\Servers\CreateServerData;
 use App\Integrations\Forge\Requests\Php\{InstallPhpRequest, UpdatePhpRequest};
 use App\Integrations\Forge\Requests\Jobs\{CreateJobRequest, DeleteJobRequest, GetJobOutputRequest, GetJobRequest, ListJobsRequest};
 use App\Integrations\Forge\Data\Databases\{CreateDatabaseData, CreateDatabaseUserData, UpdateDatabaseUserData};
@@ -18,7 +18,7 @@ use App\Integrations\Forge\Requests\Sites\{ChangePhpVersionRequest, ClearSiteLog
 use App\Integrations\Forge\Requests\Backups\{CreateBackupConfigurationRequest, DeleteBackupConfigurationRequest, DeleteBackupRequest, GetBackupConfigurationRequest, ListBackupConfigurationsRequest, RestoreBackupRequest, UpdateBackupConfigurationRequest};
 use App\Integrations\Forge\Requests\Daemons\{CreateDaemonRequest, DeleteDaemonRequest, GetDaemonRequest, ListDaemonsRequest, RestartDaemonRequest};
 use App\Integrations\Forge\Requests\SSHKeys\{CreateSSHKeyRequest, DeleteSSHKeyRequest, GetSSHKeyRequest, ListSSHKeysRequest};
-use App\Integrations\Forge\Requests\Servers\{CreateServerRequest, DeleteServerRequest, GetEventOutputRequest, GetServerLogRequest, GetServerRequest, ListEventsRequest, ListServersRequest, ReactivateServerRequest, RebootServerRequest, ReconnectServerRequest, RevokeServerAccessRequest, UpdateDatabasePasswordRequest, UpdateServerRequest};
+use App\Integrations\Forge\Requests\Servers\{CreateServerRequest, DeleteServerRequest, GetEventOutputRequest, GetServerLogRequest, GetServerRequest, ListEventsRequest, ListServersRequest, PowerCycleServerRequest, RebootServerRequest, UpdateDatabasePasswordRequest};
 use App\Integrations\Forge\Requests\Workers\{CreateWorkerRequest, DeleteWorkerRequest, GetWorkerOutputRequest, GetWorkerRequest, ListWorkersRequest, RestartWorkerRequest};
 use App\Integrations\Forge\Requests\Firewall\{CreateFirewallRuleRequest, DeleteFirewallRuleRequest, GetFirewallRuleRequest, ListFirewallRulesRequest};
 use App\Integrations\Forge\Requests\Monitors\{CreateMonitorRequest, DeleteMonitorRequest, GetMonitorRequest, ListMonitorsRequest};
@@ -788,22 +788,6 @@ describe('Servers', function (): void {
             ->toHaveKey('ocean2');
     });
 
-    it('resolves UpdateServerRequest endpoint and method', function (): void {
-        $data = UpdateServerData::from(['name' => 'staging']);
-        $request = new UpdateServerRequest(1, $data);
-
-        expect($request->resolveEndpoint())->toBe('/servers/1')
-            ->and(getHttpMethod($request))->toBe('PUT');
-    });
-
-    it('builds UpdateServerRequest body', function (): void {
-        $data = UpdateServerData::from(['name' => 'staging']);
-        $request = new UpdateServerRequest(1, $data);
-        $body = getDefaultBody($request);
-
-        expect($body)->toHaveKey('name', 'staging');
-    });
-
     it('resolves DeleteServerRequest endpoint and method', function (): void {
         $request = new DeleteServerRequest(1);
 
@@ -842,70 +826,28 @@ describe('Servers', function (): void {
     it('resolves GetServerLogRequest endpoint and method', function (): void {
         $request = new GetServerLogRequest(1);
 
-        expect($request->resolveEndpoint())->toBe('/servers/1/logs')
+        expect($request->resolveEndpoint())->toBe('/servers/1/logs/auth')
             ->and(getHttpMethod($request))->toBe('GET');
     });
 
-    it('builds GetServerLogRequest default query', function (): void {
-        $request = new GetServerLogRequest(1);
-        $reflection = new ReflectionClass($request);
-        $method = $reflection->getMethod('defaultQuery');
-        $method->setAccessible(true);
-        $query = $method->invoke($request);
-
-        expect($query)->toBe(['file' => 'auth']);
-    });
-
-    it('builds GetServerLogRequest custom query', function (): void {
+    it('resolves GetServerLogRequest with custom log key', function (): void {
         $request = new GetServerLogRequest(1, 'syslog');
-        $reflection = new ReflectionClass($request);
-        $method = $reflection->getMethod('defaultQuery');
-        $method->setAccessible(true);
-        $query = $method->invoke($request);
 
-        expect($query)->toBe(['file' => 'syslog']);
+        expect($request->resolveEndpoint())->toBe('/servers/1/logs/syslog');
     });
 
-    it('resolves ReactivateServerRequest endpoint and method', function (): void {
-        $request = new ReactivateServerRequest(1);
+    it('resolves PowerCycleServerRequest endpoint and method', function (): void {
+        $request = new PowerCycleServerRequest(1);
 
         expect($request->resolveEndpoint())->toBe('/servers/1/actions')
             ->and(getHttpMethod($request))->toBe('POST');
     });
 
-    it('builds ReactivateServerRequest body', function (): void {
-        $request = new ReactivateServerRequest(1);
+    it('builds PowerCycleServerRequest body', function (): void {
+        $request = new PowerCycleServerRequest(1);
         $body = getDefaultBody($request);
 
-        expect($body)->toBe(['action' => 'reactivate']);
-    });
-
-    it('resolves ReconnectServerRequest endpoint and method', function (): void {
-        $request = new ReconnectServerRequest(1);
-
-        expect($request->resolveEndpoint())->toBe('/servers/1/actions')
-            ->and(getHttpMethod($request))->toBe('POST');
-    });
-
-    it('builds ReconnectServerRequest body', function (): void {
-        $request = new ReconnectServerRequest(1);
-        $body = getDefaultBody($request);
-
-        expect($body)->toBe(['action' => 'reconnect']);
-    });
-
-    it('resolves RevokeServerAccessRequest endpoint and method', function (): void {
-        $request = new RevokeServerAccessRequest(1);
-
-        expect($request->resolveEndpoint())->toBe('/servers/1/actions')
-            ->and(getHttpMethod($request))->toBe('POST');
-    });
-
-    it('builds RevokeServerAccessRequest body', function (): void {
-        $request = new RevokeServerAccessRequest(1);
-        $body = getDefaultBody($request);
-
-        expect($body)->toBe(['action' => 'revoke']);
+        expect($body)->toBe(['action' => 'power-cycle']);
     });
 
     it('resolves UpdateDatabasePasswordRequest endpoint and method', function (): void {

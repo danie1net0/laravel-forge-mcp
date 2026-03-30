@@ -5,7 +5,7 @@ declare(strict_types=1);
 namespace App\Integrations\Forge\Resources;
 
 use App\Integrations\Forge\ForgeConnector;
-use App\Integrations\Forge\Data\Servers\{CreateServerData, ServerCollectionData, ServerData, UpdateServerData};
+use App\Integrations\Forge\Data\Servers\{CreateServerData, ServerCollectionData, ServerData};
 use App\Integrations\Forge\Requests\Servers\{
     CreateServerRequest,
     DeleteServerRequest,
@@ -14,12 +14,9 @@ use App\Integrations\Forge\Requests\Servers\{
     GetServerRequest,
     ListEventsRequest,
     ListServersRequest,
-    ReactivateServerRequest,
+    PowerCycleServerRequest,
     RebootServerRequest,
-    ReconnectServerRequest,
-    RevokeServerAccessRequest,
-    UpdateDatabasePasswordRequest,
-    UpdateServerRequest
+    UpdateDatabasePasswordRequest
 };
 
 class ServerResource
@@ -53,14 +50,6 @@ class ServerResource
         return $request->createDtoFromResponse($response);
     }
 
-    public function update(int $serverId, UpdateServerData $data): ServerData
-    {
-        $request = new UpdateServerRequest($serverId, $data);
-        $response = $this->connector->send($request);
-
-        return $request->createDtoFromResponse($response);
-    }
-
     public function delete(int $serverId, bool $preserveAtProvider = false): void
     {
         $this->connector->send(new DeleteServerRequest($serverId, $preserveAtProvider));
@@ -71,31 +60,19 @@ class ServerResource
         $this->connector->send(new RebootServerRequest($serverId));
     }
 
+    public function powerCycle(int $serverId): void
+    {
+        $this->connector->send(new PowerCycleServerRequest($serverId));
+    }
+
     public function updateDatabasePassword(int $serverId, ?string $password = null): void
     {
         $this->connector->send(new UpdateDatabasePasswordRequest($serverId, $password));
     }
 
-    public function revokeAccess(int $serverId): void
+    public function getLog(int $serverId, string $logKey = 'auth'): string
     {
-        $this->connector->send(new RevokeServerAccessRequest($serverId));
-    }
-
-    public function reconnect(int $serverId): string
-    {
-        $response = $this->connector->send(new ReconnectServerRequest($serverId));
-
-        return $response->json('public_key') ?? '';
-    }
-
-    public function reactivate(int $serverId): void
-    {
-        $this->connector->send(new ReactivateServerRequest($serverId));
-    }
-
-    public function getLog(int $serverId, string $file = 'auth'): string
-    {
-        $response = $this->connector->send(new GetServerLogRequest($serverId, $file));
+        $response = $this->connector->send(new GetServerLogRequest($serverId, $logKey));
 
         return $response->json('content') ?? '';
     }
