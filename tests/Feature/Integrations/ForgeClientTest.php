@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 use App\Integrations\Forge\{ForgeClient, ForgeConnector};
 use App\Integrations\Forge\Resources\{BackupResource, CertificateResource, DaemonResource, DatabaseResource, DatabaseUserResource, FirewallResource, IntegrationResource, JobResource, MonitorResource, NginxTemplateResource, PhpResource, RedirectRuleResource, SSHKeyResource, SecurityRuleResource, ServerResource, ServiceResource, SiteResource, UserResource, WebhookResource, WorkerResource};
+use Illuminate\Support\Facades\Http;
 use Saloon\Http\Auth\TokenAuthenticator;
 
 beforeEach(function (): void {
@@ -43,11 +44,56 @@ describe('ForgeClient', function (): void {
         new ForgeClient();
     })->throws(RuntimeException::class, 'Forge API token not configured');
 
-    it('throws RuntimeException when no organization configured', function (): void {
+    it('auto-discovers organization when not configured and single org returned', function (): void {
         config(['services.forge.organization' => null]);
 
+        Http::fake([
+            'forge.laravel.com/api/user' => Http::response([
+                'organizations' => [
+                    ['slug' => 'my-org', 'name' => 'My Org'],
+                ],
+            ]),
+        ]);
+
+        $client = new ForgeClient('test-token');
+
+        expect($client)->toBeInstanceOf(ForgeClient::class);
+    });
+
+    it('throws when auto-discovery finds multiple organizations', function (): void {
+        config(['services.forge.organization' => null]);
+
+        Http::fake([
+            'forge.laravel.com/api/user' => Http::response([
+                'organizations' => [
+                    ['slug' => 'org-one', 'name' => 'Org One'],
+                    ['slug' => 'org-two', 'name' => 'Org Two'],
+                ],
+            ]),
+        ]);
+
         new ForgeClient('test-token');
-    })->throws(RuntimeException::class, 'Forge organization not configured');
+    })->throws(RuntimeException::class, 'Multiple Forge organizations found');
+
+    it('throws when auto-discovery finds no organizations', function (): void {
+        config(['services.forge.organization' => null]);
+
+        Http::fake([
+            'forge.laravel.com/api/user' => Http::response(['organizations' => []]),
+        ]);
+
+        new ForgeClient('test-token');
+    })->throws(RuntimeException::class, 'Could not auto-discover Forge organization');
+
+    it('throws when auto-discovery API call fails', function (): void {
+        config(['services.forge.organization' => null]);
+
+        Http::fake([
+            'forge.laravel.com/api/user' => Http::response([], 401),
+        ]);
+
+        new ForgeClient('test-token');
+    })->throws(RuntimeException::class, 'Invalid Forge API token');
 
     it('accepts API token via constructor', function (): void {
         config(['services.forge.api_token' => null]);

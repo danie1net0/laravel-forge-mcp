@@ -5,6 +5,8 @@ declare(strict_types=1);
 namespace App\Integrations\Forge;
 
 use App\Integrations\Forge\Resources\{BackupResource, CertificateResource, DaemonResource, DatabaseResource, DatabaseUserResource, FirewallResource, IntegrationResource, JobResource, MonitorResource, NginxTemplateResource, PhpResource, RedirectRuleResource, SSHKeyResource, SecurityRuleResource, ServerResource, ServiceResource, SiteResource, UserResource, WebhookResource, WorkerResource};
+use Illuminate\Http\Client\ConnectionException;
+use Illuminate\Support\Facades\Http;
 use RuntimeException;
 
 class ForgeClient
@@ -24,7 +26,7 @@ class ForgeClient
         $organizationSlug = $organization ?? config('services.forge.organization');
 
         if (! $organizationSlug) {
-            throw new RuntimeException('Forge organization not configured. Set FORGE_ORGANIZATION in your .env file.');
+            $organizationSlug = $this->discoverOrganizationSlug($token);
         }
 
         $this->connector = new ForgeConnector($token, $organizationSlug);
@@ -128,5 +130,48 @@ class ForgeClient
     public function integrations(): IntegrationResource
     {
         return new IntegrationResource($this->connector);
+    }
+
+    private function discoverOrganizationSlug(string $apiToken): string
+    {
+        try {
+            $response = Http::withToken($apiToken)
+                ->acceptJson()
+                ->timeout(10)
+                ->get('https://forge.laravel.com/api/user');
+        } catch (ConnectionException $exception) {
+            throw new RuntimeException(
+                'Could not connect to Forge API to discover organization. Set FORGE_ORGANIZATION in your environment.',
+                previous: $exception,
+            );
+        }
+
+        if (! $response->successful()) {
+            throw new RuntimeException(
+                'Invalid Forge API token or API error. Please verify your FORGE_API_TOKEN.',
+            );
+        }
+
+        $body = $response->json();
+        $organizations = $body['organizations'] ?? $body['data']['attributes']['organizations'] ?? null;
+
+        if (! is_array($organizations) || $organizations === []) {
+            throw new RuntimeException(
+                'Could not auto-discover Forge organization. Please set FORGE_ORGANIZATION in your environment (e.g., FORGE_ORGANIZATION=my-org-slug).',
+            );
+        }
+
+        if (count($organizations) === 1) {
+            return (string) ($organizations[0]['slug'] ?? $organizations[0]['id'] ?? '');
+        }
+
+        $slugs = implode(', ', array_map(
+            fn (array $org): string => (string) ($org['slug'] ?? $org['id'] ?? 'unknown'),
+            $organizations,
+        ));
+
+        throw new RuntimeException(
+            "Multiple Forge organizations found: {$slugs}. Please set FORGE_ORGANIZATION in your environment to specify which one to use.",
+        );
     }
 }
