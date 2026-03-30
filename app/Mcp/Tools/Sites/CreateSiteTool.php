@@ -101,7 +101,7 @@ class CreateSiteTool extends Tool
             $createData = CreateSiteData::from($data);
             $site = $client->sites()->create($serverId, $createData);
 
-            return Response::text(json_encode([
+            return Response::text((string) json_encode([
                 'success' => true,
                 'server_id' => $serverId,
                 'site' => [
@@ -119,7 +119,7 @@ class CreateSiteTool extends Tool
                 'message' => "Site '{$site->name}' created successfully on server #{$serverId}",
             ], JSON_PRETTY_PRINT));
         } catch (Exception $e) {
-            return Response::text(json_encode([
+            return Response::text((string) json_encode([
                 'success' => false,
                 'error' => $e->getMessage(),
                 'message' => 'Failed to create site. Please check if the domain is valid and not already in use.',

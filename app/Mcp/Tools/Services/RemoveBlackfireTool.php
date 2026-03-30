@@ -32,13 +32,13 @@ class RemoveBlackfireTool extends Tool
         try {
             $client->services()->removeBlackfire($serverId);
 
-            return Response::text(json_encode([
+            return Response::text((string) json_encode([
                 'success' => true,
                 'message' => 'Blackfire removed successfully.',
                 'server_id' => $serverId,
             ], JSON_PRETTY_PRINT));
         } catch (Exception $e) {
-            return Response::text(json_encode([
+            return Response::text((string) json_encode([
                 'success' => false,
                 'error' => $e->getMessage(),
             ], JSON_PRETTY_PRINT));

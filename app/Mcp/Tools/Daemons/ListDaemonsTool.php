@@ -55,14 +55,14 @@ class ListDaemonsTool extends Tool
                 'created_at' => $daemon->createdAt,
             ], $daemons);
 
-            return Response::text(json_encode([
+            return Response::text((string) json_encode([
                 'success' => true,
                 'server_id' => $serverId,
                 'count' => count($formatted),
                 'daemons' => $formatted,
             ], JSON_PRETTY_PRINT));
         } catch (Exception $e) {
-            return Response::text(json_encode([
+            return Response::text((string) json_encode([
                 'success' => false,
                 'error' => $e->getMessage(),
             ], JSON_PRETTY_PRINT));

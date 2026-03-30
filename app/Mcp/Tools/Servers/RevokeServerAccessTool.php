@@ -37,14 +37,14 @@ class RevokeServerAccessTool extends Tool
         try {
             $client->servers()->revokeAccess($serverId);
 
-            return Response::text(json_encode([
+            return Response::text((string) json_encode([
                 'success' => true,
                 'message' => 'Server access revoked successfully.',
                 'server_id' => $serverId,
                 'warning' => 'Use reconnect-server-tool to restore access.',
             ], JSON_PRETTY_PRINT));
         } catch (Exception $e) {
-            return Response::text(json_encode([
+            return Response::text((string) json_encode([
                 'success' => false,
                 'error' => $e->getMessage(),
             ], JSON_PRETTY_PRINT));

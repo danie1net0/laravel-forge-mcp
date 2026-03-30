@@ -31,12 +31,12 @@ class GetRedirectRuleTool extends Tool
                 $request->integer('rule_id')
             );
 
-            return Response::text(json_encode([
+            return Response::text((string) json_encode([
                 'success' => true,
                 'rule' => ['id' => $rule->id, 'from' => $rule->from, 'to' => $rule->to, 'type' => $rule->type, 'status' => $rule->status],
             ], JSON_PRETTY_PRINT));
         } catch (Exception $e) {
-            return Response::text(json_encode(['success' => false, 'error' => $e->getMessage()], JSON_PRETTY_PRINT));
+            return Response::text((string) json_encode(['success' => false, 'error' => $e->getMessage()], JSON_PRETTY_PRINT));
         }
     }
 

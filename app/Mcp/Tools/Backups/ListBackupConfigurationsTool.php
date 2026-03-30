@@ -32,13 +32,13 @@ class ListBackupConfigurationsTool extends Tool
                 'provider' => $b->provider,
             ], $backups);
 
-            return Response::text(json_encode([
+            return Response::text((string) json_encode([
                 'success' => true,
                 'backup_configurations' => $formatted,
                 'count' => count($formatted),
             ], JSON_PRETTY_PRINT));
         } catch (Exception $e) {
-            return Response::text(json_encode(['success' => false, 'error' => $e->getMessage()], JSON_PRETTY_PRINT));
+            return Response::text((string) json_encode(['success' => false, 'error' => $e->getMessage()], JSON_PRETTY_PRINT));
         }
     }
 

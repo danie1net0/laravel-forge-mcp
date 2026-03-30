@@ -38,13 +38,13 @@ class ListRedirectRulesTool extends Tool
                 'status' => $rule->status,
             ], $rules);
 
-            return Response::text(json_encode([
+            return Response::text((string) json_encode([
                 'success' => true,
                 'redirect_rules' => $formatted,
                 'count' => count($formatted),
             ], JSON_PRETTY_PRINT));
         } catch (Exception $e) {
-            return Response::text(json_encode(['success' => false, 'error' => $e->getMessage()], JSON_PRETTY_PRINT));
+            return Response::text((string) json_encode(['success' => false, 'error' => $e->getMessage()], JSON_PRETTY_PRINT));
         }
     }
 

@@ -51,14 +51,14 @@ class GetSiteLogTool extends Tool
         try {
             $logData = $client->sites()->log($serverId, $siteId);
 
-            return Response::text(json_encode([
+            return Response::text((string) json_encode([
                 'success' => true,
                 'server_id' => $serverId,
                 'site_id' => $siteId,
                 'log' => $logData,
             ], JSON_PRETTY_PRINT));
         } catch (Exception $e) {
-            return Response::text(json_encode([
+            return Response::text((string) json_encode([
                 'success' => false,
                 'error' => $e->getMessage(),
                 'message' => 'Failed to retrieve site logs. Please check if the site exists and logging is configured.',

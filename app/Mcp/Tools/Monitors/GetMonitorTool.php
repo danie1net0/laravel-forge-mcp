@@ -29,7 +29,7 @@ class GetMonitorTool extends Tool
                 $request->integer('monitor_id')
             );
 
-            return Response::text(json_encode([
+            return Response::text((string) json_encode([
                 'success' => true,
                 'monitor' => [
                     'id' => $monitor->id,
@@ -38,7 +38,7 @@ class GetMonitorTool extends Tool
                 ],
             ], JSON_PRETTY_PRINT));
         } catch (Exception $e) {
-            return Response::text(json_encode([
+            return Response::text((string) json_encode([
                 'success' => false,
                 'error' => $e->getMessage(),
             ], JSON_PRETTY_PRINT));

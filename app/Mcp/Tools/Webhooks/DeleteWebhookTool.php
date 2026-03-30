@@ -31,12 +31,12 @@ class DeleteWebhookTool extends Tool
         try {
             $client->webhooks()->delete($serverId, $siteId, $webhookId);
 
-            return Response::text(json_encode([
+            return Response::text((string) json_encode([
                 'success' => true,
                 'message' => "Webhook #{$webhookId} deleted successfully",
             ], JSON_PRETTY_PRINT));
         } catch (Exception $e) {
-            return Response::text(json_encode(['success' => false, 'error' => $e->getMessage()], JSON_PRETTY_PRINT));
+            return Response::text((string) json_encode(['success' => false, 'error' => $e->getMessage()], JSON_PRETTY_PRINT));
         }
     }
 

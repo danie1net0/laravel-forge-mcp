@@ -43,13 +43,13 @@ class CreateDeployKeyTool extends Tool
         try {
             $result = $client->sites()->createDeployKey($serverId, $siteId);
 
-            return Response::text(json_encode([
+            return Response::text((string) json_encode([
                 'success' => true,
                 'deploy_key' => $result,
                 'message' => 'Deploy key created successfully. Add this key to your Git repository.',
             ], JSON_PRETTY_PRINT));
         } catch (Exception $e) {
-            return Response::text(json_encode([
+            return Response::text((string) json_encode([
                 'success' => false,
                 'error' => $e->getMessage(),
             ], JSON_PRETTY_PRINT));

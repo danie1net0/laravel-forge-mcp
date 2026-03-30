@@ -23,12 +23,12 @@ class GetNginxDefaultTemplateTool extends Tool
         try {
             $template = $client->nginxTemplates()->default($request->integer('server_id'));
 
-            return Response::text(json_encode([
+            return Response::text((string) json_encode([
                 'success' => true,
                 'template' => ['name' => 'default'],
             ], JSON_PRETTY_PRINT));
         } catch (Exception $e) {
-            return Response::text(json_encode(['success' => false, 'error' => $e->getMessage()], JSON_PRETTY_PRINT));
+            return Response::text((string) json_encode(['success' => false, 'error' => $e->getMessage()], JSON_PRETTY_PRINT));
         }
     }
 

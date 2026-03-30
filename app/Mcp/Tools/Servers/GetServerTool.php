@@ -62,12 +62,12 @@ class GetServerTool extends Tool
                 'created_at' => $server->createdAt,
             ];
 
-            return Response::text(json_encode([
+            return Response::text((string) json_encode([
                 'success' => true,
                 'server' => $serverData,
             ], JSON_PRETTY_PRINT));
         } catch (Exception $e) {
-            return Response::text(json_encode([
+            return Response::text((string) json_encode([
                 'success' => false,
                 'error' => $e->getMessage(),
                 'message' => 'Failed to retrieve server information. Please verify the server_id is correct.',

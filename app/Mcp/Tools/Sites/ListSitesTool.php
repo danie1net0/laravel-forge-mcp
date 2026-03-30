@@ -83,14 +83,14 @@ class ListSitesTool extends Tool
                 'created_at' => $site->createdAt,
             ], $sites);
 
-            return Response::text(json_encode([
+            return Response::text((string) json_encode([
                 'success' => true,
                 'server_id' => $serverId,
                 'count' => count($formatted),
                 'sites' => $formatted,
             ], JSON_PRETTY_PRINT));
         } catch (Exception $e) {
-            return Response::text(json_encode([
+            return Response::text((string) json_encode([
                 'success' => false,
                 'error' => $e->getMessage(),
                 'message' => 'Failed to retrieve sites. Please verify the server_id is correct.',

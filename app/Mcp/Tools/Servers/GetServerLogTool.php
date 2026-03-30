@@ -38,14 +38,14 @@ class GetServerLogTool extends Tool
         try {
             $content = $client->servers()->getLog($serverId, $file);
 
-            return Response::text(json_encode([
+            return Response::text((string) json_encode([
                 'success' => true,
                 'server_id' => $serverId,
                 'file' => $file,
                 'content' => $content,
             ], JSON_PRETTY_PRINT));
         } catch (Exception $e) {
-            return Response::text(json_encode([
+            return Response::text((string) json_encode([
                 'success' => false,
                 'error' => $e->getMessage(),
             ], JSON_PRETTY_PRINT));

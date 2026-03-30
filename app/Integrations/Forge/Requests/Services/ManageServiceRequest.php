@@ -16,9 +16,9 @@ class ManageServiceRequest extends Request implements HasBody
     protected Method $method = Method::POST;
 
     public function __construct(
-        protected int $serverId,
-        protected string $service,
-        protected string $action
+        private readonly int $serverId,
+        private readonly string $service,
+        private readonly string $action,
     ) {
     }
 

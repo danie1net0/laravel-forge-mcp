@@ -69,7 +69,7 @@ class BulkDeployTool extends Tool
             }
         }
 
-        return Response::text(json_encode([
+        return Response::text((string) json_encode([
             'success' => $results['failed'] === 0,
             'summary' => [
                 'total' => $results['total'],

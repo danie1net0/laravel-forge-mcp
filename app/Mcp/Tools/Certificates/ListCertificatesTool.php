@@ -58,7 +58,7 @@ class ListCertificatesTool extends Tool
                 'created_at' => $cert->createdAt,
             ], $certificates);
 
-            return Response::text(json_encode([
+            return Response::text((string) json_encode([
                 'success' => true,
                 'server_id' => $serverId,
                 'site_id' => $siteId,
@@ -66,7 +66,7 @@ class ListCertificatesTool extends Tool
                 'certificates' => $formatted,
             ], JSON_PRETTY_PRINT));
         } catch (Exception $exception) {
-            return Response::text(json_encode([
+            return Response::text((string) json_encode([
                 'success' => false,
                 'error' => $exception->getMessage(),
                 'message' => 'Failed to retrieve certificates. Please verify the server_id and site_id are correct.',

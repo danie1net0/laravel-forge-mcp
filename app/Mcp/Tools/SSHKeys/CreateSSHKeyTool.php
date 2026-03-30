@@ -32,13 +32,13 @@ class CreateSSHKeyTool extends Tool
             $keyData = CreateSSHKeyData::from($data);
             $key = $client->sshKeys()->create($serverId, $keyData);
 
-            return Response::text(json_encode([
+            return Response::text((string) json_encode([
                 'success' => true,
                 'key' => ['id' => $key->id, 'name' => $key->name, 'status' => $key->status],
                 'message' => 'SSH key created successfully',
             ], JSON_PRETTY_PRINT));
         } catch (Exception $e) {
-            return Response::text(json_encode(['success' => false, 'error' => $e->getMessage()], JSON_PRETTY_PRINT));
+            return Response::text((string) json_encode(['success' => false, 'error' => $e->getMessage()], JSON_PRETTY_PRINT));
         }
     }
 

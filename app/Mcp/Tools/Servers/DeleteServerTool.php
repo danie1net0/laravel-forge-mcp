@@ -61,14 +61,14 @@ class DeleteServerTool extends Tool
         try {
             $client->servers()->delete($serverId);
 
-            return Response::text(json_encode([
+            return Response::text((string) json_encode([
                 'success' => true,
                 'message' => 'Server deletion initiated. The server and ALL its data are being permanently destroyed.',
                 'warning' => 'This action is IRREVERSIBLE. All sites, databases, and files on this server are now being deleted.',
                 'server_id' => $serverId,
             ], JSON_PRETTY_PRINT));
         } catch (Exception $e) {
-            return Response::text(json_encode([
+            return Response::text((string) json_encode([
                 'success' => false,
                 'error' => $e->getMessage(),
                 'message' => 'Failed to delete server. Server may not exist or you may not have permission.',

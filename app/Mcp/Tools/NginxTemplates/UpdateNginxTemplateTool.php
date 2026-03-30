@@ -32,13 +32,13 @@ class UpdateNginxTemplateTool extends Tool
             $templateData = UpdateNginxTemplateData::from($data);
             $template = $client->nginxTemplates()->update($serverId, $templateId, $templateData);
 
-            return Response::text(json_encode([
+            return Response::text((string) json_encode([
                 'success' => true,
                 'template' => ['id' => $template->id, 'name' => $template->name],
                 'message' => 'Nginx template updated successfully',
             ], JSON_PRETTY_PRINT));
         } catch (Exception $e) {
-            return Response::text(json_encode(['success' => false, 'error' => $e->getMessage()], JSON_PRETTY_PRINT));
+            return Response::text((string) json_encode(['success' => false, 'error' => $e->getMessage()], JSON_PRETTY_PRINT));
         }
     }
 

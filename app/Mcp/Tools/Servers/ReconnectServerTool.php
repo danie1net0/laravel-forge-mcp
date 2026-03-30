@@ -35,7 +35,7 @@ class ReconnectServerTool extends Tool
         try {
             $publicKey = $client->servers()->reconnect($serverId);
 
-            return Response::text(json_encode([
+            return Response::text((string) json_encode([
                 'success' => true,
                 'message' => 'Reconnection initiated. Add the public key to the server.',
                 'server_id' => $serverId,
@@ -43,7 +43,7 @@ class ReconnectServerTool extends Tool
                 'instructions' => 'Add this key to /root/.ssh/authorized_keys on the server.',
             ], JSON_PRETTY_PRINT));
         } catch (Exception $e) {
-            return Response::text(json_encode([
+            return Response::text((string) json_encode([
                 'success' => false,
                 'error' => $e->getMessage(),
             ], JSON_PRETTY_PRINT));

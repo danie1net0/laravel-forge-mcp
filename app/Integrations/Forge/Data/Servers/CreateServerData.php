@@ -21,15 +21,23 @@ class CreateServerData extends Data
         public ?string $phpVersion = null,
         public ?string $databaseType = null,
         public ?int $recipeId = null,
+        /** @var array<int, string>|null */
         public ?array $tags = null,
         public ?bool $addKeyToSourceControl = null,
         public ?string $database = null,
+        /** @var array<string, mixed>|null */
         public ?array $ocean2 = null,
+        /** @var array<string, mixed>|null */
         public ?array $aws = null,
+        /** @var array<string, mixed>|null */
         public ?array $hetzner = null,
+        /** @var array<string, mixed>|null */
         public ?array $vultr = null,
+        /** @var array<string, mixed>|null */
         public ?array $akamai = null,
+        /** @var array<string, mixed>|null */
         public ?array $laravel = null,
+        /** @var array<string, mixed>|null */
         public ?array $custom = null,
     ) {
     }

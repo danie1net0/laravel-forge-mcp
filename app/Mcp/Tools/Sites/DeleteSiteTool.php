@@ -59,7 +59,7 @@ class DeleteSiteTool extends Tool
         try {
             $client->sites()->delete($serverId, $siteId);
 
-            return Response::text(json_encode([
+            return Response::text((string) json_encode([
                 'success' => true,
                 'message' => 'Site deleted permanently. All site files and configurations have been removed.',
                 'warning' => 'This action is IRREVERSIBLE. The site and its files are now deleted.',
@@ -67,7 +67,7 @@ class DeleteSiteTool extends Tool
                 'site_id' => $siteId,
             ], JSON_PRETTY_PRINT));
         } catch (Exception $e) {
-            return Response::text(json_encode([
+            return Response::text((string) json_encode([
                 'success' => false,
                 'error' => $e->getMessage(),
                 'message' => 'Failed to delete site.',

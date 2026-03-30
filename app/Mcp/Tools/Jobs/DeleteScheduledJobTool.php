@@ -23,9 +23,9 @@ class DeleteScheduledJobTool extends Tool
         try {
             $client->jobs()->delete($request->integer('server_id'), $request->integer('job_id'));
 
-            return Response::text(json_encode(['success' => true, 'message' => 'Scheduled job deleted'], JSON_PRETTY_PRINT));
+            return Response::text((string) json_encode(['success' => true, 'message' => 'Scheduled job deleted'], JSON_PRETTY_PRINT));
         } catch (Exception $e) {
-            return Response::text(json_encode(['success' => false, 'error' => $e->getMessage()], JSON_PRETTY_PRINT));
+            return Response::text((string) json_encode(['success' => false, 'error' => $e->getMessage()], JSON_PRETTY_PRINT));
         }
     }
 

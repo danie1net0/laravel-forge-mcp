@@ -35,14 +35,14 @@ class RestartServiceTool extends Tool
         try {
             $client->services()->restartService($serverId, $service);
 
-            return Response::text(json_encode([
+            return Response::text((string) json_encode([
                 'success' => true,
                 'message' => "Service '{$service}' restarted successfully.",
                 'server_id' => $serverId,
                 'service' => $service,
             ], JSON_PRETTY_PRINT));
         } catch (Exception $e) {
-            return Response::text(json_encode([
+            return Response::text((string) json_encode([
                 'success' => false,
                 'error' => $e->getMessage(),
             ], JSON_PRETTY_PRINT));

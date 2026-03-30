@@ -29,13 +29,13 @@ class DeleteDatabaseTool extends Tool
                 $request->integer('database_id')
             );
 
-            return Response::text(json_encode([
+            return Response::text((string) json_encode([
                 'success' => true,
                 'message' => 'Database PERMANENTLY DELETED. All data is lost.',
                 'warning' => 'This action is IRREVERSIBLE',
             ], JSON_PRETTY_PRINT));
         } catch (Exception $e) {
-            return Response::text(json_encode([
+            return Response::text((string) json_encode([
                 'success' => false,
                 'error' => $e->getMessage(),
             ], JSON_PRETTY_PRINT));

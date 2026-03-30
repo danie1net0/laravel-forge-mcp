@@ -54,14 +54,14 @@ class GetDeploymentHistoryDeploymentTool extends Tool
         try {
             $deployment = $client->sites()->deploymentHistoryDeployment($serverId, $siteId, $deploymentId);
 
-            return Response::text(json_encode([
+            return Response::text((string) json_encode([
                 'success' => true,
                 'server_id' => $serverId,
                 'site_id' => $siteId,
                 'deployment' => $deployment,
             ], JSON_PRETTY_PRINT));
         } catch (Exception $e) {
-            return Response::text(json_encode([
+            return Response::text((string) json_encode([
                 'success' => false,
                 'error' => $e->getMessage(),
                 'message' => 'Failed to retrieve deployment details. The deployment may not exist.',

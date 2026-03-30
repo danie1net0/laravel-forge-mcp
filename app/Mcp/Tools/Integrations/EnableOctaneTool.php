@@ -43,7 +43,7 @@ class EnableOctaneTool extends Tool
         try {
             $client->integrations()->enableOctane($serverId, $siteId, $server, $port);
 
-            return Response::text(json_encode([
+            return Response::text((string) json_encode([
                 'success' => true,
                 'message' => 'Octane enabled successfully.',
                 'server_id' => $serverId,
@@ -52,7 +52,7 @@ class EnableOctaneTool extends Tool
                 'port' => $port,
             ], JSON_PRETTY_PRINT));
         } catch (Exception $e) {
-            return Response::text(json_encode([
+            return Response::text((string) json_encode([
                 'success' => false,
                 'error' => $e->getMessage(),
             ], JSON_PRETTY_PRINT));

@@ -35,14 +35,14 @@ class GetEventOutputTool extends Tool
         try {
             $output = $client->servers()->getEventOutput($serverId, $eventId);
 
-            return Response::text(json_encode([
+            return Response::text((string) json_encode([
                 'success' => true,
                 'server_id' => $serverId,
                 'event_id' => $eventId,
                 'output' => $output,
             ], JSON_PRETTY_PRINT));
         } catch (Exception $e) {
-            return Response::text(json_encode([
+            return Response::text((string) json_encode([
                 'success' => false,
                 'error' => $e->getMessage(),
             ], JSON_PRETTY_PRINT));

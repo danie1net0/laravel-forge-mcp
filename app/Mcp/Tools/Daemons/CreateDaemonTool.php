@@ -75,7 +75,7 @@ class CreateDaemonTool extends Tool
             $daemonData = CreateDaemonData::from($data);
             $daemon = $client->daemons()->create($serverId, $daemonData);
 
-            return Response::text(json_encode([
+            return Response::text((string) json_encode([
                 'success' => true,
                 'message' => 'Daemon created successfully',
                 'daemon' => [
@@ -88,7 +88,7 @@ class CreateDaemonTool extends Tool
                 ],
             ], JSON_PRETTY_PRINT));
         } catch (Exception $e) {
-            return Response::text(json_encode([
+            return Response::text((string) json_encode([
                 'success' => false,
                 'error' => $e->getMessage(),
                 'message' => 'Failed to create daemon. Please check the parameters and try again.',

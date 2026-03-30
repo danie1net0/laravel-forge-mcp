@@ -61,7 +61,7 @@ class InstallGitRepositoryTool extends Tool
         try {
             $site = $client->sites()->installGitRepository($serverId, $siteId, $data);
 
-            return Response::text(json_encode([
+            return Response::text((string) json_encode([
                 'success' => true,
                 'site' => [
                     'id' => $site->id,
@@ -73,7 +73,7 @@ class InstallGitRepositoryTool extends Tool
                 'message' => 'Git repository installed successfully',
             ], JSON_PRETTY_PRINT));
         } catch (Exception $e) {
-            return Response::text(json_encode([
+            return Response::text((string) json_encode([
                 'success' => false,
                 'error' => $e->getMessage(),
             ], JSON_PRETTY_PRINT));

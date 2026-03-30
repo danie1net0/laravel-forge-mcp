@@ -35,13 +35,13 @@ class InstallPapertrailTool extends Tool
         try {
             $client->services()->installPapertrail($serverId, $host);
 
-            return Response::text(json_encode([
+            return Response::text((string) json_encode([
                 'success' => true,
                 'message' => 'Papertrail installed successfully.',
                 'server_id' => $serverId,
             ], JSON_PRETTY_PRINT));
         } catch (Exception $e) {
-            return Response::text(json_encode([
+            return Response::text((string) json_encode([
                 'success' => false,
                 'error' => $e->getMessage(),
             ], JSON_PRETTY_PRINT));

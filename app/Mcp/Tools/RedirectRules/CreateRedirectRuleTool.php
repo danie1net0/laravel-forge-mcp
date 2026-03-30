@@ -33,13 +33,13 @@ class CreateRedirectRuleTool extends Tool
         try {
             $rule = $client->redirectRules()->create($serverId, $siteId, $data);
 
-            return Response::text(json_encode([
+            return Response::text((string) json_encode([
                 'success' => true,
                 'rule' => ['id' => $rule->id, 'from' => $rule->from, 'to' => $rule->to, 'status' => $rule->status],
                 'message' => 'Redirect rule created successfully',
             ], JSON_PRETTY_PRINT));
         } catch (Exception $e) {
-            return Response::text(json_encode(['success' => false, 'error' => $e->getMessage()], JSON_PRETTY_PRINT));
+            return Response::text((string) json_encode(['success' => false, 'error' => $e->getMessage()], JSON_PRETTY_PRINT));
         }
     }
 

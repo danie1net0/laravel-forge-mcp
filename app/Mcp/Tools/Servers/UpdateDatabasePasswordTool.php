@@ -38,14 +38,14 @@ class UpdateDatabasePasswordTool extends Tool
         try {
             $client->servers()->updateDatabasePassword($serverId);
 
-            return Response::text(json_encode([
+            return Response::text((string) json_encode([
                 'success' => true,
                 'message' => 'Database password regenerated successfully.',
                 'server_id' => $serverId,
                 'warning' => 'Update .env files for sites that use this database.',
             ], JSON_PRETTY_PRINT));
         } catch (Exception $e) {
-            return Response::text(json_encode([
+            return Response::text((string) json_encode([
                 'success' => false,
                 'error' => $e->getMessage(),
             ], JSON_PRETTY_PRINT));

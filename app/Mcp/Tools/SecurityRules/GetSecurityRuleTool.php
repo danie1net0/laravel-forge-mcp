@@ -31,12 +31,12 @@ class GetSecurityRuleTool extends Tool
                 $request->integer('rule_id')
             );
 
-            return Response::text(json_encode([
+            return Response::text((string) json_encode([
                 'success' => true,
                 'rule' => ['id' => $rule->id, 'name' => $rule->name, 'path' => $rule->path],
             ], JSON_PRETTY_PRINT));
         } catch (Exception $e) {
-            return Response::text(json_encode(['success' => false, 'error' => $e->getMessage()], JSON_PRETTY_PRINT));
+            return Response::text((string) json_encode(['success' => false, 'error' => $e->getMessage()], JSON_PRETTY_PRINT));
         }
     }
 

@@ -72,7 +72,7 @@ class CreateScheduledJobTool extends Tool
         try {
             $job = $client->jobs()->create($serverId, $data);
 
-            return Response::text(json_encode([
+            return Response::text((string) json_encode([
                 'success' => true,
                 'message' => 'Scheduled job created successfully',
                 'job' => [
@@ -86,7 +86,7 @@ class CreateScheduledJobTool extends Tool
                 ],
             ], JSON_PRETTY_PRINT));
         } catch (Exception $e) {
-            return Response::text(json_encode([
+            return Response::text((string) json_encode([
                 'success' => false,
                 'error' => $e->getMessage(),
                 'message' => 'Failed to create scheduled job. Please check the parameters and try again.',

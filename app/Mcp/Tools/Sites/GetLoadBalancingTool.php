@@ -35,14 +35,14 @@ class GetLoadBalancingTool extends Tool
         try {
             $config = $client->sites()->getLoadBalancing($serverId, $siteId);
 
-            return Response::text(json_encode([
+            return Response::text((string) json_encode([
                 'success' => true,
                 'server_id' => $serverId,
                 'site_id' => $siteId,
                 'load_balancing' => $config,
             ], JSON_PRETTY_PRINT));
         } catch (Exception $e) {
-            return Response::text(json_encode([
+            return Response::text((string) json_encode([
                 'success' => false,
                 'error' => $e->getMessage(),
             ], JSON_PRETTY_PRINT));

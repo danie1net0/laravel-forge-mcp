@@ -56,7 +56,7 @@ class CreateDatabaseUserTool extends Tool
             $createData = CreateDatabaseUserData::from($data);
             $user = $client->databaseUsers()->create($serverId, $createData);
 
-            return Response::text(json_encode([
+            return Response::text((string) json_encode([
                 'success' => true,
                 'message' => 'Database user created successfully',
                 'user' => [
@@ -67,7 +67,7 @@ class CreateDatabaseUserTool extends Tool
                 ],
             ], JSON_PRETTY_PRINT));
         } catch (Exception $e) {
-            return Response::text(json_encode([
+            return Response::text((string) json_encode([
                 'success' => false,
                 'error' => $e->getMessage(),
                 'message' => 'Failed to create database user. Please check the parameters and try again.',

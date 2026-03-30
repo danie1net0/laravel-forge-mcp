@@ -35,14 +35,14 @@ class GetJobOutputTool extends Tool
         try {
             $output = $client->jobs()->getOutput($serverId, $jobId);
 
-            return Response::text(json_encode([
+            return Response::text((string) json_encode([
                 'success' => true,
                 'server_id' => $serverId,
                 'job_id' => $jobId,
                 'output' => $output,
             ], JSON_PRETTY_PRINT));
         } catch (Exception $e) {
-            return Response::text(json_encode([
+            return Response::text((string) json_encode([
                 'success' => false,
                 'error' => $e->getMessage(),
             ], JSON_PRETTY_PRINT));

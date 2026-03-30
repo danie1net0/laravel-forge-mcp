@@ -103,7 +103,7 @@ class ServerHealthCheckTool extends Tool
                 $health['status'] = 'warning';
             }
 
-            return Response::text(json_encode([
+            return Response::text((string) json_encode([
                 'success' => true,
                 'health_status' => $health['status'],
                 'server' => [
@@ -140,7 +140,7 @@ class ServerHealthCheckTool extends Tool
                 ], array_slice($events, 0, 5)),
             ], JSON_PRETTY_PRINT));
         } catch (Exception $e) {
-            return Response::text(json_encode([
+            return Response::text((string) json_encode([
                 'success' => false,
                 'error' => $e->getMessage(),
             ], JSON_PRETTY_PRINT));

@@ -50,7 +50,7 @@ class GetCertificateTool extends Tool
         try {
             $certificate = $client->certificates()->get($serverId, $siteId, $domainId);
 
-            return Response::text(json_encode([
+            return Response::text((string) json_encode([
                 'success' => true,
                 'certificate' => [
                     'id' => $certificate->id,
@@ -65,7 +65,7 @@ class GetCertificateTool extends Tool
                 ],
             ], JSON_PRETTY_PRINT));
         } catch (Exception $exception) {
-            return Response::text(json_encode([
+            return Response::text((string) json_encode([
                 'success' => false,
                 'error' => $exception->getMessage(),
                 'message' => 'Failed to retrieve certificate. Please verify the IDs are correct.',

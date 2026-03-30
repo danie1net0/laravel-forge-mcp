@@ -17,9 +17,9 @@ class ObtainLetsEncryptCertificateRequest extends Request implements HasBody
     protected Method $method = Method::POST;
 
     public function __construct(
-        protected int $serverId,
-        protected int $siteId,
-        protected int $domainId,
+        private readonly int $serverId,
+        private readonly int $siteId,
+        private readonly int $domainId,
     ) {
     }
 
@@ -30,7 +30,7 @@ class ObtainLetsEncryptCertificateRequest extends Request implements HasBody
 
     public function createDtoFromResponse(Response $response): CertificateData
     {
-        return CertificateData::from(array_merge($response->json('certificate'), ['server_id' => $this->serverId, 'site_id' => $this->siteId]));
+        return CertificateData::from(array_merge((array) $response->json('certificate'), ['server_id' => $this->serverId, 'site_id' => $this->siteId]));
     }
 
     /**

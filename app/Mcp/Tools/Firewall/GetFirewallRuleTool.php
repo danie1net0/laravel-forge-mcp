@@ -47,7 +47,7 @@ class GetFirewallRuleTool extends Tool
         try {
             $rule = $client->firewall()->get($serverId, $ruleId);
 
-            return Response::text(json_encode([
+            return Response::text((string) json_encode([
                 'success' => true,
                 'firewall_rule' => [
                     'id' => $rule->id,
@@ -59,7 +59,7 @@ class GetFirewallRuleTool extends Tool
                 ],
             ], JSON_PRETTY_PRINT));
         } catch (Exception $e) {
-            return Response::text(json_encode([
+            return Response::text((string) json_encode([
                 'success' => false,
                 'error' => $e->getMessage(),
                 'message' => 'Failed to retrieve firewall rule. Please verify the server_id and rule_id are correct.',

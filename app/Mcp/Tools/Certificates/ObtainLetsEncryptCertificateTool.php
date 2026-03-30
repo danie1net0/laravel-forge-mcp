@@ -79,7 +79,7 @@ class ObtainLetsEncryptCertificateTool extends Tool
         try {
             $certificate = $client->certificates()->obtainLetsEncrypt($serverId, $siteId, $domainId);
 
-            return Response::text(json_encode([
+            return Response::text((string) json_encode([
                 'success' => true,
                 'message' => "Let's Encrypt certificate installation initiated.",
                 'certificate_id' => $certificate->id,
@@ -87,7 +87,7 @@ class ObtainLetsEncryptCertificateTool extends Tool
                 'note' => 'Certificate installation may take a few minutes. Check certificate status using list-certificates-tool.',
             ], JSON_PRETTY_PRINT));
         } catch (Exception $exception) {
-            return Response::text(json_encode([
+            return Response::text((string) json_encode([
                 'success' => false,
                 'error' => $exception->getMessage(),
                 'message' => 'Failed to obtain certificate. Ensure domain DNS is pointing to the server.',

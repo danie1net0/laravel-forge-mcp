@@ -49,14 +49,14 @@ class ListDatabaseUsersTool extends Tool
         try {
             $users = $client->databaseUsers()->list($serverId, $cursor, $pageSize)->users;
 
-            return Response::text(json_encode([
+            return Response::text((string) json_encode([
                 'success' => true,
                 'server_id' => $serverId,
                 'users' => $users,
                 'count' => count($users),
             ], JSON_PRETTY_PRINT));
         } catch (Exception $e) {
-            return Response::text(json_encode([
+            return Response::text((string) json_encode([
                 'success' => false,
                 'error' => $e->getMessage(),
                 'message' => 'Failed to retrieve database users. Please check if the server exists.',

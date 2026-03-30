@@ -61,7 +61,7 @@ class DeleteWorkerTool extends Tool
         try {
             $client->workers()->delete($serverId, $siteId, $workerId);
 
-            return Response::text(json_encode([
+            return Response::text((string) json_encode([
                 'success' => true,
                 'server_id' => $serverId,
                 'site_id' => $siteId,
@@ -69,7 +69,7 @@ class DeleteWorkerTool extends Tool
                 'message' => "Worker #{$workerId} deleted successfully",
             ], JSON_PRETTY_PRINT));
         } catch (Exception $e) {
-            return Response::text(json_encode([
+            return Response::text((string) json_encode([
                 'success' => false,
                 'error' => $e->getMessage(),
                 'message' => 'Failed to delete worker. Please verify the worker exists and try again.',

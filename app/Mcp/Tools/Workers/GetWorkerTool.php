@@ -61,7 +61,7 @@ class GetWorkerTool extends Tool
         try {
             $worker = $client->workers()->get($serverId, $siteId, $workerId);
 
-            return Response::text(json_encode([
+            return Response::text((string) json_encode([
                 'success' => true,
                 'server_id' => $serverId,
                 'site_id' => $siteId,
@@ -80,7 +80,7 @@ class GetWorkerTool extends Tool
                 ],
             ], JSON_PRETTY_PRINT));
         } catch (Exception $e) {
-            return Response::text(json_encode([
+            return Response::text((string) json_encode([
                 'success' => false,
                 'error' => $e->getMessage(),
                 'message' => 'Failed to retrieve worker information. Please verify the IDs are correct.',

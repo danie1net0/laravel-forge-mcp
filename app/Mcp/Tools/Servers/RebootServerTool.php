@@ -40,14 +40,14 @@ class RebootServerTool extends Tool
         try {
             $client->servers()->reboot($serverId);
 
-            return Response::text(json_encode([
+            return Response::text((string) json_encode([
                 'success' => true,
                 'message' => 'Server reboot initiated successfully.',
                 'server_id' => $serverId,
                 'warning' => 'The server will be unavailable for 2-5 minutes.',
             ], JSON_PRETTY_PRINT));
         } catch (Exception $e) {
-            return Response::text(json_encode([
+            return Response::text((string) json_encode([
                 'success' => false,
                 'error' => $e->getMessage(),
             ], JSON_PRETTY_PRINT));

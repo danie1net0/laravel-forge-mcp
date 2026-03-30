@@ -69,7 +69,7 @@ class ExecuteSiteCommandTool extends Tool
             $commandArray = $client->sites()->executeCommand($serverId, $siteId, $commandData);
             $siteCommand = SiteCommandData::from($commandArray);
 
-            return Response::text(json_encode([
+            return Response::text((string) json_encode([
                 'success' => true,
                 'message' => 'Command queued for execution. Use get-site-command-tool to retrieve output.',
                 'command' => [
@@ -80,7 +80,7 @@ class ExecuteSiteCommandTool extends Tool
                 ],
             ], JSON_PRETTY_PRINT));
         } catch (Exception $e) {
-            return Response::text(json_encode([
+            return Response::text((string) json_encode([
                 'success' => false,
                 'error' => $e->getMessage(),
                 'message' => 'Failed to execute command. Please check the parameters and try again.',

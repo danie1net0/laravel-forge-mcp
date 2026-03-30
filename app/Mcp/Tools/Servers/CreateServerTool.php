@@ -124,7 +124,7 @@ class CreateServerTool extends Tool
             $createData = CreateServerData::from($data);
             $server = $client->servers()->create($createData);
 
-            return Response::text(json_encode([
+            return Response::text((string) json_encode([
                 'success' => true,
                 'message' => 'Server creation started. This will take 5-10 minutes. SAVE THE PASSWORDS NOW - they will not be shown again.',
                 'warning' => 'BILLING STARTED: Your cloud provider will now charge for this server until deleted.',
@@ -142,7 +142,7 @@ class CreateServerTool extends Tool
                 ],
             ], JSON_PRETTY_PRINT));
         } catch (Exception $exception) {
-            return Response::text(json_encode([
+            return Response::text((string) json_encode([
                 'success' => false,
                 'error' => $exception->getMessage(),
                 'message' => 'Failed to create server. Check your credentials, region, and size parameters.',

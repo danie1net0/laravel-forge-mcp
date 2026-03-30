@@ -47,7 +47,7 @@ class GetDaemonTool extends Tool
         try {
             $daemon = $client->daemons()->get($serverId, $daemonId);
 
-            return Response::text(json_encode([
+            return Response::text((string) json_encode([
                 'success' => true,
                 'daemon' => [
                     'id' => $daemon->id,
@@ -59,7 +59,7 @@ class GetDaemonTool extends Tool
                 ],
             ], JSON_PRETTY_PRINT));
         } catch (Exception $e) {
-            return Response::text(json_encode([
+            return Response::text((string) json_encode([
                 'success' => false,
                 'error' => $e->getMessage(),
                 'message' => 'Failed to retrieve daemon. Please verify the server_id and daemon_id are correct.',

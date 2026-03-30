@@ -47,13 +47,13 @@ class DeleteCertificateTool extends Tool
         try {
             $client->certificates()->delete($serverId, $siteId, $domainId);
 
-            return Response::text(json_encode([
+            return Response::text((string) json_encode([
                 'success' => true,
                 'message' => 'Certificate deleted successfully',
                 'warning' => 'Site may now be serving HTTP instead of HTTPS',
             ], JSON_PRETTY_PRINT));
         } catch (Exception $exception) {
-            return Response::text(json_encode([
+            return Response::text((string) json_encode([
                 'success' => false,
                 'error' => $exception->getMessage(),
                 'message' => 'Failed to delete certificate.',

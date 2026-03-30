@@ -39,14 +39,14 @@ class UpdateNginxConfigTool extends Tool
         try {
             $client->sites()->updateNginxConfig($serverId, $siteId, $content);
 
-            return Response::text(json_encode([
+            return Response::text((string) json_encode([
                 'success' => true,
                 'message' => 'Nginx configuration updated successfully.',
                 'server_id' => $serverId,
                 'site_id' => $siteId,
             ], JSON_PRETTY_PRINT));
         } catch (Exception $e) {
-            return Response::text(json_encode([
+            return Response::text((string) json_encode([
                 'success' => false,
                 'error' => $e->getMessage(),
             ], JSON_PRETTY_PRINT));

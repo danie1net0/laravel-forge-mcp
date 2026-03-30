@@ -51,7 +51,7 @@ class ListDeploymentHistoryTool extends Tool
         try {
             $history = $client->sites()->deploymentHistory($serverId, $siteId);
 
-            return Response::text(json_encode([
+            return Response::text((string) json_encode([
                 'success' => true,
                 'server_id' => $serverId,
                 'site_id' => $siteId,
@@ -59,7 +59,7 @@ class ListDeploymentHistoryTool extends Tool
                 'count' => count($history),
             ], JSON_PRETTY_PRINT));
         } catch (Exception $e) {
-            return Response::text(json_encode([
+            return Response::text((string) json_encode([
                 'success' => false,
                 'error' => $e->getMessage(),
                 'message' => 'Failed to retrieve deployment history. The site may not have any deployments yet.',

@@ -46,14 +46,14 @@ class EnableQuickDeployTool extends Tool
         try {
             $client->sites()->enableQuickDeploy($serverId, $siteId);
 
-            return Response::text(json_encode([
+            return Response::text((string) json_encode([
                 'success' => true,
                 'server_id' => $serverId,
                 'site_id' => $siteId,
                 'message' => 'Quick Deploy enabled successfully. Site will now auto-deploy on Git push.',
             ], JSON_PRETTY_PRINT));
         } catch (Exception $e) {
-            return Response::text(json_encode([
+            return Response::text((string) json_encode([
                 'success' => false,
                 'error' => $e->getMessage(),
                 'message' => 'Failed to enable Quick Deploy.',

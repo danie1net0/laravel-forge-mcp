@@ -44,14 +44,14 @@ class DisableQuickDeployTool extends Tool
         try {
             $client->sites()->disableQuickDeploy($serverId, $siteId);
 
-            return Response::text(json_encode([
+            return Response::text((string) json_encode([
                 'success' => true,
                 'server_id' => $serverId,
                 'site_id' => $siteId,
                 'message' => 'Quick Deploy disabled successfully. Site will require manual deployments.',
             ], JSON_PRETTY_PRINT));
         } catch (Exception $e) {
-            return Response::text(json_encode([
+            return Response::text((string) json_encode([
                 'success' => false,
                 'error' => $e->getMessage(),
                 'message' => 'Failed to disable Quick Deploy.',

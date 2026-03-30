@@ -51,14 +51,14 @@ class UpdatePackagesAuthTool extends Tool
         try {
             $client->sites()->updatePackagesAuth($serverId, $siteId, $packages);
 
-            return Response::text(json_encode([
+            return Response::text((string) json_encode([
                 'success' => true,
                 'message' => 'Packages authentication updated successfully.',
                 'server_id' => $serverId,
                 'site_id' => $siteId,
             ], JSON_PRETTY_PRINT));
         } catch (Exception $e) {
-            return Response::text(json_encode([
+            return Response::text((string) json_encode([
                 'success' => false,
                 'error' => $e->getMessage(),
             ], JSON_PRETTY_PRINT));

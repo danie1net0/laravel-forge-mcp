@@ -41,7 +41,7 @@ class UpdateLoadBalancingTool extends Tool
         try {
             $client->sites()->updateLoadBalancing($serverId, $siteId, $servers, $method);
 
-            return Response::text(json_encode([
+            return Response::text((string) json_encode([
                 'success' => true,
                 'message' => 'Load balancing updated successfully.',
                 'server_id' => $serverId,
@@ -49,7 +49,7 @@ class UpdateLoadBalancingTool extends Tool
                 'method' => $method,
             ], JSON_PRETTY_PRINT));
         } catch (Exception $e) {
-            return Response::text(json_encode([
+            return Response::text((string) json_encode([
                 'success' => false,
                 'error' => $e->getMessage(),
             ], JSON_PRETTY_PRINT));

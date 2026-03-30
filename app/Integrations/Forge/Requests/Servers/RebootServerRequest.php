@@ -16,7 +16,7 @@ class RebootServerRequest extends Request implements HasBody
     protected Method $method = Method::POST;
 
     public function __construct(
-        protected int $serverId
+        private readonly int $serverId,
     ) {
     }
 

@@ -25,7 +25,7 @@ class ForgeResponse extends Response
             $this->normalizedJson = $this->normalizeJsonApiResponse($raw);
         }
 
-        if (is_null($key)) {
+        if ($key === null) {
             return $this->normalizedJson;
         }
 
@@ -186,7 +186,7 @@ class ForgeResponse extends Response
             return 'items';
         }
 
-        $pathWithoutQuery = strtok($path, '?') ?: $path;
+        $pathWithoutQuery = explode('?', $path)[0];
         $segments = explode('/', $pathWithoutQuery);
 
         return end($segments) ?: 'items';

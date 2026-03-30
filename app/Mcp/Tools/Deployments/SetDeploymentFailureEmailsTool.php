@@ -39,7 +39,7 @@ class SetDeploymentFailureEmailsTool extends Tool
         try {
             $client->sites()->setDeploymentFailureEmails($serverId, $siteId, $emails);
 
-            return Response::text(json_encode([
+            return Response::text((string) json_encode([
                 'success' => true,
                 'message' => 'Deployment failure notification emails set successfully.',
                 'server_id' => $serverId,
@@ -47,7 +47,7 @@ class SetDeploymentFailureEmailsTool extends Tool
                 'emails' => $emails,
             ], JSON_PRETTY_PRINT));
         } catch (Exception $e) {
-            return Response::text(json_encode([
+            return Response::text((string) json_encode([
                 'success' => false,
                 'error' => $e->getMessage(),
             ], JSON_PRETTY_PRINT));

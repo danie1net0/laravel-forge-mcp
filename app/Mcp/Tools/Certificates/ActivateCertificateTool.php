@@ -38,7 +38,7 @@ class ActivateCertificateTool extends Tool
         try {
             $client->certificates()->activate($serverId, $siteId, $domainId);
 
-            return Response::text(json_encode([
+            return Response::text((string) json_encode([
                 'success' => true,
                 'message' => 'Certificate activated successfully.',
                 'server_id' => $serverId,
@@ -46,7 +46,7 @@ class ActivateCertificateTool extends Tool
                 'domain_id' => $domainId,
             ], JSON_PRETTY_PRINT));
         } catch (Exception $exception) {
-            return Response::text(json_encode([
+            return Response::text((string) json_encode([
                 'success' => false,
                 'error' => $exception->getMessage(),
             ], JSON_PRETTY_PRINT));

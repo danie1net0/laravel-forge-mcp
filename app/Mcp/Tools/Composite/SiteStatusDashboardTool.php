@@ -93,7 +93,7 @@ class SiteStatusDashboardTool extends Tool
 
             $lastDeployment = count($deployments) > 0 ? $deployments[0] : null;
 
-            return Response::text(json_encode([
+            return Response::text((string) json_encode([
                 'success' => true,
                 'site' => [
                     'id' => $site->id,
@@ -138,7 +138,7 @@ class SiteStatusDashboardTool extends Tool
                 ], array_slice($deployments, 0, 5)),
             ], JSON_PRETTY_PRINT));
         } catch (Exception $e) {
-            return Response::text(json_encode([
+            return Response::text((string) json_encode([
                 'success' => false,
                 'error' => $e->getMessage(),
             ], JSON_PRETTY_PRINT));

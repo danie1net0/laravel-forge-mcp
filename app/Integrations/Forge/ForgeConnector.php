@@ -28,6 +28,7 @@ class ForgeConnector extends Connector
         return "https://forge.laravel.com/api/orgs/{$this->organization}";
     }
 
+    /** @return array<string, string> */
     protected function defaultHeaders(): array
     {
         return [

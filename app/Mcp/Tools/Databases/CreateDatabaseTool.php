@@ -124,7 +124,7 @@ class CreateDatabaseTool extends Tool
             $createData = CreateDatabaseData::from($data);
             $database = $client->databases()->create($serverId, $createData);
 
-            return Response::text(json_encode([
+            return Response::text((string) json_encode([
                 'success' => true,
                 'message' => 'Database created successfully',
                 'database' => [
@@ -135,7 +135,7 @@ class CreateDatabaseTool extends Tool
                 ],
             ], JSON_PRETTY_PRINT));
         } catch (Exception $e) {
-            return Response::text(json_encode([
+            return Response::text((string) json_encode([
                 'success' => false,
                 'error' => $e->getMessage(),
                 'message' => 'Failed to create database. Please check the parameters and try again.',

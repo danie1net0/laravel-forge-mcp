@@ -42,13 +42,13 @@ class InstallCertificateTool extends Tool
         try {
             $client->certificates()->activate($serverId, $siteId, $domainId);
 
-            return Response::text(json_encode([
+            return Response::text((string) json_encode([
                 'success' => true,
                 'message' => 'Certificate installed and activated successfully',
                 'domain_id' => $domainId,
             ], JSON_PRETTY_PRINT));
         } catch (Exception $exception) {
-            return Response::text(json_encode([
+            return Response::text((string) json_encode([
                 'success' => false,
                 'error' => $exception->getMessage(),
                 'message' => 'Failed to install certificate.',

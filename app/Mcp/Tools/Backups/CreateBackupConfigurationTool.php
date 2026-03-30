@@ -31,13 +31,13 @@ class CreateBackupConfigurationTool extends Tool
             $createData = CreateBackupConfigurationData::from($data);
             $backup = $client->backups()->createConfiguration($serverId, $createData);
 
-            return Response::text(json_encode([
+            return Response::text((string) json_encode([
                 'success' => true,
                 'backup' => ['id' => $backup->id, 'provider' => $backup->provider],
                 'message' => 'Backup configuration created successfully',
             ], JSON_PRETTY_PRINT));
         } catch (Exception $e) {
-            return Response::text(json_encode(['success' => false, 'error' => $e->getMessage()], JSON_PRETTY_PRINT));
+            return Response::text((string) json_encode(['success' => false, 'error' => $e->getMessage()], JSON_PRETTY_PRINT));
         }
     }
 

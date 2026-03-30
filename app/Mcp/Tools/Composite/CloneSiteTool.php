@@ -146,7 +146,7 @@ class CloneSiteTool extends Tool
 
             $failedSteps = array_filter($steps, fn ($s) => $s['status'] === 'failed');
 
-            return Response::text(json_encode([
+            return Response::text((string) json_encode([
                 'success' => count($failedSteps) === 0,
                 'new_site' => [
                     'server_id' => $targetServerId,
@@ -167,7 +167,7 @@ class CloneSiteTool extends Tool
                 ],
             ], JSON_PRETTY_PRINT));
         } catch (Exception $e) {
-            return Response::text(json_encode([
+            return Response::text((string) json_encode([
                 'success' => false,
                 'error' => $e->getMessage(),
                 'steps_completed' => $steps,

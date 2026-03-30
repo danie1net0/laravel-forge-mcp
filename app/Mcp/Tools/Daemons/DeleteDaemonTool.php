@@ -23,9 +23,9 @@ class DeleteDaemonTool extends Tool
         try {
             $client->daemons()->delete($request->integer('server_id'), $request->integer('daemon_id'));
 
-            return Response::text(json_encode(['success' => true, 'message' => 'Daemon PERMANENTLY DELETED'], JSON_PRETTY_PRINT));
+            return Response::text((string) json_encode(['success' => true, 'message' => 'Daemon PERMANENTLY DELETED'], JSON_PRETTY_PRINT));
         } catch (Exception $e) {
-            return Response::text(json_encode(['success' => false, 'error' => $e->getMessage()], JSON_PRETTY_PRINT));
+            return Response::text((string) json_encode(['success' => false, 'error' => $e->getMessage()], JSON_PRETTY_PRINT));
         }
     }
 

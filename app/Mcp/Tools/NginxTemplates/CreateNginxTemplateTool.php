@@ -32,13 +32,13 @@ class CreateNginxTemplateTool extends Tool
             $templateData = CreateNginxTemplateData::from($data);
             $template = $client->nginxTemplates()->create($serverId, $templateData);
 
-            return Response::text(json_encode([
+            return Response::text((string) json_encode([
                 'success' => true,
                 'template' => ['id' => $template->id, 'name' => $template->name],
                 'message' => 'Nginx template created successfully',
             ], JSON_PRETTY_PRINT));
         } catch (Exception $e) {
-            return Response::text(json_encode(['success' => false, 'error' => $e->getMessage()], JSON_PRETTY_PRINT));
+            return Response::text((string) json_encode(['success' => false, 'error' => $e->getMessage()], JSON_PRETTY_PRINT));
         }
     }
 

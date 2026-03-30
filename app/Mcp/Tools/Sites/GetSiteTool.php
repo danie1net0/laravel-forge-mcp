@@ -102,13 +102,13 @@ class GetSiteTool extends Tool
                 'created_at' => $site->createdAt,
             ];
 
-            return Response::text(json_encode([
+            return Response::text((string) json_encode([
                 'success' => true,
                 'server_id' => $serverId,
                 'site' => $siteData,
             ], JSON_PRETTY_PRINT));
         } catch (Exception $e) {
-            return Response::text(json_encode([
+            return Response::text((string) json_encode([
                 'success' => false,
                 'error' => $e->getMessage(),
                 'message' => 'Failed to retrieve site information. Please verify the server_id and site_id are correct.',

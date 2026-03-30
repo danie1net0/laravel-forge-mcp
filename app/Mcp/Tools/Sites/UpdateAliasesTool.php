@@ -36,7 +36,7 @@ class UpdateAliasesTool extends Tool
         try {
             $client->sites()->updateAliases($serverId, $siteId, $aliases);
 
-            return Response::text(json_encode([
+            return Response::text((string) json_encode([
                 'success' => true,
                 'message' => 'Aliases updated successfully.',
                 'server_id' => $serverId,
@@ -44,7 +44,7 @@ class UpdateAliasesTool extends Tool
                 'aliases' => $aliases,
             ], JSON_PRETTY_PRINT));
         } catch (Exception $e) {
-            return Response::text(json_encode([
+            return Response::text((string) json_encode([
                 'success' => false,
                 'error' => $e->getMessage(),
             ], JSON_PRETTY_PRINT));

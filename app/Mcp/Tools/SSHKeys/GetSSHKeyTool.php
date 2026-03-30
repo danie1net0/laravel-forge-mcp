@@ -26,7 +26,7 @@ class GetSSHKeyTool extends Tool
         try {
             $key = $client->sshKeys()->get($request->integer('server_id'), $request->integer('key_id'));
 
-            return Response::text(json_encode([
+            return Response::text((string) json_encode([
                 'success' => true,
                 'key' => [
                     'id' => $key->id,
@@ -36,7 +36,7 @@ class GetSSHKeyTool extends Tool
                 ],
             ], JSON_PRETTY_PRINT));
         } catch (Exception $e) {
-            return Response::text(json_encode(['success' => false, 'error' => $e->getMessage()], JSON_PRETTY_PRINT));
+            return Response::text((string) json_encode(['success' => false, 'error' => $e->getMessage()], JSON_PRETTY_PRINT));
         }
     }
 

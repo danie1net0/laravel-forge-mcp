@@ -35,13 +35,13 @@ class InstallPhpTool extends Tool
         try {
             $client->php()->install($serverId, $version);
 
-            return Response::text(json_encode([
+            return Response::text((string) json_encode([
                 'success' => true,
                 'message' => "PHP {$version} installation initiated.",
                 'server_id' => $serverId,
             ], JSON_PRETTY_PRINT));
         } catch (Exception $e) {
-            return Response::text(json_encode([
+            return Response::text((string) json_encode([
                 'success' => false,
                 'error' => $e->getMessage(),
             ], JSON_PRETTY_PRINT));

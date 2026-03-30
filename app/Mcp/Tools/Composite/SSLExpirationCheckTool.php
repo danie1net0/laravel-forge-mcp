@@ -116,7 +116,7 @@ class SSLExpirationCheckTool extends Tool
 
             usort($results['expiring_soon'], fn ($a, $b) => $a['days_until_expiry'] <=> $b['days_until_expiry']);
 
-            return Response::text(json_encode([
+            return Response::text((string) json_encode([
                 'success' => true,
                 'threshold_days' => $daysThreshold,
                 'summary' => [
@@ -133,7 +133,7 @@ class SSLExpirationCheckTool extends Tool
                 'errors' => $results['errors'],
             ], JSON_PRETTY_PRINT));
         } catch (Exception $e) {
-            return Response::text(json_encode([
+            return Response::text((string) json_encode([
                 'success' => false,
                 'error' => $e->getMessage(),
             ], JSON_PRETTY_PRINT));

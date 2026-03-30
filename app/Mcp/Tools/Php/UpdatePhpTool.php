@@ -33,13 +33,13 @@ class UpdatePhpTool extends Tool
         try {
             $client->php()->update($serverId, $version);
 
-            return Response::text(json_encode([
+            return Response::text((string) json_encode([
                 'success' => true,
                 'message' => "PHP {$version} update initiated.",
                 'server_id' => $serverId,
             ], JSON_PRETTY_PRINT));
         } catch (Exception $e) {
-            return Response::text(json_encode([
+            return Response::text((string) json_encode([
                 'success' => false,
                 'error' => $e->getMessage(),
             ], JSON_PRETTY_PRINT));

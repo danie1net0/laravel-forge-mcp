@@ -39,7 +39,7 @@ class CreateMonitorTool extends Tool
             $createData = CreateMonitorData::from($data);
             $monitor = $client->monitors()->create($serverId, $createData);
 
-            return Response::text(json_encode([
+            return Response::text((string) json_encode([
                 'success' => true,
                 'monitor' => [
                     'id' => $monitor->id,
@@ -49,7 +49,7 @@ class CreateMonitorTool extends Tool
                 'message' => 'Monitor created successfully',
             ], JSON_PRETTY_PRINT));
         } catch (Exception $e) {
-            return Response::text(json_encode([
+            return Response::text((string) json_encode([
                 'success' => false,
                 'error' => $e->getMessage(),
             ], JSON_PRETTY_PRINT));

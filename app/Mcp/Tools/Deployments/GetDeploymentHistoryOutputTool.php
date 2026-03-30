@@ -54,7 +54,7 @@ class GetDeploymentHistoryOutputTool extends Tool
         try {
             $outputData = $client->sites()->deploymentHistoryOutput($serverId, $siteId, $deploymentId);
 
-            return Response::text(json_encode([
+            return Response::text((string) json_encode([
                 'success' => true,
                 'server_id' => $serverId,
                 'site_id' => $siteId,
@@ -62,7 +62,7 @@ class GetDeploymentHistoryOutputTool extends Tool
                 'output' => $outputData,
             ], JSON_PRETTY_PRINT));
         } catch (Exception $e) {
-            return Response::text(json_encode([
+            return Response::text((string) json_encode([
                 'success' => false,
                 'error' => $e->getMessage(),
                 'message' => 'Failed to retrieve deployment output. The deployment may not exist or may not have output.',

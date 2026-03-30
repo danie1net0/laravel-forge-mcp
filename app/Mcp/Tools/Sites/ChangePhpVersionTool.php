@@ -36,14 +36,14 @@ class ChangePhpVersionTool extends Tool
         try {
             $client->sites()->changePhpVersion($serverId, $siteId, $version);
 
-            return Response::text(json_encode([
+            return Response::text((string) json_encode([
                 'success' => true,
                 'message' => "PHP version changed to {$version}.",
                 'server_id' => $serverId,
                 'site_id' => $siteId,
             ], JSON_PRETTY_PRINT));
         } catch (Exception $e) {
-            return Response::text(json_encode([
+            return Response::text((string) json_encode([
                 'success' => false,
                 'error' => $e->getMessage(),
             ], JSON_PRETTY_PRINT));

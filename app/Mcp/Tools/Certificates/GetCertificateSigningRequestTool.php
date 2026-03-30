@@ -49,7 +49,7 @@ class GetCertificateSigningRequestTool extends Tool
         try {
             $csr = $client->certificates()->signingRequest($serverId, $siteId, $domainId);
 
-            return Response::text(json_encode([
+            return Response::text((string) json_encode([
                 'success' => true,
                 'server_id' => $serverId,
                 'site_id' => $siteId,
@@ -57,7 +57,7 @@ class GetCertificateSigningRequestTool extends Tool
                 'csr' => $csr,
             ], JSON_PRETTY_PRINT));
         } catch (Exception $exception) {
-            return Response::text(json_encode([
+            return Response::text((string) json_encode([
                 'success' => false,
                 'error' => $exception->getMessage(),
                 'message' => 'Failed to retrieve certificate signing request. The certificate may not exist or may not have a CSR.',

@@ -50,7 +50,7 @@ class GetDatabaseUserTool extends Tool
         try {
             $user = $client->databaseUsers()->get($serverId, $userId);
 
-            return Response::text(json_encode([
+            return Response::text((string) json_encode([
                 'success' => true,
                 'server_id' => $serverId,
                 'user' => [
@@ -61,7 +61,7 @@ class GetDatabaseUserTool extends Tool
                 ],
             ], JSON_PRETTY_PRINT));
         } catch (Exception $e) {
-            return Response::text(json_encode([
+            return Response::text((string) json_encode([
                 'success' => false,
                 'error' => $e->getMessage(),
                 'message' => 'Failed to retrieve database user. The user may not exist.',

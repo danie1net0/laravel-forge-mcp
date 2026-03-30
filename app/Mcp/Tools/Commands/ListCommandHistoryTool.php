@@ -55,7 +55,7 @@ class ListCommandHistoryTool extends Tool
             $commandsArray = $client->sites()->commandHistory($serverId, $siteId, $cursor, $pageSize);
             $commands = array_map(fn (array $command): array => SiteCommandData::from($command)->toArray(), $commandsArray);
 
-            return Response::text(json_encode([
+            return Response::text((string) json_encode([
                 'success' => true,
                 'server_id' => $serverId,
                 'site_id' => $siteId,
@@ -63,7 +63,7 @@ class ListCommandHistoryTool extends Tool
                 'count' => count($commands),
             ], JSON_PRETTY_PRINT));
         } catch (Exception $e) {
-            return Response::text(json_encode([
+            return Response::text((string) json_encode([
                 'success' => false,
                 'error' => $e->getMessage(),
                 'message' => 'Failed to retrieve command history. Please check if the site exists.',

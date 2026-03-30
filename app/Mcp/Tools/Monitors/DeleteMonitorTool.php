@@ -29,12 +29,12 @@ class DeleteMonitorTool extends Tool
         try {
             $client->monitors()->delete($serverId, $monitorId);
 
-            return Response::text(json_encode([
+            return Response::text((string) json_encode([
                 'success' => true,
                 'message' => "Monitor #{$monitorId} deleted successfully",
             ], JSON_PRETTY_PRINT));
         } catch (Exception $e) {
-            return Response::text(json_encode([
+            return Response::text((string) json_encode([
                 'success' => false,
                 'error' => $e->getMessage(),
             ], JSON_PRETTY_PRINT));

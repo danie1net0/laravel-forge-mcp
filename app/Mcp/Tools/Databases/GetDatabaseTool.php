@@ -44,7 +44,7 @@ class GetDatabaseTool extends Tool
         try {
             $database = $client->databases()->get($serverId, $databaseId);
 
-            return Response::text(json_encode([
+            return Response::text((string) json_encode([
                 'success' => true,
                 'database' => [
                     'id' => $database->id,
@@ -54,7 +54,7 @@ class GetDatabaseTool extends Tool
                 ],
             ], JSON_PRETTY_PRINT));
         } catch (Exception $e) {
-            return Response::text(json_encode([
+            return Response::text((string) json_encode([
                 'success' => false,
                 'error' => $e->getMessage(),
                 'message' => 'Failed to retrieve database. Please verify the server_id and database_id are correct.',

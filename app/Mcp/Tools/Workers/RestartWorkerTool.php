@@ -59,7 +59,7 @@ class RestartWorkerTool extends Tool
         try {
             $client->workers()->restart($serverId, $siteId, $workerId);
 
-            return Response::text(json_encode([
+            return Response::text((string) json_encode([
                 'success' => true,
                 'server_id' => $serverId,
                 'site_id' => $siteId,
@@ -67,7 +67,7 @@ class RestartWorkerTool extends Tool
                 'message' => "Worker #{$workerId} restarted successfully",
             ], JSON_PRETTY_PRINT));
         } catch (Exception $e) {
-            return Response::text(json_encode([
+            return Response::text((string) json_encode([
                 'success' => false,
                 'error' => $e->getMessage(),
                 'message' => 'Failed to restart worker. Please verify the worker exists and try again.',

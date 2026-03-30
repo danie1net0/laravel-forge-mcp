@@ -46,7 +46,7 @@ class GetScheduledJobTool extends Tool
         try {
             $job = $client->jobs()->get($serverId, $jobId);
 
-            return Response::text(json_encode([
+            return Response::text((string) json_encode([
                 'success' => true,
                 'job' => [
                     'id' => $job->id,
@@ -59,7 +59,7 @@ class GetScheduledJobTool extends Tool
                 ],
             ], JSON_PRETTY_PRINT));
         } catch (Exception $e) {
-            return Response::text(json_encode([
+            return Response::text((string) json_encode([
                 'success' => false,
                 'error' => $e->getMessage(),
                 'message' => 'Failed to retrieve scheduled job. Please verify the server_id and job_id are correct.',

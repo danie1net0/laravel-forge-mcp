@@ -86,7 +86,7 @@ class DeploySiteTool extends Tool
         try {
             $client->sites()->deploy($serverId, $siteId);
 
-            return Response::text(json_encode([
+            return Response::text((string) json_encode([
                 'success' => true,
                 'message' => 'Deployment triggered successfully.',
                 'server_id' => $serverId,
@@ -97,7 +97,7 @@ class DeploySiteTool extends Tool
                 ],
             ], JSON_PRETTY_PRINT));
         } catch (Exception $e) {
-            return Response::text(json_encode([
+            return Response::text((string) json_encode([
                 'success' => false,
                 'error' => $e->getMessage(),
                 'message' => 'Failed to trigger deployment. Verify the server_id and site_id are correct.',

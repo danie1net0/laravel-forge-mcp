@@ -80,7 +80,7 @@ class UpdateServerTool extends Tool
             $updateData = UpdateServerData::from($data);
             $server = $client->servers()->update($serverId, $updateData);
 
-            return Response::text(json_encode([
+            return Response::text((string) json_encode([
                 'success' => true,
                 'message' => 'Server updated successfully',
                 'server' => [
@@ -92,7 +92,7 @@ class UpdateServerTool extends Tool
                 ],
             ], JSON_PRETTY_PRINT));
         } catch (Exception $e) {
-            return Response::text(json_encode([
+            return Response::text((string) json_encode([
                 'success' => false,
                 'error' => $e->getMessage(),
                 'message' => 'Failed to update server.',

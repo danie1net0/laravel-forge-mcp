@@ -67,7 +67,7 @@ class CreateFirewallRuleTool extends Tool
             $createData = CreateFirewallRuleData::from($data);
             $rule = $client->firewall()->create($serverId, $createData);
 
-            return Response::text(json_encode([
+            return Response::text((string) json_encode([
                 'success' => true,
                 'message' => 'Firewall rule created successfully',
                 'firewall_rule' => [
@@ -80,7 +80,7 @@ class CreateFirewallRuleTool extends Tool
                 ],
             ], JSON_PRETTY_PRINT));
         } catch (Exception $e) {
-            return Response::text(json_encode([
+            return Response::text((string) json_encode([
                 'success' => false,
                 'error' => $e->getMessage(),
                 'message' => 'Failed to create firewall rule. Please check the parameters and try again.',

@@ -57,14 +57,14 @@ class GetSiteCommandTool extends Tool
             $commandArray = $client->sites()->getCommand($serverId, $siteId, $commandId);
             $command = SiteCommandData::from($commandArray);
 
-            return Response::text(json_encode([
+            return Response::text((string) json_encode([
                 'success' => true,
                 'server_id' => $serverId,
                 'site_id' => $siteId,
                 'command' => $command->toArray(),
             ], JSON_PRETTY_PRINT));
         } catch (Exception $e) {
-            return Response::text(json_encode([
+            return Response::text((string) json_encode([
                 'success' => false,
                 'error' => $e->getMessage(),
                 'message' => 'Failed to retrieve command details. The command may not exist.',

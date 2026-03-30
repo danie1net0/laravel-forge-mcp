@@ -67,14 +67,14 @@ class UpdateDeploymentScriptTool extends Tool
         try {
             $client->sites()->updateDeploymentScript($serverId, $siteId, $content);
 
-            return Response::text(json_encode([
+            return Response::text((string) json_encode([
                 'success' => true,
                 'server_id' => $serverId,
                 'site_id' => $siteId,
                 'message' => 'Deployment script updated successfully',
             ], JSON_PRETTY_PRINT));
         } catch (Exception $e) {
-            return Response::text(json_encode([
+            return Response::text((string) json_encode([
                 'success' => false,
                 'error' => $e->getMessage(),
                 'message' => 'Failed to update deployment script.',

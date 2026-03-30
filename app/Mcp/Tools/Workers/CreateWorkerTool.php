@@ -91,7 +91,7 @@ class CreateWorkerTool extends Tool
             $createData = CreateWorkerData::from($data);
             $worker = $client->workers()->create($serverId, $siteId, $createData);
 
-            return Response::text(json_encode([
+            return Response::text((string) json_encode([
                 'success' => true,
                 'server_id' => $serverId,
                 'site_id' => $siteId,
@@ -110,7 +110,7 @@ class CreateWorkerTool extends Tool
                 'message' => "Worker created successfully and is {$worker->status}",
             ], JSON_PRETTY_PRINT));
         } catch (Exception $e) {
-            return Response::text(json_encode([
+            return Response::text((string) json_encode([
                 'success' => false,
                 'error' => $e->getMessage(),
                 'message' => 'Failed to create worker. Please verify the configuration is correct.',
