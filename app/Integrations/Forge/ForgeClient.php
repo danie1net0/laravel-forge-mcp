@@ -153,11 +153,18 @@ class ForgeClient
         }
 
         $body = $response->json();
-        $organizations = $body['organizations'] ?? $body['data']['attributes']['organizations'] ?? null;
+        $organizations = $body['organizations']
+            ?? $body['data']['attributes']['organizations']
+            ?? $body['data']['organizations']
+            ?? null;
 
         if (! is_array($organizations) || $organizations === []) {
+            $rawKeys = is_array($body) ? implode(', ', array_keys($body)) : 'non-array response';
+
             throw new RuntimeException(
-                'Could not auto-discover Forge organization. Please set FORGE_ORGANIZATION in your environment (e.g., FORGE_ORGANIZATION=my-org-slug).',
+                "Could not auto-discover Forge organization (API response keys: {$rawKeys}). "
+                . 'Please set FORGE_ORGANIZATION in your environment (e.g., FORGE_ORGANIZATION=my-org-slug). '
+                . 'Find your org slug in the Forge dashboard URL: forge.laravel.com/app/orgs/{your-slug}',
             );
         }
 
