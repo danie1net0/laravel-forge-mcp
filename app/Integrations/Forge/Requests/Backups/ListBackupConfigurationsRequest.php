@@ -19,7 +19,7 @@ class ListBackupConfigurationsRequest extends Request
 
     public function resolveEndpoint(): string
     {
-        return "/servers/{$this->serverId}/backup-configurations";
+        return "/servers/{$this->serverId}/database/backups";
     }
 
     public function createDtoFromResponse(Response $response): BackupConfigurationCollectionData

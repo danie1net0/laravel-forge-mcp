@@ -24,7 +24,7 @@ class CreateDaemonRequest extends Request implements HasBody
 
     public function resolveEndpoint(): string
     {
-        return "/servers/{$this->serverId}/daemons";
+        return "/servers/{$this->serverId}/background-processes";
     }
 
     public function createDtoFromResponse(Response $response): DaemonData

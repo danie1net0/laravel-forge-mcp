@@ -23,7 +23,7 @@ class EnableOctaneTool extends Tool
 
         **Optional Parameters:**
         - `server`: The Octane server to use (swoole, roadrunner, frankenphp). Default: swoole
-        - `workers`: Number of workers. Default: auto
+        - `port`: The port for the Octane server. Default: 8000
     MARKDOWN;
 
     public function handle(Request $request, ForgeClient $client): Response
@@ -32,16 +32,16 @@ class EnableOctaneTool extends Tool
             'server_id' => ['required', 'integer', 'min:1'],
             'site_id' => ['required', 'integer', 'min:1'],
             'server' => ['nullable', 'string', 'in:swoole,roadrunner,frankenphp'],
-            'workers' => ['nullable'],
+            'port' => ['nullable', 'integer', 'min:1'],
         ]);
 
         $serverId = $request->integer('server_id');
         $siteId = $request->integer('site_id');
         $server = $request->string('server', 'swoole')->value();
-        $workers = $request->has('workers') ? $request->string('workers')->value() : 'auto';
+        $port = $request->has('port') ? $request->integer('port') : 8000;
 
         try {
-            $client->integrations()->enableOctane($serverId, $siteId, $server, $workers);
+            $client->integrations()->enableOctane($serverId, $siteId, $server, $port);
 
             return Response::text(json_encode([
                 'success' => true,
@@ -49,7 +49,7 @@ class EnableOctaneTool extends Tool
                 'server_id' => $serverId,
                 'site_id' => $siteId,
                 'octane_server' => $server,
-                'workers' => $workers,
+                'port' => $port,
             ], JSON_PRETTY_PRINT));
         } catch (Exception $e) {
             return Response::text(json_encode([
@@ -73,8 +73,9 @@ class EnableOctaneTool extends Tool
             'server' => $schema->string()
                 ->description('The Octane server to use (swoole, roadrunner, frankenphp)')
                 ->enum(['swoole', 'roadrunner', 'frankenphp']),
-            'workers' => $schema->string()
-                ->description('Number of workers (or "auto")'),
+            'port' => $schema->integer()
+                ->description('The port for the Octane server (default: 8000)')
+                ->min(1),
         ];
     }
 

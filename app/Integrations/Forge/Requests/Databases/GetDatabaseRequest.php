@@ -20,7 +20,7 @@ class GetDatabaseRequest extends Request
 
     public function resolveEndpoint(): string
     {
-        return "/servers/{$this->serverId}/databases/{$this->databaseId}";
+        return "/servers/{$this->serverId}/database/schemas/{$this->databaseId}";
     }
 
     public function createDtoFromResponse(Response $response): DatabaseData

@@ -9,7 +9,10 @@ use App\Mcp\Tools\Servers\{CreateServerTool, DeleteServerTool, GetEventOutputToo
 use App\Integrations\Forge\Data\Servers\{ServerCollectionData, ServerData, UpdateServerData};
 
 beforeEach(function (): void {
-    config(['services.forge.api_token' => 'test-token']);
+    config([
+        'services.forge.api_token' => 'test-token',
+        'services.forge.organization' => 'test-org',
+    ]);
 });
 
 function createMockServer(int $id = 1, string $name = 'test-server', bool $ready = true): ServerData

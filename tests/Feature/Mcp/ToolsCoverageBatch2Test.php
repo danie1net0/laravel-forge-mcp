@@ -16,7 +16,10 @@ use App\Integrations\Forge\Data\Firewall\{CreateFirewallRuleData, FirewallRuleCo
 use App\Integrations\Forge\Data\Databases\{CreateDatabaseData, CreateDatabaseUserData, DatabaseCollectionData, DatabaseData, DatabaseUserCollectionData, DatabaseUserData, UpdateDatabaseUserData};
 
 beforeEach(function (): void {
-    config(['services.forge.api_token' => 'test-token']);
+    config([
+        'services.forge.api_token' => 'test-token',
+        'services.forge.organization' => 'test-org',
+    ]);
 });
 
 // ============================================================

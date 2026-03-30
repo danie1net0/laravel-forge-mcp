@@ -24,7 +24,10 @@ use App\Integrations\Forge\Data\Sites\{CreateSiteData, UpdateSiteData};
 use App\Integrations\Forge\Data\Servers\{CreateServerData, UpdateServerData};
 
 beforeEach(function (): void {
-    config(['services.forge.api_token' => 'test-token']);
+    config([
+        'services.forge.api_token' => 'test-token',
+        'services.forge.organization' => 'test-org',
+    ]);
 });
 
 function makeMockServerData(array $overrides = []): ServerData
@@ -463,7 +466,7 @@ describe('Integration tools error paths', function (): void {
         $this->mock(ForgeClient::class, function (Mockery\MockInterface $mock): void {
             $integrationResource = Mockery::mock(IntegrationResource::class);
             $integrationResource->shouldReceive('enableMaintenance')
-                ->with(1, 1, 'my-secret', '30')
+                ->with(1, 1, 'my-secret', 500)
                 ->once();
             $mock->shouldReceive('integrations')->once()->andReturn($integrationResource);
         });
@@ -472,17 +475,17 @@ describe('Integration tools error paths', function (): void {
             'server_id' => 1,
             'site_id' => 1,
             'secret' => 'my-secret',
-            'refresh' => '30',
+            'status' => 500,
         ]);
 
         $response->assertOk()->assertSee('"success": true');
     });
 
-    it('handles EnableOctaneTool with custom workers parameter', function (): void {
+    it('handles EnableOctaneTool with custom port parameter', function (): void {
         $this->mock(ForgeClient::class, function (Mockery\MockInterface $mock): void {
             $integrationResource = Mockery::mock(IntegrationResource::class);
             $integrationResource->shouldReceive('enableOctane')
-                ->with(1, 1, 'roadrunner', '4')
+                ->with(1, 1, 'roadrunner', 9000)
                 ->once();
             $mock->shouldReceive('integrations')->once()->andReturn($integrationResource);
         });
@@ -491,7 +494,7 @@ describe('Integration tools error paths', function (): void {
             'server_id' => 1,
             'site_id' => 1,
             'server' => 'roadrunner',
-            'workers' => '4',
+            'port' => 9000,
         ]);
 
         $response->assertOk()->assertSee('"success": true');

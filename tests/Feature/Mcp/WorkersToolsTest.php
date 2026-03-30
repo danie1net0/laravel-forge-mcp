@@ -9,7 +9,10 @@ use App\Integrations\Forge\ForgeClient;
 use App\Integrations\Forge\Resources\WorkerResource;
 
 beforeEach(function (): void {
-    config(['services.forge.api_token' => 'test-token']);
+    config([
+        'services.forge.api_token' => 'test-token',
+        'services.forge.organization' => 'test-org',
+    ]);
 });
 
 function createTestWorker(int $id, int $serverId, int $siteId, string $connection, string $queue, int $timeout = 60, int $sleep = 3, int $tries = 1, int $daemon = 1, string $status = 'installed', string $environment = 'production'): WorkerData

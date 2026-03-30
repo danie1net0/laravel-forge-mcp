@@ -101,6 +101,13 @@ function createMockCertificateData(array $overrides = []): CertificateData
     ], $overrides));
 }
 
+beforeEach(function (): void {
+    config([
+        'services.forge.api_token' => 'test-token',
+        'services.forge.organization' => 'test-org',
+    ]);
+});
+
 describe('ServerHealthCheckTool', function (): void {
     it('requires server_id parameter', function (): void {
         $this->mock(ForgeClient::class);

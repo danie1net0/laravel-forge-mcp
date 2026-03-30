@@ -3,32 +3,32 @@
 declare(strict_types=1);
 
 use App\Integrations\Forge\{ForgeClient, ForgeConnector};
-use App\Integrations\Forge\Resources\{BackupResource, CertificateResource, CredentialResource, DaemonResource, DatabaseResource, DatabaseUserResource, FirewallResource, IntegrationResource, JobResource, MonitorResource, NginxTemplateResource, PhpResource, RecipeResource, RedirectRuleResource, RegionResource, SSHKeyResource, SecurityRuleResource, ServerResource, ServiceResource, SiteResource, UserResource, WebhookResource, WorkerResource};
+use App\Integrations\Forge\Resources\{BackupResource, CertificateResource, DaemonResource, DatabaseResource, DatabaseUserResource, FirewallResource, IntegrationResource, JobResource, MonitorResource, NginxTemplateResource, PhpResource, RedirectRuleResource, SSHKeyResource, SecurityRuleResource, ServerResource, ServiceResource, SiteResource, UserResource, WebhookResource, WorkerResource};
 use Saloon\Http\Auth\TokenAuthenticator;
 
 beforeEach(function (): void {
     config(['services.forge.api_token' => 'test-token']);
+    config(['services.forge.organization' => 'test-org']);
 });
 
 describe('ForgeConnector', function (): void {
     it('resolves correct base URL', function (): void {
-        $connector = new ForgeConnector('test-token');
+        $connector = new ForgeConnector('test-token', 'test-org');
 
-        expect($connector->resolveBaseUrl())->toBe('https://forge.laravel.com/api/v1');
+        expect($connector->resolveBaseUrl())->toBe('https://forge.laravel.com/api/orgs/test-org');
     });
 
     it('has correct default headers', function (): void {
-        $connector = new ForgeConnector('test-token');
+        $connector = new ForgeConnector('test-token', 'test-org');
 
         $headers = $connector->headers()->all();
 
         expect($headers)
-            ->toHaveKey('Accept', 'application/json')
             ->toHaveKey('Content-Type', 'application/json');
     });
 
     it('uses token authenticator with provided token', function (): void {
-        $connector = new ForgeConnector('my-secret-token');
+        $connector = new ForgeConnector('my-secret-token', 'test-org');
 
         $authenticator = $connector->getAuthenticator();
 
@@ -42,6 +42,12 @@ describe('ForgeClient', function (): void {
 
         new ForgeClient();
     })->throws(RuntimeException::class, 'Forge API token not configured');
+
+    it('throws RuntimeException when no organization configured', function (): void {
+        config(['services.forge.organization' => null]);
+
+        new ForgeClient('test-token');
+    })->throws(RuntimeException::class, 'Forge organization not configured');
 
     it('accepts API token via constructor', function (): void {
         config(['services.forge.api_token' => null]);
@@ -77,15 +83,12 @@ describe('ForgeClient', function (): void {
         'securityRules' => ['securityRules', SecurityRuleResource::class],
         'sshKeys' => ['sshKeys', SSHKeyResource::class],
         'redirectRules' => ['redirectRules', RedirectRuleResource::class],
-        'recipes' => ['recipes', RecipeResource::class],
         'backups' => ['backups', BackupResource::class],
-        'credentials' => ['credentials', CredentialResource::class],
         'monitors' => ['monitors', MonitorResource::class],
         'nginxTemplates' => ['nginxTemplates', NginxTemplateResource::class],
         'user' => ['user', UserResource::class],
         'services' => ['services', ServiceResource::class],
         'php' => ['php', PhpResource::class],
-        'regions' => ['regions', RegionResource::class],
         'integrations' => ['integrations', IntegrationResource::class],
     ]);
 });

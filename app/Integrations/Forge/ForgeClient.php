@@ -4,14 +4,14 @@ declare(strict_types=1);
 
 namespace App\Integrations\Forge;
 
-use App\Integrations\Forge\Resources\{BackupResource, CertificateResource, CredentialResource, DaemonResource, DatabaseResource, DatabaseUserResource, FirewallResource, IntegrationResource, JobResource, MonitorResource, NginxTemplateResource, PhpResource, RecipeResource, RedirectRuleResource, RegionResource, SecurityRuleResource, ServerResource, ServiceResource, SiteResource, SSHKeyResource, UserResource, WebhookResource, WorkerResource};
+use App\Integrations\Forge\Resources\{BackupResource, CertificateResource, DaemonResource, DatabaseResource, DatabaseUserResource, FirewallResource, IntegrationResource, JobResource, MonitorResource, NginxTemplateResource, PhpResource, RedirectRuleResource, SSHKeyResource, SecurityRuleResource, ServerResource, ServiceResource, SiteResource, UserResource, WebhookResource, WorkerResource};
 use RuntimeException;
 
 class ForgeClient
 {
     protected ForgeConnector $connector;
 
-    public function __construct(?string $apiToken = null)
+    public function __construct(?string $apiToken = null, ?string $organization = null)
     {
         /** @var string|null $token */
         $token = $apiToken ?? config('services.forge.api_token');
@@ -20,7 +20,14 @@ class ForgeClient
             throw new RuntimeException('Forge API token not configured');
         }
 
-        $this->connector = new ForgeConnector($token);
+        /** @var string|null $organizationSlug */
+        $organizationSlug = $organization ?? config('services.forge.organization');
+
+        if (! $organizationSlug) {
+            throw new RuntimeException('Forge organization not configured. Set FORGE_ORGANIZATION in your .env file.');
+        }
+
+        $this->connector = new ForgeConnector($token, $organizationSlug);
     }
 
     public function servers(): ServerResource
@@ -88,19 +95,9 @@ class ForgeClient
         return new RedirectRuleResource($this->connector);
     }
 
-    public function recipes(): RecipeResource
-    {
-        return new RecipeResource($this->connector);
-    }
-
     public function backups(): BackupResource
     {
         return new BackupResource($this->connector);
-    }
-
-    public function credentials(): CredentialResource
-    {
-        return new CredentialResource($this->connector);
     }
 
     public function monitors(): MonitorResource
@@ -126,11 +123,6 @@ class ForgeClient
     public function php(): PhpResource
     {
         return new PhpResource($this->connector);
-    }
-
-    public function regions(): RegionResource
-    {
-        return new RegionResource($this->connector);
     }
 
     public function integrations(): IntegrationResource

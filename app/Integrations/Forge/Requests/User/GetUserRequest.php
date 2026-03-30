@@ -14,7 +14,7 @@ class GetUserRequest extends Request
 
     public function resolveEndpoint(): string
     {
-        return '/user';
+        return 'https://forge.laravel.com/api/user';
     }
 
     public function createDtoFromResponse(Response $response): UserData

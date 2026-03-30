@@ -15,7 +15,10 @@ use App\Mcp\Tools\Sites\{GetPackagesAuthTool, InstallPhpMyAdminTool, InstallWord
 use App\Mcp\Tools\Workers\GetWorkerOutputTool;
 
 beforeEach(function (): void {
-    config(['services.forge.api_token' => 'test-token']);
+    config([
+        'services.forge.api_token' => 'test-token',
+        'services.forge.organization' => 'test-org',
+    ]);
 });
 
 describe('UpdateDatabasePasswordTool', function (): void {

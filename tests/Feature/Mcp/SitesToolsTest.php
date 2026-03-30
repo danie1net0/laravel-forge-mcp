@@ -9,7 +9,10 @@ use App\Mcp\Tools\Sites\{ChangePhpVersionTool, ClearSiteLogTool, CreateSiteTool,
 use App\Integrations\Forge\Data\Sites\{CreateSiteData, SiteCollectionData, SiteData, UpdateSiteData};
 
 beforeEach(function (): void {
-    config(['services.forge.api_token' => 'test-token']);
+    config([
+        'services.forge.api_token' => 'test-token',
+        'services.forge.organization' => 'test-org',
+    ]);
 });
 
 function createMockSite(int $id = 1, int $serverId = 1, string $name = 'example.com'): SiteData

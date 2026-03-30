@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Integrations\Forge\Resources;
 
 use App\Integrations\Forge\ForgeConnector;
+use App\Integrations\Forge\Requests\Integrations\{EnableMaintenanceRequest, EnableOctaneRequest};
 use Saloon\Enums\Method;
 use Saloon\Http\Request;
 
@@ -35,13 +36,13 @@ class IntegrationResource
         return $this->get($serverId, $siteId, 'octane');
     }
 
-    public function enableOctane(int $serverId, int $siteId, string $server = 'swoole', string|int $workers = 'auto'): void
+    public function enableOctane(int $serverId, int $siteId, string $server = 'swoole', int $port = 8000): void
     {
-        $this->connector->send(new \App\Integrations\Forge\Requests\Integrations\EnableOctaneRequest(
+        $this->connector->send(new EnableOctaneRequest(
             $serverId,
             $siteId,
             $server,
-            $workers
+            $port
         ));
     }
 
@@ -100,13 +101,13 @@ class IntegrationResource
         return $this->get($serverId, $siteId, 'laravel-maintenance');
     }
 
-    public function enableMaintenance(int $serverId, int $siteId, ?string $secret = null, ?string $refresh = null): void
+    public function enableMaintenance(int $serverId, int $siteId, ?string $secret = null, int $status = 503): void
     {
-        $this->connector->send(new \App\Integrations\Forge\Requests\Integrations\EnableMaintenanceRequest(
+        $this->connector->send(new EnableMaintenanceRequest(
             $serverId,
             $siteId,
             $secret,
-            $refresh
+            $status
         ));
     }
 

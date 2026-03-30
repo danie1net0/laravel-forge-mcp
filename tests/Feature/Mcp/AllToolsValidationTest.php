@@ -11,7 +11,7 @@ describe('All MCP Tools Validation', function (): void {
             ->filter(fn (SplFileInfo $file): bool => str_ends_with($file->getFilename(), 'Tool.php'))
             ->values();
 
-        expect($toolFiles)->toHaveCount(179, 'Expected exactly 179 tools to be found');
+        expect($toolFiles)->toHaveCount(171, 'Expected exactly 171 tools to be found');
 
         foreach ($toolFiles as $file) {
             $relativePath = str_replace([app_path('Mcp/Tools/'), '.php', '/'], ['', '', '\\'], $file->getPathname());
@@ -61,7 +61,10 @@ describe('All MCP Tools Validation', function (): void {
     })->group('validation');
 
     it('validates all tools schema and shouldRegister methods', function (): void {
-        config(['services.forge.api_token' => 'test-token']);
+        config([
+            'services.forge.api_token' => 'test-token',
+            'services.forge.organization' => 'test-org',
+        ]);
 
         $toolsPath = app_path('Mcp/Tools');
         $toolFiles = collect(File::allFiles($toolsPath))
@@ -93,7 +96,10 @@ describe('All MCP Tools Validation', function (): void {
     })->group('validation');
 
     it('validates tools do not register without API token', function (): void {
-        config(['services.forge.api_token' => null]);
+        config([
+            'services.forge.api_token' => null,
+            'services.forge.organization' => 'test-org',
+        ]);
 
         $toolsPath = app_path('Mcp/Tools');
         $toolFiles = collect(File::allFiles($toolsPath))
@@ -111,9 +117,9 @@ describe('All MCP Tools Validation', function (): void {
 
     it('validates all tools belong to correct categories', function (): void {
         $expectedCategories = [
-            'Backups', 'Certificates', 'Commands', 'Composite', 'Configuration', 'Credentials', 'Daemons',
+            'Backups', 'Certificates', 'Commands', 'Composite', 'Configuration', 'Daemons',
             'Databases', 'Deployments', 'Firewall', 'Git', 'Integrations', 'Jobs',
-            'Monitors', 'NginxTemplates', 'Php', 'Recipes', 'RedirectRules', 'Regions',
+            'Monitors', 'NginxTemplates', 'Php', 'RedirectRules',
             'SSHKeys', 'SecurityRules', 'Servers', 'Services', 'Sites', 'User',
             'Webhooks', 'Workers',
         ];

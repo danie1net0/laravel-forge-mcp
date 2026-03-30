@@ -19,6 +19,6 @@ class DeleteDatabaseUserRequest extends Request
 
     public function resolveEndpoint(): string
     {
-        return "/servers/{$this->serverId}/database-users/{$this->userId}";
+        return "/servers/{$this->serverId}/database/users/{$this->userId}";
     }
 }

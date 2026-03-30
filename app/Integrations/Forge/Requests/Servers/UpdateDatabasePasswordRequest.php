@@ -22,7 +22,7 @@ class UpdateDatabasePasswordRequest extends Request implements HasBody
 
     public function resolveEndpoint(): string
     {
-        return "/servers/{$this->serverId}/database-password";
+        return "/servers/{$this->serverId}/database/password";
     }
 
     protected function defaultBody(): array

@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Integrations\Forge\Requests\Sites;
 
 use Saloon\Enums\Method;
@@ -17,6 +19,6 @@ class DeploySiteRequest extends Request
 
     public function resolveEndpoint(): string
     {
-        return "/servers/{$this->serverId}/sites/{$this->siteId}/deployment/deploy";
+        return "/servers/{$this->serverId}/sites/{$this->siteId}/deployments";
     }
 }

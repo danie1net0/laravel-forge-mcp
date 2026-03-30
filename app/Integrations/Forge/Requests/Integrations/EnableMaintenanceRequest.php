@@ -19,7 +19,7 @@ class EnableMaintenanceRequest extends Request implements HasBody
         protected int $serverId,
         protected int $siteId,
         protected ?string $secret = null,
-        protected ?string $refresh = null
+        protected int $status = 503
     ) {
     }
 
@@ -28,16 +28,17 @@ class EnableMaintenanceRequest extends Request implements HasBody
         return "/servers/{$this->serverId}/sites/{$this->siteId}/integrations/laravel-maintenance";
     }
 
+    /**
+     * @return array{status: int, secret?: string}
+     */
     protected function defaultBody(): array
     {
-        $data = [];
+        $data = [
+            'status' => $this->status,
+        ];
 
         if ($this->secret !== null) {
             $data['secret'] = $this->secret;
-        }
-
-        if ($this->refresh !== null) {
-            $data['refresh'] = $this->refresh;
         }
 
         return $data;

@@ -25,7 +25,7 @@ class UpdateBackupConfigurationRequest extends Request implements HasBody
 
     public function resolveEndpoint(): string
     {
-        return "/servers/{$this->serverId}/backup-configurations/{$this->backupId}";
+        return "/servers/{$this->serverId}/database/backups/{$this->backupId}";
     }
 
     public function createDtoFromResponse(Response $response): BackupConfigurationData

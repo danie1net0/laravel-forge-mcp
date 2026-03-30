@@ -36,5 +36,6 @@ return [
 
     'forge' => [
         'api_token' => env('FORGE_API_TOKEN'),
+        'organization' => env('FORGE_ORGANIZATION'),
     ],
 ];

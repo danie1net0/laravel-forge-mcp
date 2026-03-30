@@ -8,7 +8,10 @@ use App\Mcp\Servers\ForgeServer;
 use App\Mcp\Tools\Deployments\{DeploySiteTool, DisableQuickDeployTool, EnableQuickDeployTool, GetDeploymentHistoryDeploymentTool, GetDeploymentHistoryOutputTool, GetDeploymentLogTool, GetDeploymentScriptTool, ListDeploymentHistoryTool, ResetDeploymentStateTool, SetDeploymentFailureEmailsTool, UpdateDeploymentScriptTool};
 
 beforeEach(function (): void {
-    config(['services.forge.api_token' => 'test-token']);
+    config([
+        'services.forge.api_token' => 'test-token',
+        'services.forge.organization' => 'test-org',
+    ]);
 });
 
 describe('DeploySiteTool', function (): void {

@@ -7,7 +7,6 @@ use App\Integrations\Forge\Data\Jobs\{CreateJobData, JobCollectionData, JobData}
 use App\Integrations\Forge\Data\Sites\{CreateSiteData, ExecuteSiteCommandData, InstallGitRepositoryData, SiteCollectionData, SiteCommandData, SiteData, UpdateGitRepositoryData, UpdateSiteData};
 use App\Integrations\Forge\Data\Backups\{BackupConfigurationCollectionData, BackupConfigurationData, BackupData, CreateBackupConfigurationData, UpdateBackupConfigurationData};
 use App\Integrations\Forge\Data\Daemons\{CreateDaemonData, DaemonCollectionData, DaemonData};
-use App\Integrations\Forge\Data\Recipes\{CreateRecipeData, RecipeCollectionData, RecipeData, RunRecipeData, UpdateRecipeData};
 use App\Integrations\Forge\Data\SSHKeys\{CreateSSHKeyData, SSHKeyCollectionData, SSHKeyData};
 use App\Integrations\Forge\Data\Servers\{CreateServerData, EventData, ServerCollectionData, ServerData, UpdateServerData};
 use App\Integrations\Forge\Data\Workers\{CreateWorkerData, WorkerCollectionData, WorkerData};
@@ -15,13 +14,11 @@ use App\Integrations\Forge\Data\Firewall\{CreateFirewallRuleData, FirewallRuleCo
 use App\Integrations\Forge\Data\Monitors\{CreateMonitorData, MonitorCollectionData, MonitorData};
 use App\Integrations\Forge\Data\Webhooks\{CreateWebhookData, WebhookCollectionData, WebhookData};
 use App\Integrations\Forge\Data\Databases\{CreateDatabaseData, CreateDatabaseUserData, DatabaseCollectionData, DatabaseData, DatabaseUserCollectionData, DatabaseUserData, UpdateDatabaseUserData};
-use App\Integrations\Forge\Data\Credentials\{CredentialCollectionData, CredentialData};
 use App\Integrations\Forge\Data\Certificates\{CertificateCollectionData, CertificateData, ObtainLetsEncryptCertificateData};
 use App\Integrations\Forge\Data\RedirectRules\{CreateRedirectRuleData, RedirectRuleCollectionData, RedirectRuleData};
 use App\Integrations\Forge\Data\SecurityRules\{CreateSecurityRuleData, SecurityRuleCollectionData, SecurityRuleData};
 use App\Integrations\Forge\Data\NginxTemplates\{CreateNginxTemplateData, NginxTemplateCollectionData, NginxTemplateData, UpdateNginxTemplateData};
 use App\Integrations\Forge\Data\Php\PhpVersionData;
-use App\Integrations\Forge\Data\Regions\RegionData;
 use App\Integrations\Forge\Data\User\UserData;
 
 describe('Backups', function (): void {
@@ -203,29 +200,6 @@ describe('Certificates', function (): void {
             ->and($data->certificates[0])
             ->toBeInstanceOf(CertificateData::class)
             ->domain->toBe('example.com');
-    });
-});
-
-describe('Credentials', function (): void {
-    it('creates CredentialData from snake_case input', function (): void {
-        $data = CredentialData::from([
-            'id' => 1,
-            'name' => 'DigitalOcean Production',
-            'type' => 'ocean2',
-        ]);
-
-        expect($data)
-            ->id->toBe(1)
-            ->name->toBe('DigitalOcean Production')
-            ->type->toBe('ocean2');
-    });
-
-    it('creates CredentialCollectionData with empty array', function (): void {
-        $data = CredentialCollectionData::from([
-            'credentials' => [],
-        ]);
-
-        expect($data->credentials)->toBeEmpty();
     });
 });
 
@@ -687,76 +661,6 @@ describe('Php', function (): void {
     });
 });
 
-describe('Recipes', function (): void {
-    it('creates RecipeData from snake_case input', function (): void {
-        $data = RecipeData::from([
-            'id' => 1,
-            'key' => 'deploy-script',
-            'name' => 'Deploy Production',
-            'user' => 'forge',
-            'created_at' => '2024-01-01T00:00:00Z',
-        ]);
-
-        expect($data)
-            ->id->toBe(1)
-            ->key->toBe('deploy-script')
-            ->name->toBe('Deploy Production')
-            ->user->toBe('forge');
-    });
-
-    it('creates RecipeData with null key', function (): void {
-        $data = RecipeData::from([
-            'id' => 2,
-            'key' => null,
-            'name' => 'Cleanup',
-            'user' => 'root',
-            'created_at' => '2024-01-01T00:00:00Z',
-        ]);
-
-        expect($data->key)->toBeNull();
-    });
-
-    it('creates CreateRecipeData from snake_case input', function (): void {
-        $data = CreateRecipeData::from([
-            'name' => 'Deploy Script',
-            'user' => 'forge',
-            'script' => 'cd /home/forge/app && git pull',
-        ]);
-
-        expect($data)
-            ->name->toBe('Deploy Script')
-            ->user->toBe('forge')
-            ->script->toBe('cd /home/forge/app && git pull');
-    });
-
-    it('creates RunRecipeData with servers array', function (): void {
-        $data = RunRecipeData::from([
-            'servers' => [1, 2, 3],
-        ]);
-
-        expect($data->servers)->toBe([1, 2, 3]);
-    });
-
-    it('creates UpdateRecipeData with partial fields', function (): void {
-        $data = UpdateRecipeData::from([
-            'name' => 'Updated Script',
-        ]);
-
-        expect($data)
-            ->name->toBe('Updated Script')
-            ->user->toBeNull()
-            ->script->toBeNull();
-    });
-
-    it('creates RecipeCollectionData with empty array', function (): void {
-        $data = RecipeCollectionData::from([
-            'recipes' => [],
-        ]);
-
-        expect($data->recipes)->toBeEmpty();
-    });
-});
-
 describe('RedirectRules', function (): void {
     it('creates RedirectRuleData from snake_case input', function (): void {
         $data = RedirectRuleData::from([
@@ -807,23 +711,6 @@ describe('RedirectRules', function (): void {
         ]);
 
         expect($data->rules)->toBeEmpty();
-    });
-});
-
-describe('Regions', function (): void {
-    it('creates RegionData from snake_case input', function (): void {
-        $data = RegionData::from([
-            'id' => 'nyc1',
-            'name' => 'New York 1',
-            'sizes' => [
-                's-1vcpu-1gb' => ['id' => 's-1vcpu-1gb', 'name' => '1 GB / 1 vCPU'],
-            ],
-        ]);
-
-        expect($data)
-            ->id->toBe('nyc1')
-            ->name->toBe('New York 1')
-            ->sizes->toHaveCount(1);
     });
 });
 

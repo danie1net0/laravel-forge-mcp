@@ -23,7 +23,7 @@ class EnableMaintenanceTool extends Tool
 
         **Optional Parameters:**
         - `secret`: A secret bypass key to access the site during maintenance
-        - `refresh`: Refresh interval in seconds for the maintenance page
+        - `status`: HTTP status code for the maintenance page (default: 503)
     MARKDOWN;
 
     public function handle(Request $request, ForgeClient $client): Response
@@ -32,16 +32,16 @@ class EnableMaintenanceTool extends Tool
             'server_id' => ['required', 'integer', 'min:1'],
             'site_id' => ['required', 'integer', 'min:1'],
             'secret' => ['nullable', 'string'],
-            'refresh' => ['nullable', 'string'],
+            'status' => ['nullable', 'integer', 'min:100', 'max:599'],
         ]);
 
         $serverId = $request->integer('server_id');
         $siteId = $request->integer('site_id');
         $secret = $request->has('secret') ? $request->string('secret')->value() : null;
-        $refresh = $request->has('refresh') ? $request->string('refresh')->value() : null;
+        $status = $request->has('status') ? $request->integer('status') : 503;
 
         try {
-            $client->integrations()->enableMaintenance($serverId, $siteId, $secret, $refresh);
+            $client->integrations()->enableMaintenance($serverId, $siteId, $secret, $status);
 
             return Response::text(json_encode([
                 'success' => true,
@@ -70,8 +70,9 @@ class EnableMaintenanceTool extends Tool
                 ->required(),
             'secret' => $schema->string()
                 ->description('A secret bypass key to access the site during maintenance'),
-            'refresh' => $schema->string()
-                ->description('Refresh interval in seconds for the maintenance page'),
+            'status' => $schema->integer()
+                ->description('HTTP status code for the maintenance page (default: 503)')
+                ->min(100),
         ];
     }
 

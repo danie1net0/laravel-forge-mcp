@@ -17,20 +17,23 @@ class ManageServiceRequest extends Request implements HasBody
 
     public function __construct(
         protected int $serverId,
-        protected string $action,
-        protected string $service
+        protected string $service,
+        protected string $action
     ) {
     }
 
     public function resolveEndpoint(): string
     {
-        return "/servers/{$this->serverId}/services/{$this->action}";
+        return "/servers/{$this->serverId}/services/{$this->service}/actions";
     }
 
+    /**
+     * @return array{action: string}
+     */
     protected function defaultBody(): array
     {
         return [
-            'service' => $this->service,
+            'action' => $this->action,
         ];
     }
 }

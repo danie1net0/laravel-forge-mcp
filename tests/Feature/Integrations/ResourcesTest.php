@@ -2,16 +2,14 @@
 
 declare(strict_types=1);
 
-use App\Integrations\Forge\Data\Credentials\CredentialCollectionData;
 use App\Integrations\Forge\Data\User\UserData;
 use App\Integrations\Forge\ForgeConnector;
 use Saloon\Http\Faking\{MockClient, MockResponse};
 use App\Integrations\Forge\Data\Jobs\{CreateJobData, JobCollectionData, JobData};
-use App\Integrations\Forge\Resources\{BackupResource, CertificateResource, CredentialResource, DaemonResource, DatabaseResource, DatabaseUserResource, FirewallResource, IntegrationResource, JobResource, MonitorResource, NginxTemplateResource, PhpResource, RecipeResource, RedirectRuleResource, RegionResource, SSHKeyResource, SecurityRuleResource, ServerResource, ServiceResource, SiteResource, UserResource, WebhookResource, WorkerResource};
+use App\Integrations\Forge\Resources\{BackupResource, CertificateResource, DaemonResource, DatabaseResource, DatabaseUserResource, FirewallResource, IntegrationResource, JobResource, MonitorResource, NginxTemplateResource, PhpResource, RedirectRuleResource, SSHKeyResource, SecurityRuleResource, ServerResource, ServiceResource, SiteResource, UserResource, WebhookResource, WorkerResource};
 use App\Integrations\Forge\Data\Sites\{CreateSiteData, ExecuteSiteCommandData, InstallGitRepositoryData, SiteCollectionData, SiteData, UpdateGitRepositoryData, UpdateSiteData};
 use App\Integrations\Forge\Data\Backups\{BackupConfigurationCollectionData, BackupConfigurationData, CreateBackupConfigurationData, UpdateBackupConfigurationData};
 use App\Integrations\Forge\Data\Daemons\{CreateDaemonData, DaemonCollectionData, DaemonData};
-use App\Integrations\Forge\Data\Recipes\{CreateRecipeData, RecipeCollectionData, RecipeData, RunRecipeData, UpdateRecipeData};
 use App\Integrations\Forge\Data\SSHKeys\{CreateSSHKeyData, SSHKeyCollectionData, SSHKeyData};
 use App\Integrations\Forge\Data\Servers\{CreateServerData, ServerCollectionData, ServerData, UpdateServerData};
 use App\Integrations\Forge\Data\Workers\{CreateWorkerData, WorkerCollectionData, WorkerData};
@@ -258,17 +256,6 @@ function securityRuleMockData(array $overrides = []): array
     ], $overrides);
 }
 
-function recipeMockData(array $overrides = []): array
-{
-    return array_merge([
-        'id' => 1,
-        'key' => 'recipe-key',
-        'name' => 'Deploy Script',
-        'user' => 'forge',
-        'created_at' => '2024-01-01T00:00:00Z',
-    ], $overrides);
-}
-
 function backupConfigurationMockData(array $overrides = []): array
 {
     return array_merge([
@@ -280,15 +267,6 @@ function backupConfigurationMockData(array $overrides = []): array
         'provider_name' => 'Amazon S3',
         'last_backup_time' => null,
         'created_at' => '2024-01-01T00:00:00Z',
-    ], $overrides);
-}
-
-function credentialMockData(array $overrides = []): array
-{
-    return array_merge([
-        'id' => 1,
-        'name' => 'DigitalOcean',
-        'type' => 'ocean2',
     ], $overrides);
 }
 
@@ -330,7 +308,7 @@ function userMockData(array $overrides = []): array
 function createMockedConnectorWithClient(array $responses): array
 {
     $mockClient = new MockClient($responses);
-    $connector = new ForgeConnector('test-token');
+    $connector = new ForgeConnector('test-token', 'test-org');
     $connector->withMockClient($mockClient);
 
     return [$connector, $mockClient];
@@ -1785,90 +1763,6 @@ describe('SecurityRuleResource', function (): void {
     });
 });
 
-describe('RecipeResource', function (): void {
-    it('lists recipes', function (): void {
-        $connector = createMockedConnector([
-            MockResponse::make(['recipes' => [recipeMockData()]]),
-        ]);
-
-        $resource = new RecipeResource($connector);
-        $result = $resource->list();
-
-        expect($result)
-            ->toBeInstanceOf(RecipeCollectionData::class)
-            ->recipes->toHaveCount(1);
-    });
-
-    it('gets a recipe', function (): void {
-        $connector = createMockedConnector([
-            MockResponse::make(['recipe' => recipeMockData()]),
-        ]);
-
-        $resource = new RecipeResource($connector);
-        $result = $resource->get(1);
-
-        expect($result)
-            ->toBeInstanceOf(RecipeData::class)
-            ->id->toBe(1)
-            ->name->toBe('Deploy Script');
-    });
-
-    it('creates a recipe', function (): void {
-        $connector = createMockedConnector([
-            MockResponse::make(['recipe' => recipeMockData()]),
-        ]);
-
-        $resource = new RecipeResource($connector);
-        $data = CreateRecipeData::from([
-            'name' => 'Deploy Script',
-            'user' => 'forge',
-            'script' => 'echo hello',
-        ]);
-        $result = $resource->create($data);
-
-        expect($result)
-            ->toBeInstanceOf(RecipeData::class)
-            ->name->toBe('Deploy Script');
-    });
-
-    it('updates a recipe', function (): void {
-        $connector = createMockedConnector([
-            MockResponse::make(['recipe' => recipeMockData(['name' => 'Updated Script'])]),
-        ]);
-
-        $resource = new RecipeResource($connector);
-        $data = UpdateRecipeData::from(['name' => 'Updated Script']);
-        $result = $resource->update(1, $data);
-
-        expect($result)
-            ->toBeInstanceOf(RecipeData::class)
-            ->name->toBe('Updated Script');
-    });
-
-    it('deletes a recipe', function (): void {
-        [$connector, $mockClient] = createMockedConnectorWithClient([
-            MockResponse::make([], 200),
-        ]);
-
-        $resource = new RecipeResource($connector);
-        $resource->delete(1);
-
-        $mockClient->assertSentCount(1);
-    });
-
-    it('runs a recipe', function (): void {
-        [$connector, $mockClient] = createMockedConnectorWithClient([
-            MockResponse::make([], 200),
-        ]);
-
-        $resource = new RecipeResource($connector);
-        $data = RunRecipeData::from(['servers' => [1, 2]]);
-        $resource->run(1, $data);
-
-        $mockClient->assertSentCount(1);
-    });
-});
-
 describe('BackupResource', function (): void {
     it('lists backup configurations', function (): void {
         $connector = createMockedConnector([
@@ -1956,21 +1850,6 @@ describe('BackupResource', function (): void {
         $resource->delete(1, 1, 1);
 
         $mockClient->assertSentCount(1);
-    });
-});
-
-describe('CredentialResource', function (): void {
-    it('lists credentials', function (): void {
-        $connector = createMockedConnector([
-            MockResponse::make(['credentials' => [credentialMockData()]]),
-        ]);
-
-        $resource = new CredentialResource($connector);
-        $result = $resource->list();
-
-        expect($result)
-            ->toBeInstanceOf(CredentialCollectionData::class)
-            ->credentials->toHaveCount(1);
     });
 });
 
@@ -2303,21 +2182,6 @@ describe('PhpResource', function (): void {
     });
 });
 
-describe('RegionResource', function (): void {
-    it('lists regions', function (): void {
-        $connector = createMockedConnector([
-            MockResponse::make(['regions' => [['id' => 'nyc1', 'name' => 'New York 1']]]),
-        ]);
-
-        $resource = new RegionResource($connector);
-        $result = $resource->list();
-
-        expect($result)
-            ->toBeArray()
-            ->toHaveCount(1);
-    });
-});
-
 describe('IntegrationResource', function (): void {
     it('gets horizon status', function (): void {
         $connector = createMockedConnector([
@@ -2373,7 +2237,7 @@ describe('IntegrationResource', function (): void {
         ]);
 
         $resource = new IntegrationResource($connector);
-        $resource->enableOctane(1, 1, 'swoole', 'auto');
+        $resource->enableOctane(1, 1, 'swoole', 8000);
 
         $mockClient->assertSentCount(1);
     });
@@ -2513,7 +2377,7 @@ describe('IntegrationResource', function (): void {
         ]);
 
         $resource = new IntegrationResource($connector);
-        $resource->enableMaintenance(1, 1, 'my-secret', '30');
+        $resource->enableMaintenance(1, 1, 'my-secret', 503);
 
         $mockClient->assertSentCount(1);
     });

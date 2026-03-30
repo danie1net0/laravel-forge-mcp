@@ -10,7 +10,6 @@ use App\Integrations\Forge\Data\Databases\{DatabaseData, DatabaseUserData};
 use App\Integrations\Forge\Data\Firewall\FirewallRuleData;
 use App\Integrations\Forge\Data\Jobs\JobData;
 use App\Integrations\Forge\Data\Monitors\MonitorData;
-use App\Integrations\Forge\Data\Recipes\RecipeData;
 use App\Integrations\Forge\Data\RedirectRules\RedirectRuleData;
 use App\Integrations\Forge\Data\SecurityRules\SecurityRuleData;
 use App\Integrations\Forge\Data\Servers\ServerData;
@@ -202,17 +201,6 @@ class MockDataHelpers
             'threshold' => 90,
             'minutes' => 5,
             'state_changed_at' => '2024-01-01T00:00:00Z',
-        ], $overrides));
-    }
-
-    public static function recipeData(array $overrides = []): RecipeData
-    {
-        return RecipeData::from(array_merge([
-            'id' => 1,
-            'key' => 'deploy-script',
-            'name' => 'Deploy',
-            'user' => 'forge',
-            'created_at' => '2024-01-01T00:00:00Z',
         ], $overrides));
     }
 

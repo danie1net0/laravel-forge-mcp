@@ -19,7 +19,7 @@ class EnableOctaneRequest extends Request implements HasBody
         protected int $serverId,
         protected int $siteId,
         protected string $server = 'swoole',
-        protected string|int $workers = 'auto'
+        protected int $port = 8000
     ) {
     }
 
@@ -28,11 +28,14 @@ class EnableOctaneRequest extends Request implements HasBody
         return "/servers/{$this->serverId}/sites/{$this->siteId}/integrations/octane";
     }
 
+    /**
+     * @return array{server: string, port: int}
+     */
     protected function defaultBody(): array
     {
         return [
             'server' => $this->server,
-            'workers' => $this->workers,
+            'port' => $this->port,
         ];
     }
 }

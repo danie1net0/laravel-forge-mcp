@@ -24,7 +24,7 @@ class CreateDatabaseUserRequest extends Request implements HasBody
 
     public function resolveEndpoint(): string
     {
-        return "/servers/{$this->serverId}/database-users";
+        return "/servers/{$this->serverId}/database/users";
     }
 
     public function createDtoFromResponse(Response $response): DatabaseUserData

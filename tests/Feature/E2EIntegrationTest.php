@@ -18,7 +18,10 @@ use App\Integrations\Forge\Data\Servers\{ServerCollectionData, ServerData};
 use App\Mcp\Tools\Workers\CreateWorkerTool;
 
 beforeEach(function (): void {
-    config(['services.forge.api_token' => 'test-token']);
+    config([
+        'services.forge.api_token' => 'test-token',
+        'services.forge.organization' => 'test-org',
+    ]);
 });
 
 function makeServerData(array $overrides = []): ServerData
@@ -341,7 +344,7 @@ describe('MCP Protocol Integration', function (): void {
             ->filter(fn ($file) => str_ends_with($file->getFilename(), 'Tool.php'))
             ->values();
 
-        expect($toolFiles->count())->toBe(179);
+        expect($toolFiles->count())->toBe(171);
     });
 
     it('validates all resources are discoverable', function (): void {
@@ -410,13 +413,19 @@ describe('Complete Multi-Site Scenario', function (): void {
 
 describe('Application Health Check', function (): void {
     it('validates all required configurations exist', function (): void {
-        config(['services.forge.api_token' => 'test-token']);
+        config([
+            'services.forge.api_token' => 'test-token',
+            'services.forge.organization' => 'test-org',
+        ]);
 
         expect(config('services.forge.api_token'))->not->toBeNull();
     });
 
     it('validates ForgeClient can be instantiated', function (): void {
-        config(['services.forge.api_token' => 'test-token']);
+        config([
+            'services.forge.api_token' => 'test-token',
+            'services.forge.organization' => 'test-org',
+        ]);
 
         $client = app(ForgeClient::class);
 

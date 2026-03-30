@@ -20,6 +20,6 @@ class DeleteBackupRequest extends Request
 
     public function resolveEndpoint(): string
     {
-        return "/servers/{$this->serverId}/backup-configurations/{$this->backupConfigId}/backups/{$this->backupId}";
+        return "/servers/{$this->serverId}/database/backups/{$this->backupConfigId}/instances/{$this->backupId}";
     }
 }

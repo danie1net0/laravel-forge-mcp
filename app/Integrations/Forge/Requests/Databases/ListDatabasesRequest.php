@@ -19,7 +19,7 @@ class ListDatabasesRequest extends Request
 
     public function resolveEndpoint(): string
     {
-        return "/servers/{$this->serverId}/databases";
+        return "/servers/{$this->serverId}/database/schemas";
     }
 
     public function createDtoFromResponse(Response $response): DatabaseCollectionData

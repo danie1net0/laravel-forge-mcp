@@ -19,6 +19,6 @@ class GetEnvFileRequest extends Request
 
     public function resolveEndpoint(): string
     {
-        return "/servers/{$this->serverId}/sites/{$this->siteId}/env";
+        return "/servers/{$this->serverId}/sites/{$this->siteId}/environment";
     }
 }

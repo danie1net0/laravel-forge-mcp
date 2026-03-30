@@ -9,7 +9,10 @@ use App\Mcp\Tools\Certificates\{ActivateCertificateTool, DeleteCertificateTool, 
 use App\Integrations\Forge\Data\Certificates\{CertificateCollectionData, CertificateData, ObtainLetsEncryptCertificateData};
 
 beforeEach(function (): void {
-    config(['services.forge.api_token' => 'test-token']);
+    config([
+        'services.forge.api_token' => 'test-token',
+        'services.forge.organization' => 'test-org',
+    ]);
 });
 
 function createMockCertificate(int $id = 1, string $domain = 'example.com', string $type = 'letsencrypt'): CertificateData

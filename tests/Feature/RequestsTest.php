@@ -176,7 +176,6 @@ describe('Request Categories Coverage', function (): void {
     $categories = [
         'Backups' => ['ListBackupConfigurations', 'GetBackupConfiguration', 'CreateBackupConfiguration', 'UpdateBackupConfiguration', 'DeleteBackupConfiguration', 'RestoreBackup', 'DeleteBackup'],
         'Certificates' => ['ListCertificates', 'GetCertificate', 'ObtainLetsEncryptCertificate', 'GetSigningRequest', 'DeleteCertificate', 'ActivateCertificate'],
-        'Credentials' => ['ListCredentials'],
         'Daemons' => ['ListDaemons', 'GetDaemon', 'CreateDaemon', 'RestartDaemon', 'DeleteDaemon'],
         'Databases' => ['ListDatabases', 'GetDatabase', 'CreateDatabase', 'DeleteDatabase', 'ListDatabaseUsers', 'GetDatabaseUser', 'CreateDatabaseUser', 'UpdateDatabaseUser', 'DeleteDatabaseUser', 'SyncDatabase'],
         'Firewall' => ['ListFirewallRules', 'GetFirewallRule', 'CreateFirewallRule', 'DeleteFirewallRule'],
@@ -185,7 +184,6 @@ describe('Request Categories Coverage', function (): void {
         'Monitors' => ['ListMonitors', 'GetMonitor', 'CreateMonitor', 'DeleteMonitor'],
         'NginxTemplates' => ['ListNginxTemplates', 'GetNginxTemplate', 'GetNginxDefaultTemplate', 'CreateNginxTemplate', 'UpdateNginxTemplate', 'DeleteNginxTemplate'],
         'Php' => ['InstallPhp', 'UpdatePhp'],
-        'Recipes' => ['ListRecipes', 'GetRecipe', 'CreateRecipe', 'UpdateRecipe', 'DeleteRecipe', 'RunRecipe'],
         'RedirectRules' => ['ListRedirectRules', 'GetRedirectRule', 'CreateRedirectRule', 'DeleteRedirectRule'],
         'SecurityRules' => ['ListSecurityRules', 'GetSecurityRule', 'CreateSecurityRule', 'DeleteSecurityRule'],
         'Servers' => ['ListServers', 'GetServer', 'CreateServer', 'UpdateServer', 'DeleteServer', 'RebootServer', 'ListEvents', 'GetEventOutput', 'GetServerLog', 'ReactivateServer', 'ReconnectServer', 'RevokeServerAccess', 'UpdateDatabasePassword'],

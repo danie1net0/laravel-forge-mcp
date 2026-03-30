@@ -11,7 +11,6 @@ use App\Integrations\Forge\Data\RedirectRules\CreateRedirectRuleData;
 use App\Integrations\Forge\Data\SecurityRules\CreateSecurityRuleData;
 use App\Integrations\Forge\Data\Sites\{CreateSiteData, ExecuteSiteCommandData, InstallGitRepositoryData, UpdateGitRepositoryData, UpdateSiteData};
 use App\Integrations\Forge\Data\Backups\{CreateBackupConfigurationData, UpdateBackupConfigurationData};
-use App\Integrations\Forge\Data\Recipes\{CreateRecipeData, RunRecipeData, UpdateRecipeData};
 use App\Integrations\Forge\Data\Servers\{CreateServerData, UpdateServerData};
 use App\Integrations\Forge\Requests\Php\{InstallPhpRequest, UpdatePhpRequest};
 use App\Integrations\Forge\Requests\Jobs\{CreateJobRequest, DeleteJobRequest, GetJobOutputRequest, GetJobRequest, ListJobsRequest};
@@ -19,7 +18,6 @@ use App\Integrations\Forge\Data\Databases\{CreateDatabaseData, CreateDatabaseUse
 use App\Integrations\Forge\Requests\Sites\{ChangePhpVersionRequest, ClearSiteLogRequest, CreateDeployKeyRequest, CreateSiteRequest, DeleteDeployKeyRequest, DeleteSiteRequest, DeploySiteRequest, DestroyGitRepositoryRequest, DisableQuickDeployRequest, EnableQuickDeployRequest, ExecuteSiteCommandRequest, GetDeploymentHistoryDeploymentRequest, GetDeploymentHistoryOutputRequest, GetDeploymentHistoryRequest, GetDeploymentLogRequest, GetDeploymentScriptRequest, GetEnvFileRequest, GetLoadBalancingRequest, GetNginxConfigRequest, GetPackagesAuthRequest, GetSiteCommandRequest, GetSiteLogRequest, GetSiteRequest, InstallGitRepositoryRequest, InstallPhpMyAdminRequest, InstallWordPressRequest, ListAliasesRequest, ListCommandHistoryRequest, ListSitesRequest, ResetDeploymentStateRequest, SetDeploymentFailureEmailsRequest, UninstallPhpMyAdminRequest, UninstallWordPressRequest, UpdateAliasesRequest, UpdateDeploymentScriptRequest, UpdateEnvFileRequest, UpdateGitRepositoryRequest, UpdateLoadBalancingRequest, UpdateNginxConfigRequest, UpdatePackagesAuthRequest, UpdateSiteRequest};
 use App\Integrations\Forge\Requests\Backups\{CreateBackupConfigurationRequest, DeleteBackupConfigurationRequest, DeleteBackupRequest, GetBackupConfigurationRequest, ListBackupConfigurationsRequest, RestoreBackupRequest, UpdateBackupConfigurationRequest};
 use App\Integrations\Forge\Requests\Daemons\{CreateDaemonRequest, DeleteDaemonRequest, GetDaemonRequest, ListDaemonsRequest, RestartDaemonRequest};
-use App\Integrations\Forge\Requests\Recipes\{CreateRecipeRequest, DeleteRecipeRequest, GetRecipeRequest, ListRecipesRequest, RunRecipeRequest, UpdateRecipeRequest};
 use App\Integrations\Forge\Requests\SSHKeys\{CreateSSHKeyRequest, DeleteSSHKeyRequest, GetSSHKeyRequest, ListSSHKeysRequest};
 use App\Integrations\Forge\Requests\Servers\{CreateServerRequest, DeleteServerRequest, GetEventOutputRequest, GetServerLogRequest, GetServerRequest, ListEventsRequest, ListServersRequest, ReactivateServerRequest, RebootServerRequest, ReconnectServerRequest, RevokeServerAccessRequest, UpdateDatabasePasswordRequest, UpdateServerRequest};
 use App\Integrations\Forge\Requests\Workers\{CreateWorkerRequest, DeleteWorkerRequest, GetWorkerOutputRequest, GetWorkerRequest, ListWorkersRequest, RestartWorkerRequest};
@@ -37,7 +35,6 @@ use App\Integrations\Forge\Requests\NginxTemplates\{CreateNginxTemplateRequest, 
 use App\Integrations\Forge\Data\SSHKeys\CreateSSHKeyData;
 use App\Integrations\Forge\Data\Webhooks\CreateWebhookData;
 use App\Integrations\Forge\Data\Workers\CreateWorkerData;
-use App\Integrations\Forge\Requests\Credentials\ListCredentialsRequest;
 use App\Integrations\Forge\Requests\User\GetUserRequest;
 
 function getHttpMethod(object $request): string
@@ -64,14 +61,14 @@ describe('Backups', function (): void {
     it('resolves ListBackupConfigurationsRequest endpoint and method', function (): void {
         $request = new ListBackupConfigurationsRequest(1);
 
-        expect($request->resolveEndpoint())->toBe('/servers/1/backup-configurations')
+        expect($request->resolveEndpoint())->toBe('/servers/1/database/backups')
             ->and(getHttpMethod($request))->toBe('GET');
     });
 
     it('resolves GetBackupConfigurationRequest endpoint and method', function (): void {
         $request = new GetBackupConfigurationRequest(1, 2);
 
-        expect($request->resolveEndpoint())->toBe('/servers/1/backup-configurations/2')
+        expect($request->resolveEndpoint())->toBe('/servers/1/database/backups/2')
             ->and(getHttpMethod($request))->toBe('GET');
     });
 
@@ -79,7 +76,7 @@ describe('Backups', function (): void {
         $data = CreateBackupConfigurationData::from(['provider' => 's3']);
         $request = new CreateBackupConfigurationRequest(1, $data);
 
-        expect($request->resolveEndpoint())->toBe('/servers/1/backup-configurations')
+        expect($request->resolveEndpoint())->toBe('/servers/1/database/backups')
             ->and(getHttpMethod($request))->toBe('POST');
     });
 
@@ -114,7 +111,7 @@ describe('Backups', function (): void {
         $data = UpdateBackupConfigurationData::from(['provider' => 's3']);
         $request = new UpdateBackupConfigurationRequest(1, 2, $data);
 
-        expect($request->resolveEndpoint())->toBe('/servers/1/backup-configurations/2')
+        expect($request->resolveEndpoint())->toBe('/servers/1/database/backups/2')
             ->and(getHttpMethod($request))->toBe('PUT');
     });
 
@@ -131,21 +128,21 @@ describe('Backups', function (): void {
     it('resolves DeleteBackupConfigurationRequest endpoint and method', function (): void {
         $request = new DeleteBackupConfigurationRequest(1, 2);
 
-        expect($request->resolveEndpoint())->toBe('/servers/1/backup-configurations/2')
+        expect($request->resolveEndpoint())->toBe('/servers/1/database/backups/2')
             ->and(getHttpMethod($request))->toBe('DELETE');
     });
 
     it('resolves RestoreBackupRequest endpoint and method', function (): void {
         $request = new RestoreBackupRequest(1, 2, 3);
 
-        expect($request->resolveEndpoint())->toBe('/servers/1/backup-configurations/2/backups/3/restore')
+        expect($request->resolveEndpoint())->toBe('/servers/1/database/backups/2/instances/3/restores')
             ->and(getHttpMethod($request))->toBe('POST');
     });
 
     it('resolves DeleteBackupRequest endpoint and method', function (): void {
         $request = new DeleteBackupRequest(1, 2, 3);
 
-        expect($request->resolveEndpoint())->toBe('/servers/1/backup-configurations/2/backups/3')
+        expect($request->resolveEndpoint())->toBe('/servers/1/database/backups/2/instances/3')
             ->and(getHttpMethod($request))->toBe('DELETE');
     });
 });
@@ -203,27 +200,18 @@ describe('Certificates', function (): void {
     });
 });
 
-describe('Credentials', function (): void {
-    it('resolves ListCredentialsRequest endpoint and method', function (): void {
-        $request = new ListCredentialsRequest();
-
-        expect($request->resolveEndpoint())->toBe('/credentials')
-            ->and(getHttpMethod($request))->toBe('GET');
-    });
-});
-
 describe('Daemons', function (): void {
     it('resolves ListDaemonsRequest endpoint and method', function (): void {
         $request = new ListDaemonsRequest(1);
 
-        expect($request->resolveEndpoint())->toBe('/servers/1/daemons')
+        expect($request->resolveEndpoint())->toBe('/servers/1/background-processes')
             ->and(getHttpMethod($request))->toBe('GET');
     });
 
     it('resolves GetDaemonRequest endpoint and method', function (): void {
         $request = new GetDaemonRequest(1, 2);
 
-        expect($request->resolveEndpoint())->toBe('/servers/1/daemons/2')
+        expect($request->resolveEndpoint())->toBe('/servers/1/background-processes/2')
             ->and(getHttpMethod($request))->toBe('GET');
     });
 
@@ -231,7 +219,7 @@ describe('Daemons', function (): void {
         $data = CreateDaemonData::from(['command' => 'php artisan queue:work', 'directory' => '/home/forge/app']);
         $request = new CreateDaemonRequest(1, $data);
 
-        expect($request->resolveEndpoint())->toBe('/servers/1/daemons')
+        expect($request->resolveEndpoint())->toBe('/servers/1/background-processes')
             ->and(getHttpMethod($request))->toBe('POST');
     });
 
@@ -250,14 +238,14 @@ describe('Daemons', function (): void {
     it('resolves RestartDaemonRequest endpoint and method', function (): void {
         $request = new RestartDaemonRequest(1, 2);
 
-        expect($request->resolveEndpoint())->toBe('/servers/1/daemons/2/restart')
+        expect($request->resolveEndpoint())->toBe('/servers/1/background-processes/2/actions')
             ->and(getHttpMethod($request))->toBe('POST');
     });
 
     it('resolves DeleteDaemonRequest endpoint and method', function (): void {
         $request = new DeleteDaemonRequest(1, 2);
 
-        expect($request->resolveEndpoint())->toBe('/servers/1/daemons/2')
+        expect($request->resolveEndpoint())->toBe('/servers/1/background-processes/2')
             ->and(getHttpMethod($request))->toBe('DELETE');
     });
 });
@@ -266,14 +254,14 @@ describe('Databases', function (): void {
     it('resolves ListDatabasesRequest endpoint and method', function (): void {
         $request = new ListDatabasesRequest(1);
 
-        expect($request->resolveEndpoint())->toBe('/servers/1/databases')
+        expect($request->resolveEndpoint())->toBe('/servers/1/database/schemas')
             ->and(getHttpMethod($request))->toBe('GET');
     });
 
     it('resolves GetDatabaseRequest endpoint and method', function (): void {
         $request = new GetDatabaseRequest(1, 2);
 
-        expect($request->resolveEndpoint())->toBe('/servers/1/databases/2')
+        expect($request->resolveEndpoint())->toBe('/servers/1/database/schemas/2')
             ->and(getHttpMethod($request))->toBe('GET');
     });
 
@@ -281,7 +269,7 @@ describe('Databases', function (): void {
         $data = CreateDatabaseData::from(['name' => 'forge_db']);
         $request = new CreateDatabaseRequest(1, $data);
 
-        expect($request->resolveEndpoint())->toBe('/servers/1/databases')
+        expect($request->resolveEndpoint())->toBe('/servers/1/database/schemas')
             ->and(getHttpMethod($request))->toBe('POST');
     });
 
@@ -299,21 +287,21 @@ describe('Databases', function (): void {
     it('resolves DeleteDatabaseRequest endpoint and method', function (): void {
         $request = new DeleteDatabaseRequest(1, 2);
 
-        expect($request->resolveEndpoint())->toBe('/servers/1/databases/2')
+        expect($request->resolveEndpoint())->toBe('/servers/1/database/schemas/2')
             ->and(getHttpMethod($request))->toBe('DELETE');
     });
 
     it('resolves ListDatabaseUsersRequest endpoint and method', function (): void {
         $request = new ListDatabaseUsersRequest(1);
 
-        expect($request->resolveEndpoint())->toBe('/servers/1/database-users')
+        expect($request->resolveEndpoint())->toBe('/servers/1/database/users')
             ->and(getHttpMethod($request))->toBe('GET');
     });
 
     it('resolves GetDatabaseUserRequest endpoint and method', function (): void {
         $request = new GetDatabaseUserRequest(1, 2);
 
-        expect($request->resolveEndpoint())->toBe('/servers/1/database-users/2')
+        expect($request->resolveEndpoint())->toBe('/servers/1/database/users/2')
             ->and(getHttpMethod($request))->toBe('GET');
     });
 
@@ -321,7 +309,7 @@ describe('Databases', function (): void {
         $data = CreateDatabaseUserData::from(['name' => 'forge_user', 'password' => 'secret']);
         $request = new CreateDatabaseUserRequest(1, $data);
 
-        expect($request->resolveEndpoint())->toBe('/servers/1/database-users')
+        expect($request->resolveEndpoint())->toBe('/servers/1/database/users')
             ->and(getHttpMethod($request))->toBe('POST');
     });
 
@@ -340,7 +328,7 @@ describe('Databases', function (): void {
         $data = UpdateDatabaseUserData::from(['databases' => [1, 2]]);
         $request = new UpdateDatabaseUserRequest(1, 2, $data);
 
-        expect($request->resolveEndpoint())->toBe('/servers/1/database-users/2')
+        expect($request->resolveEndpoint())->toBe('/servers/1/database/users/2')
             ->and(getHttpMethod($request))->toBe('PUT');
     });
 
@@ -355,14 +343,14 @@ describe('Databases', function (): void {
     it('resolves DeleteDatabaseUserRequest endpoint and method', function (): void {
         $request = new DeleteDatabaseUserRequest(1, 2);
 
-        expect($request->resolveEndpoint())->toBe('/servers/1/database-users/2')
+        expect($request->resolveEndpoint())->toBe('/servers/1/database/users/2')
             ->and(getHttpMethod($request))->toBe('DELETE');
     });
 
     it('resolves SyncDatabaseRequest endpoint and method', function (): void {
         $request = new SyncDatabaseRequest(1);
 
-        expect($request->resolveEndpoint())->toBe('/servers/1/databases/sync')
+        expect($request->resolveEndpoint())->toBe('/servers/1/database/schemas/synchronizations')
             ->and(getHttpMethod($request))->toBe('POST');
     });
 });
@@ -417,20 +405,20 @@ describe('Integrations', function (): void {
             ->and(getHttpMethod($request))->toBe('POST');
     });
 
-    it('builds EnableMaintenanceRequest body with no optional values', function (): void {
+    it('builds EnableMaintenanceRequest body with default status', function (): void {
         $request = new EnableMaintenanceRequest(1, 2);
         $body = getDefaultBody($request);
 
-        expect($body)->toBeEmpty();
+        expect($body)->toBe(['status' => 503]);
     });
 
-    it('builds EnableMaintenanceRequest body with secret and refresh', function (): void {
-        $request = new EnableMaintenanceRequest(1, 2, 'my-secret', '15');
+    it('builds EnableMaintenanceRequest body with secret and status', function (): void {
+        $request = new EnableMaintenanceRequest(1, 2, 'my-secret', 500);
         $body = getDefaultBody($request);
 
         expect($body)
             ->toHaveKey('secret', 'my-secret')
-            ->toHaveKey('refresh', '15');
+            ->toHaveKey('status', 500);
     });
 
     it('resolves EnableOctaneRequest endpoint and method', function (): void {
@@ -446,16 +434,16 @@ describe('Integrations', function (): void {
 
         expect($body)
             ->toHaveKey('server', 'swoole')
-            ->toHaveKey('workers', 'auto');
+            ->toHaveKey('port', 8000);
     });
 
     it('builds EnableOctaneRequest body with custom values', function (): void {
-        $request = new EnableOctaneRequest(1, 2, 'roadrunner', 4);
+        $request = new EnableOctaneRequest(1, 2, 'roadrunner', 9000);
         $body = getDefaultBody($request);
 
         expect($body)
             ->toHaveKey('server', 'roadrunner')
-            ->toHaveKey('workers', 4);
+            ->toHaveKey('port', 9000);
     });
 });
 
@@ -620,7 +608,7 @@ describe('Php', function (): void {
     it('resolves InstallPhpRequest endpoint and method', function (): void {
         $request = new InstallPhpRequest(1, 'php83');
 
-        expect($request->resolveEndpoint())->toBe('/servers/1/php')
+        expect($request->resolveEndpoint())->toBe('/servers/1/php/versions')
             ->and(getHttpMethod($request))->toBe('POST');
     });
 
@@ -634,7 +622,7 @@ describe('Php', function (): void {
     it('resolves UpdatePhpRequest endpoint and method', function (): void {
         $request = new UpdatePhpRequest(1, 'php83');
 
-        expect($request->resolveEndpoint())->toBe('/servers/1/php/update')
+        expect($request->resolveEndpoint())->toBe('/servers/1/php/versions')
             ->and(getHttpMethod($request))->toBe('POST');
     });
 
@@ -643,82 +631,6 @@ describe('Php', function (): void {
         $body = getDefaultBody($request);
 
         expect($body)->toBe(['version' => 'php83']);
-    });
-});
-
-describe('Recipes', function (): void {
-    it('resolves ListRecipesRequest endpoint and method', function (): void {
-        $request = new ListRecipesRequest();
-
-        expect($request->resolveEndpoint())->toBe('/recipes')
-            ->and(getHttpMethod($request))->toBe('GET');
-    });
-
-    it('resolves GetRecipeRequest endpoint and method', function (): void {
-        $request = new GetRecipeRequest(1);
-
-        expect($request->resolveEndpoint())->toBe('/recipes/1')
-            ->and(getHttpMethod($request))->toBe('GET');
-    });
-
-    it('resolves CreateRecipeRequest endpoint and method', function (): void {
-        $data = CreateRecipeData::from(['name' => 'Deploy', 'user' => 'forge', 'script' => 'echo hello']);
-        $request = new CreateRecipeRequest($data);
-
-        expect($request->resolveEndpoint())->toBe('/recipes')
-            ->and(getHttpMethod($request))->toBe('POST');
-    });
-
-    it('builds CreateRecipeRequest body', function (): void {
-        $data = CreateRecipeData::from(['name' => 'Deploy', 'user' => 'forge', 'script' => 'echo hello']);
-        $request = new CreateRecipeRequest($data);
-        $body = getDefaultBody($request);
-
-        expect($body)
-            ->toHaveKey('name', 'Deploy')
-            ->toHaveKey('user', 'forge')
-            ->toHaveKey('script', 'echo hello');
-    });
-
-    it('resolves UpdateRecipeRequest endpoint and method', function (): void {
-        $data = UpdateRecipeData::from(['name' => 'Updated']);
-        $request = new UpdateRecipeRequest(1, $data);
-
-        expect($request->resolveEndpoint())->toBe('/recipes/1')
-            ->and(getHttpMethod($request))->toBe('PUT');
-    });
-
-    it('builds UpdateRecipeRequest body filtering nulls', function (): void {
-        $data = UpdateRecipeData::from(['name' => 'Updated']);
-        $request = new UpdateRecipeRequest(1, $data);
-        $body = getDefaultBody($request);
-
-        expect($body)
-            ->toHaveKey('name', 'Updated')
-            ->not->toHaveKey('script');
-    });
-
-    it('resolves DeleteRecipeRequest endpoint and method', function (): void {
-        $request = new DeleteRecipeRequest(1);
-
-        expect($request->resolveEndpoint())->toBe('/recipes/1')
-            ->and(getHttpMethod($request))->toBe('DELETE');
-    });
-
-    it('resolves RunRecipeRequest endpoint and method', function (): void {
-        $data = RunRecipeData::from(['servers' => [1, 2]]);
-        $request = new RunRecipeRequest(1, $data);
-
-        expect($request->resolveEndpoint())->toBe('/recipes/1/run')
-            ->and(getHttpMethod($request))->toBe('POST');
-    });
-
-    it('builds RunRecipeRequest body', function (): void {
-        $data = RunRecipeData::from(['servers' => [1, 2]]);
-        $request = new RunRecipeRequest(1, $data);
-        $body = getDefaultBody($request);
-
-        expect($body)->toHaveKey('servers', [1, 2]);
     });
 });
 
@@ -877,8 +789,15 @@ describe('Servers', function (): void {
     it('resolves RebootServerRequest endpoint and method', function (): void {
         $request = new RebootServerRequest(1);
 
-        expect($request->resolveEndpoint())->toBe('/servers/1/reboot')
+        expect($request->resolveEndpoint())->toBe('/servers/1/actions')
             ->and(getHttpMethod($request))->toBe('POST');
+    });
+
+    it('builds RebootServerRequest body', function (): void {
+        $request = new RebootServerRequest(1);
+        $body = getDefaultBody($request);
+
+        expect($body)->toBe(['action' => 'reboot']);
     });
 
     it('resolves ListEventsRequest endpoint and method', function (): void {
@@ -925,28 +844,49 @@ describe('Servers', function (): void {
     it('resolves ReactivateServerRequest endpoint and method', function (): void {
         $request = new ReactivateServerRequest(1);
 
-        expect($request->resolveEndpoint())->toBe('/servers/1/reactivate')
+        expect($request->resolveEndpoint())->toBe('/servers/1/actions')
             ->and(getHttpMethod($request))->toBe('POST');
+    });
+
+    it('builds ReactivateServerRequest body', function (): void {
+        $request = new ReactivateServerRequest(1);
+        $body = getDefaultBody($request);
+
+        expect($body)->toBe(['action' => 'reactivate']);
     });
 
     it('resolves ReconnectServerRequest endpoint and method', function (): void {
         $request = new ReconnectServerRequest(1);
 
-        expect($request->resolveEndpoint())->toBe('/servers/1/reconnect')
+        expect($request->resolveEndpoint())->toBe('/servers/1/actions')
             ->and(getHttpMethod($request))->toBe('POST');
+    });
+
+    it('builds ReconnectServerRequest body', function (): void {
+        $request = new ReconnectServerRequest(1);
+        $body = getDefaultBody($request);
+
+        expect($body)->toBe(['action' => 'reconnect']);
     });
 
     it('resolves RevokeServerAccessRequest endpoint and method', function (): void {
         $request = new RevokeServerAccessRequest(1);
 
-        expect($request->resolveEndpoint())->toBe('/servers/1/revoke')
+        expect($request->resolveEndpoint())->toBe('/servers/1/actions')
             ->and(getHttpMethod($request))->toBe('POST');
+    });
+
+    it('builds RevokeServerAccessRequest body', function (): void {
+        $request = new RevokeServerAccessRequest(1);
+        $body = getDefaultBody($request);
+
+        expect($body)->toBe(['action' => 'revoke']);
     });
 
     it('resolves UpdateDatabasePasswordRequest endpoint and method', function (): void {
         $request = new UpdateDatabasePasswordRequest(1);
 
-        expect($request->resolveEndpoint())->toBe('/servers/1/database-password')
+        expect($request->resolveEndpoint())->toBe('/servers/1/database/password')
             ->and(getHttpMethod($request))->toBe('PUT');
     });
 
@@ -990,17 +930,17 @@ describe('Services', function (): void {
     });
 
     it('resolves ManageServiceRequest endpoint and method', function (): void {
-        $request = new ManageServiceRequest(1, 'restart', 'nginx');
+        $request = new ManageServiceRequest(1, 'nginx', 'restart');
 
-        expect($request->resolveEndpoint())->toBe('/servers/1/services/restart')
+        expect($request->resolveEndpoint())->toBe('/servers/1/services/nginx/actions')
             ->and(getHttpMethod($request))->toBe('POST');
     });
 
     it('builds ManageServiceRequest body', function (): void {
-        $request = new ManageServiceRequest(1, 'restart', 'nginx');
+        $request = new ManageServiceRequest(1, 'nginx', 'restart');
         $body = getDefaultBody($request);
 
-        expect($body)->toBe(['service' => 'nginx']);
+        expect($body)->toBe(['action' => 'restart']);
     });
 });
 
@@ -1132,7 +1072,7 @@ describe('Sites', function (): void {
     it('resolves DeploySiteRequest endpoint and method', function (): void {
         $request = new DeploySiteRequest(1, 2);
 
-        expect($request->resolveEndpoint())->toBe('/servers/1/sites/2/deployment/deploy')
+        expect($request->resolveEndpoint())->toBe('/servers/1/sites/2/deployments')
             ->and(getHttpMethod($request))->toBe('POST');
     });
 
@@ -1271,14 +1211,14 @@ describe('Sites', function (): void {
     it('resolves GetEnvFileRequest endpoint and method', function (): void {
         $request = new GetEnvFileRequest(1, 2);
 
-        expect($request->resolveEndpoint())->toBe('/servers/1/sites/2/env')
+        expect($request->resolveEndpoint())->toBe('/servers/1/sites/2/environment')
             ->and(getHttpMethod($request))->toBe('GET');
     });
 
     it('resolves UpdateEnvFileRequest endpoint and method', function (): void {
         $request = new UpdateEnvFileRequest(1, 2, 'APP_NAME=Laravel');
 
-        expect($request->resolveEndpoint())->toBe('/servers/1/sites/2/env')
+        expect($request->resolveEndpoint())->toBe('/servers/1/sites/2/environment')
             ->and(getHttpMethod($request))->toBe('PUT');
     });
 
@@ -1486,7 +1426,7 @@ describe('User', function (): void {
     it('resolves GetUserRequest endpoint and method', function (): void {
         $request = new GetUserRequest();
 
-        expect($request->resolveEndpoint())->toBe('/user')
+        expect($request->resolveEndpoint())->toBe('https://forge.laravel.com/api/user')
             ->and(getHttpMethod($request))->toBe('GET');
     });
 });

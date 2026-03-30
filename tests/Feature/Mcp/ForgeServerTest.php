@@ -19,7 +19,10 @@ use App\Integrations\Forge\ForgeClient;
 use App\Integrations\Forge\Resources\{CertificateResource, ServerResource, SiteResource};
 
 beforeEach(function (): void {
-    config(['services.forge.api_token' => 'test-token']);
+    config([
+        'services.forge.api_token' => 'test-token',
+        'services.forge.organization' => 'test-org',
+    ]);
 });
 
 // Helper functions to create mock DTOs

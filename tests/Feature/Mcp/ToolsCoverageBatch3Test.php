@@ -4,28 +4,28 @@ declare(strict_types=1);
 
 use App\Integrations\Forge\Data\Monitors\{MonitorCollectionData, MonitorData};
 use App\Integrations\Forge\Data\NginxTemplates\{NginxTemplateCollectionData, NginxTemplateData};
-use App\Integrations\Forge\Data\Recipes\{RecipeCollectionData, RecipeData};
 use App\Integrations\Forge\Data\RedirectRules\{RedirectRuleCollectionData, RedirectRuleData};
 use App\Integrations\Forge\Data\SecurityRules\{SecurityRuleCollectionData, SecurityRuleData};
 use App\Integrations\Forge\Data\SSHKeys\{SSHKeyCollectionData, SSHKeyData};
 use App\Integrations\Forge\Data\User\UserData;
 use App\Integrations\Forge\Data\Webhooks\{WebhookCollectionData, WebhookData};
 use App\Integrations\Forge\ForgeClient;
-use App\Integrations\Forge\Resources\{MonitorResource, NginxTemplateResource, PhpResource, RecipeResource, RedirectRuleResource, RegionResource, SecurityRuleResource, SSHKeyResource, UserResource, WebhookResource};
+use App\Integrations\Forge\Resources\{MonitorResource, NginxTemplateResource, PhpResource, RedirectRuleResource, SecurityRuleResource, SSHKeyResource, UserResource, WebhookResource};
 use App\Mcp\Servers\ForgeServer;
 use App\Mcp\Tools\Monitors\{CreateMonitorTool, DeleteMonitorTool, GetMonitorTool, ListMonitorsTool};
 use App\Mcp\Tools\NginxTemplates\{CreateNginxTemplateTool, DeleteNginxTemplateTool, GetNginxDefaultTemplateTool, GetNginxTemplateTool, ListNginxTemplatesTool, UpdateNginxTemplateTool};
 use App\Mcp\Tools\Php\{DisableOpcacheTool, EnableOpcacheTool, InstallPhpTool, ListPhpVersionsTool, UpdatePhpTool};
-use App\Mcp\Tools\Recipes\{CreateRecipeTool, DeleteRecipeTool, GetRecipeTool, ListRecipesTool, RunRecipeTool, UpdateRecipeTool};
 use App\Mcp\Tools\RedirectRules\{CreateRedirectRuleTool, DeleteRedirectRuleTool, GetRedirectRuleTool, ListRedirectRulesTool};
-use App\Mcp\Tools\Regions\ListRegionsTool;
 use App\Mcp\Tools\SecurityRules\{CreateSecurityRuleTool, DeleteSecurityRuleTool, GetSecurityRuleTool, ListSecurityRulesTool};
 use App\Mcp\Tools\SSHKeys\{CreateSSHKeyTool, DeleteSSHKeyTool, GetSSHKeyTool, ListSSHKeysTool};
 use App\Mcp\Tools\User\GetUserTool;
 use App\Mcp\Tools\Webhooks\{CreateWebhookTool, DeleteWebhookTool, GetWebhookTool, ListWebhooksTool};
 
 beforeEach(function (): void {
-    config(['services.forge.api_token' => 'test-token']);
+    config([
+        'services.forge.api_token' => 'test-token',
+        'services.forge.organization' => 'test-org',
+    ]);
 });
 
 // ──────────────────────────────────────────────
@@ -752,297 +752,6 @@ describe('DisableOpcacheTool', function (): void {
 });
 
 // ──────────────────────────────────────────────
-// Recipes
-// ──────────────────────────────────────────────
-
-describe('ListRecipesTool', function (): void {
-    it('lists recipes successfully', function (): void {
-        $recipeData = RecipeData::from([
-            'id' => 1,
-            'key' => 'abc123',
-            'name' => 'Deploy Script',
-            'user' => 'root',
-            'created_at' => '2024-01-01T00:00:00Z',
-        ]);
-
-        $this->mock(ForgeClient::class, function (Mockery\MockInterface $mock) use ($recipeData): void {
-            $resource = Mockery::mock(RecipeResource::class);
-            $resource->shouldReceive('list')
-                ->once()
-                ->andReturn(new RecipeCollectionData(recipes: [$recipeData]));
-            $mock->shouldReceive('recipes')->once()->andReturn($resource);
-        });
-
-        $response = ForgeServer::tool(ListRecipesTool::class, []);
-
-        $response
-            ->assertOk()
-            ->assertSee('"success": true')
-            ->assertSee('"count": 1');
-    });
-
-    it('handles API errors gracefully', function (): void {
-        $this->mock(ForgeClient::class, function (Mockery\MockInterface $mock): void {
-            $resource = Mockery::mock(RecipeResource::class);
-            $resource->shouldReceive('list')
-                ->once()
-                ->andThrow(new Exception('API Error'));
-            $mock->shouldReceive('recipes')->once()->andReturn($resource);
-        });
-
-        $response = ForgeServer::tool(ListRecipesTool::class, []);
-
-        $response
-            ->assertOk()
-            ->assertSee('"success": false');
-    });
-});
-
-describe('GetRecipeTool', function (): void {
-    it('validates required parameters', function (): void {
-        $response = ForgeServer::tool(GetRecipeTool::class, []);
-        $response->assertHasErrors();
-    });
-
-    it('gets recipe successfully', function (): void {
-        $recipeData = RecipeData::from([
-            'id' => 5,
-            'key' => 'xyz789',
-            'name' => 'Setup Script',
-            'user' => 'forge',
-            'created_at' => '2024-01-01T00:00:00Z',
-        ]);
-
-        $this->mock(ForgeClient::class, function (Mockery\MockInterface $mock) use ($recipeData): void {
-            $resource = Mockery::mock(RecipeResource::class);
-            $resource->shouldReceive('get')
-                ->with(5)
-                ->once()
-                ->andReturn($recipeData);
-            $mock->shouldReceive('recipes')->once()->andReturn($resource);
-        });
-
-        $response = ForgeServer::tool(GetRecipeTool::class, ['recipe_id' => 5]);
-
-        $response
-            ->assertOk()
-            ->assertSee('"success": true')
-            ->assertSee('Setup Script');
-    });
-
-    it('handles API errors gracefully', function (): void {
-        $this->mock(ForgeClient::class, function (Mockery\MockInterface $mock): void {
-            $resource = Mockery::mock(RecipeResource::class);
-            $resource->shouldReceive('get')
-                ->once()
-                ->andThrow(new Exception('Not found'));
-            $mock->shouldReceive('recipes')->once()->andReturn($resource);
-        });
-
-        $response = ForgeServer::tool(GetRecipeTool::class, ['recipe_id' => 999]);
-
-        $response
-            ->assertOk()
-            ->assertSee('"success": false');
-    });
-});
-
-describe('CreateRecipeTool', function (): void {
-    it('validates required parameters', function (): void {
-        $response = ForgeServer::tool(CreateRecipeTool::class, []);
-        $response->assertHasErrors();
-    });
-
-    it('creates recipe successfully', function (): void {
-        $recipeData = RecipeData::from([
-            'id' => 10,
-            'key' => 'new123',
-            'name' => 'New Recipe',
-            'user' => 'root',
-            'created_at' => '2024-01-01T00:00:00Z',
-        ]);
-
-        $this->mock(ForgeClient::class, function (Mockery\MockInterface $mock) use ($recipeData): void {
-            $resource = Mockery::mock(RecipeResource::class);
-            $resource->shouldReceive('create')
-                ->once()
-                ->andReturn($recipeData);
-            $mock->shouldReceive('recipes')->once()->andReturn($resource);
-        });
-
-        $response = ForgeServer::tool(CreateRecipeTool::class, [
-            'name' => 'New Recipe',
-            'user' => 'root',
-            'script' => 'echo "hello"',
-        ]);
-
-        $response
-            ->assertOk()
-            ->assertSee('"success": true')
-            ->assertSee('Recipe created successfully');
-    });
-
-    it('handles API errors gracefully', function (): void {
-        $this->mock(ForgeClient::class, function (Mockery\MockInterface $mock): void {
-            $resource = Mockery::mock(RecipeResource::class);
-            $resource->shouldReceive('create')
-                ->once()
-                ->andThrow(new Exception('API Error'));
-            $mock->shouldReceive('recipes')->once()->andReturn($resource);
-        });
-
-        $response = ForgeServer::tool(CreateRecipeTool::class, [
-            'name' => 'New Recipe',
-            'user' => 'root',
-            'script' => 'echo "hello"',
-        ]);
-
-        $response
-            ->assertOk()
-            ->assertSee('"success": false');
-    });
-});
-
-describe('UpdateRecipeTool', function (): void {
-    it('validates required parameters', function (): void {
-        $response = ForgeServer::tool(UpdateRecipeTool::class, []);
-        $response->assertHasErrors();
-    });
-
-    it('updates recipe successfully', function (): void {
-        $recipeData = RecipeData::from([
-            'id' => 5,
-            'key' => 'upd123',
-            'name' => 'Updated Recipe',
-            'user' => 'forge',
-            'created_at' => '2024-01-01T00:00:00Z',
-        ]);
-
-        $this->mock(ForgeClient::class, function (Mockery\MockInterface $mock) use ($recipeData): void {
-            $resource = Mockery::mock(RecipeResource::class);
-            $resource->shouldReceive('update')
-                ->once()
-                ->andReturn($recipeData);
-            $mock->shouldReceive('recipes')->once()->andReturn($resource);
-        });
-
-        $response = ForgeServer::tool(UpdateRecipeTool::class, [
-            'recipe_id' => 5,
-            'name' => 'Updated Recipe',
-        ]);
-
-        $response
-            ->assertOk()
-            ->assertSee('"success": true')
-            ->assertSee('Recipe updated successfully');
-    });
-
-    it('handles API errors gracefully', function (): void {
-        $this->mock(ForgeClient::class, function (Mockery\MockInterface $mock): void {
-            $resource = Mockery::mock(RecipeResource::class);
-            $resource->shouldReceive('update')
-                ->once()
-                ->andThrow(new Exception('API Error'));
-            $mock->shouldReceive('recipes')->once()->andReturn($resource);
-        });
-
-        $response = ForgeServer::tool(UpdateRecipeTool::class, [
-            'recipe_id' => 5,
-            'name' => 'Updated Recipe',
-        ]);
-
-        $response
-            ->assertOk()
-            ->assertSee('"success": false');
-    });
-});
-
-describe('DeleteRecipeTool', function (): void {
-    it('validates required parameters', function (): void {
-        $response = ForgeServer::tool(DeleteRecipeTool::class, []);
-        $response->assertHasErrors();
-    });
-
-    it('deletes recipe successfully', function (): void {
-        $this->mock(ForgeClient::class, function (Mockery\MockInterface $mock): void {
-            $resource = Mockery::mock(RecipeResource::class);
-            $resource->shouldReceive('delete')
-                ->with(5)
-                ->once();
-            $mock->shouldReceive('recipes')->once()->andReturn($resource);
-        });
-
-        $response = ForgeServer::tool(DeleteRecipeTool::class, ['recipe_id' => 5]);
-
-        $response
-            ->assertOk()
-            ->assertSee('"success": true')
-            ->assertSee('deleted successfully');
-    });
-
-    it('handles API errors gracefully', function (): void {
-        $this->mock(ForgeClient::class, function (Mockery\MockInterface $mock): void {
-            $resource = Mockery::mock(RecipeResource::class);
-            $resource->shouldReceive('delete')
-                ->once()
-                ->andThrow(new Exception('API Error'));
-            $mock->shouldReceive('recipes')->once()->andReturn($resource);
-        });
-
-        $response = ForgeServer::tool(DeleteRecipeTool::class, ['recipe_id' => 5]);
-
-        $response
-            ->assertOk()
-            ->assertSee('"success": false');
-    });
-});
-
-describe('RunRecipeTool', function (): void {
-    it('validates required parameters', function (): void {
-        $response = ForgeServer::tool(RunRecipeTool::class, []);
-        $response->assertHasErrors();
-    });
-
-    it('runs recipe successfully', function (): void {
-        $this->mock(ForgeClient::class, function (Mockery\MockInterface $mock): void {
-            $resource = Mockery::mock(RecipeResource::class);
-            $resource->shouldReceive('run')
-                ->once();
-            $mock->shouldReceive('recipes')->once()->andReturn($resource);
-        });
-
-        $response = ForgeServer::tool(RunRecipeTool::class, [
-            'recipe_id' => 5,
-            'servers' => [1, 2, 3],
-        ]);
-
-        $response
-            ->assertOk()
-            ->assertSee('"success": true')
-            ->assertSee('Recipe execution started');
-    });
-
-    it('handles API errors gracefully', function (): void {
-        $this->mock(ForgeClient::class, function (Mockery\MockInterface $mock): void {
-            $resource = Mockery::mock(RecipeResource::class);
-            $resource->shouldReceive('run')
-                ->once()
-                ->andThrow(new Exception('API Error'));
-            $mock->shouldReceive('recipes')->once()->andReturn($resource);
-        });
-
-        $response = ForgeServer::tool(RunRecipeTool::class, [
-            'recipe_id' => 5,
-            'servers' => [1],
-        ]);
-
-        $response
-            ->assertOk()
-            ->assertSee('"success": false');
-    });
-});
-
-// ──────────────────────────────────────────────
 // RedirectRules
 // ──────────────────────────────────────────────
 
@@ -1260,45 +969,6 @@ describe('DeleteRedirectRuleTool', function (): void {
             'site_id' => 200,
             'rule_id' => 5,
         ]);
-
-        $response
-            ->assertOk()
-            ->assertSee('"success": false');
-    });
-});
-
-// ──────────────────────────────────────────────
-// Regions
-// ──────────────────────────────────────────────
-
-describe('ListRegionsTool', function (): void {
-    it('lists regions successfully', function (): void {
-        $this->mock(ForgeClient::class, function (Mockery\MockInterface $mock): void {
-            $resource = Mockery::mock(RegionResource::class);
-            $resource->shouldReceive('list')
-                ->once()
-                ->andReturn([['id' => 'nyc1', 'name' => 'New York 1']]);
-            $mock->shouldReceive('regions')->once()->andReturn($resource);
-        });
-
-        $response = ForgeServer::tool(ListRegionsTool::class, []);
-
-        $response
-            ->assertOk()
-            ->assertSee('"success": true')
-            ->assertSee('nyc1');
-    });
-
-    it('handles API errors gracefully', function (): void {
-        $this->mock(ForgeClient::class, function (Mockery\MockInterface $mock): void {
-            $resource = Mockery::mock(RegionResource::class);
-            $resource->shouldReceive('list')
-                ->once()
-                ->andThrow(new Exception('API Error'));
-            $mock->shouldReceive('regions')->once()->andReturn($resource);
-        });
-
-        $response = ForgeServer::tool(ListRegionsTool::class, []);
 
         $response
             ->assertOk()

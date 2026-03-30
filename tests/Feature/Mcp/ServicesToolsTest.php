@@ -8,7 +8,10 @@ use App\Mcp\Servers\ForgeServer;
 use App\Mcp\Tools\Services\{InstallBlackfireTool, InstallPapertrailTool, RebootMysqlTool, RebootNginxTool, RebootPhpTool, RebootPostgresTool, RemoveBlackfireTool, RemovePapertrailTool, RestartServiceTool, StartServiceTool, StopMysqlTool, StopNginxTool, StopPostgresTool, StopServiceTool, TestNginxTool};
 
 beforeEach(function (): void {
-    config(['services.forge.api_token' => 'test-token']);
+    config([
+        'services.forge.api_token' => 'test-token',
+        'services.forge.organization' => 'test-org',
+    ]);
 });
 
 describe('RebootNginxTool', function (): void {

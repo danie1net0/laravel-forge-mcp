@@ -9,7 +9,10 @@ use App\Integrations\Forge\Resources\{DatabaseResource, DatabaseUserResource};
 use App\Integrations\Forge\Data\Databases\{CreateDatabaseData, CreateDatabaseUserData, DatabaseCollectionData, DatabaseData, DatabaseUserCollectionData, DatabaseUserData, UpdateDatabaseUserData};
 
 beforeEach(function (): void {
-    config(['services.forge.api_token' => 'test-token']);
+    config([
+        'services.forge.api_token' => 'test-token',
+        'services.forge.organization' => 'test-org',
+    ]);
 });
 
 function createMockDatabase(int $id = 1, string $name = 'forge'): DatabaseData

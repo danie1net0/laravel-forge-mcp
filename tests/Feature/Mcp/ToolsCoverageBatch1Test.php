@@ -10,15 +10,16 @@ use App\Mcp\Tools\Daemons\{CreateDaemonTool, DeleteDaemonTool, GetDaemonTool, Li
 use App\Mcp\Tools\Commands\{ExecuteSiteCommandTool, GetSiteCommandTool, ListCommandHistoryTool};
 use App\Mcp\Tools\Certificates\{ActivateCertificateTool, DeleteCertificateTool, GetCertificateSigningRequestTool, GetCertificateTool, InstallCertificateTool, ListCertificatesTool, ObtainLetsEncryptCertificateTool};
 use App\Mcp\Tools\Configuration\{GetEnvFileTool, GetNginxConfigTool, UpdateEnvFileTool, UpdateNginxConfigTool};
-use App\Integrations\Forge\Resources\{BackupResource, CertificateResource, CredentialResource, DaemonResource, SiteResource};
+use App\Integrations\Forge\Resources\{BackupResource, CertificateResource, DaemonResource, SiteResource};
 use App\Integrations\Forge\Data\Backups\{BackupConfigurationCollectionData, BackupConfigurationData, CreateBackupConfigurationData, UpdateBackupConfigurationData};
 use App\Integrations\Forge\Data\Daemons\{CreateDaemonData, DaemonCollectionData, DaemonData};
-use App\Integrations\Forge\Data\Credentials\{CredentialCollectionData, CredentialData};
 use App\Integrations\Forge\Data\Certificates\{CertificateCollectionData, CertificateData, ObtainLetsEncryptCertificateData};
-use App\Mcp\Tools\Credentials\ListCredentialsTool;
 
 beforeEach(function (): void {
-    config(['services.forge.api_token' => 'test-token']);
+    config([
+        'services.forge.api_token' => 'test-token',
+        'services.forge.organization' => 'test-org',
+    ]);
 });
 
 function createMockBackupConfiguration(int $id = 1, string $provider = 's3'): BackupConfigurationData
@@ -50,15 +51,6 @@ function createMockCertificateForBatch(int $id = 1, string $domain = 'example.co
         'expires_at' => '2025-01-01T00:00:00Z',
         'created_at' => '2024-01-01T00:00:00Z',
         'activation_error' => null,
-    ]);
-}
-
-function createMockCredential(int $id = 1): CredentialData
-{
-    return CredentialData::from([
-        'id' => $id,
-        'name' => 'DigitalOcean Production',
-        'type' => 'ocean2',
     ]);
 }
 
@@ -1128,62 +1120,6 @@ describe('UpdateNginxConfigTool', function (): void {
         ]);
 
         $response->assertOk()->assertSee('"success": false')->assertSee('Invalid nginx config');
-    });
-});
-
-// ============================================================
-// CREDENTIALS
-// ============================================================
-
-describe('ListCredentialsTool', function (): void {
-    it('lists credentials successfully', function (): void {
-        $mockCredential = createMockCredential();
-        $collection = new CredentialCollectionData(credentials: [$mockCredential]);
-
-        $this->mock(ForgeClient::class, function (Mockery\MockInterface $mock) use ($collection): void {
-            $credentialResource = Mockery::mock(CredentialResource::class);
-            $credentialResource->shouldReceive('list')->once()->andReturn($collection);
-            $mock->shouldReceive('credentials')->once()->andReturn($credentialResource);
-        });
-
-        $response = ForgeServer::tool(ListCredentialsTool::class, []);
-
-        $response->assertOk()
-            ->assertSee('"success": true')
-            ->assertSee('DigitalOcean Production')
-            ->assertSee('ocean2')
-            ->assertSee('"count": 1');
-    });
-
-    it('returns empty list when no credentials exist', function (): void {
-        $collection = new CredentialCollectionData(credentials: []);
-
-        $this->mock(ForgeClient::class, function (Mockery\MockInterface $mock) use ($collection): void {
-            $credentialResource = Mockery::mock(CredentialResource::class);
-            $credentialResource->shouldReceive('list')->once()->andReturn($collection);
-            $mock->shouldReceive('credentials')->once()->andReturn($credentialResource);
-        });
-
-        $response = ForgeServer::tool(ListCredentialsTool::class, []);
-
-        $response->assertOk()
-            ->assertSee('"success": true')
-            ->assertSee('"count": 0');
-    });
-
-    it('handles API errors gracefully', function (): void {
-        $this->mock(ForgeClient::class, function (Mockery\MockInterface $mock): void {
-            $credentialResource = Mockery::mock(CredentialResource::class);
-            $credentialResource->shouldReceive('list')->once()->andThrow(new Exception('Unauthorized'));
-            $mock->shouldReceive('credentials')->once()->andReturn($credentialResource);
-        });
-
-        $response = ForgeServer::tool(ListCredentialsTool::class, []);
-
-        $response->assertOk()
-            ->assertSee('"success": false')
-            ->assertSee('Unauthorized')
-            ->assertSee('Failed to retrieve credentials');
     });
 });
 

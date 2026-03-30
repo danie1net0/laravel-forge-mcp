@@ -8,7 +8,10 @@ use App\Mcp\Servers\ForgeServer;
 use App\Mcp\Tools\Integrations\{DisableHorizonTool, DisableInertiaTool, DisableMaintenanceTool, DisableOctaneTool, DisablePulseTool, DisableReverbTool, DisableSchedulerTool, EnableHorizonTool, EnableInertiaTool, EnableMaintenanceTool, EnableOctaneTool, EnablePulseTool, EnableReverbTool, EnableSchedulerTool, GetHorizonTool, GetInertiaTool, GetMaintenanceTool, GetOctaneTool, GetPulseTool, GetReverbTool};
 
 beforeEach(function (): void {
-    config(['services.forge.api_token' => 'test-token']);
+    config([
+        'services.forge.api_token' => 'test-token',
+        'services.forge.organization' => 'test-org',
+    ]);
 });
 
 describe('GetHorizonTool', function (): void {
@@ -119,7 +122,7 @@ describe('EnableOctaneTool', function (): void {
     it('enables octane successfully', function (): void {
         $this->mock(ForgeClient::class, function ($mock): void {
             $integrationResource = Mockery::mock(IntegrationResource::class);
-            $integrationResource->shouldReceive('enableOctane')->with(1, 1, 'swoole', 'auto')->once();
+            $integrationResource->shouldReceive('enableOctane')->with(1, 1, 'swoole', 8000)->once();
             $mock->shouldReceive('integrations')->once()->andReturn($integrationResource);
         });
 
@@ -404,7 +407,7 @@ describe('EnableMaintenanceTool', function (): void {
     it('enables maintenance mode successfully', function (): void {
         $this->mock(ForgeClient::class, function ($mock): void {
             $integrationResource = Mockery::mock(IntegrationResource::class);
-            $integrationResource->shouldReceive('enableMaintenance')->with(1, 1, null, null)->once();
+            $integrationResource->shouldReceive('enableMaintenance')->with(1, 1, null, 503)->once();
             $mock->shouldReceive('integrations')->once()->andReturn($integrationResource);
         });
 

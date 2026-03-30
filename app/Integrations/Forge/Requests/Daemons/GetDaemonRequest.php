@@ -20,7 +20,7 @@ class GetDaemonRequest extends Request
 
     public function resolveEndpoint(): string
     {
-        return "/servers/{$this->serverId}/daemons/{$this->daemonId}";
+        return "/servers/{$this->serverId}/background-processes/{$this->daemonId}";
     }
 
     public function createDtoFromResponse(Response $response): DaemonData

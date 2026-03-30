@@ -19,7 +19,7 @@ class ListDatabaseUsersRequest extends Request
 
     public function resolveEndpoint(): string
     {
-        return "/servers/{$this->serverId}/database-users";
+        return "/servers/{$this->serverId}/database/users";
     }
 
     public function createDtoFromResponse(Response $response): DatabaseUserCollectionData

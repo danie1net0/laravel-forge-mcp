@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Integrations\Forge;
 
 use Saloon\Http\Auth\TokenAuthenticator;
@@ -11,20 +13,24 @@ class ForgeConnector extends Connector
     use AcceptsJson;
     use AlwaysThrowOnErrors;
 
+    public bool $allowBaseUrlOverride = true;
+
+    protected ?string $response = ForgeResponse::class;
+
     public function __construct(
-        protected string $apiToken
+        protected string $apiToken,
+        protected string $organization,
     ) {
     }
 
     public function resolveBaseUrl(): string
     {
-        return 'https://forge.laravel.com/api/v1';
+        return "https://forge.laravel.com/api/orgs/{$this->organization}";
     }
 
     protected function defaultHeaders(): array
     {
         return [
-            'Accept' => 'application/json',
             'Content-Type' => 'application/json',
         ];
     }

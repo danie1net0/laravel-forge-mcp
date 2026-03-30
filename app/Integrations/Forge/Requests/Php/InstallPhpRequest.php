@@ -23,7 +23,7 @@ class InstallPhpRequest extends Request implements HasBody
 
     public function resolveEndpoint(): string
     {
-        return "/servers/{$this->serverId}/php";
+        return "/servers/{$this->serverId}/php/versions";
     }
 
     protected function defaultBody(): array

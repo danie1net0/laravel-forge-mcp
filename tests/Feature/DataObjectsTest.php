@@ -6,7 +6,6 @@ use App\Integrations\Forge\Data\Deployments\DeploymentData;
 use App\Integrations\Forge\Data\Jobs\{JobData};
 use App\Integrations\Forge\Data\Sites\{CreateSiteData, SiteData};
 use App\Integrations\Forge\Data\Daemons\{DaemonData};
-use App\Integrations\Forge\Data\Recipes\{RecipeData};
 use App\Integrations\Forge\Data\SSHKeys\{SSHKeyData};
 use App\Integrations\Forge\Data\Servers\{CreateServerData, EventData, ServerData};
 use App\Integrations\Forge\Data\Workers\{CreateWorkerData, WorkerData};
@@ -430,22 +429,6 @@ describe('MonitorData', function (): void {
         expect($data->type)->toBe('disk');
         expect($data->threshold)->toBe(90);
         expect($data->stateChangedAt)->toBe('2024-01-01T00:00:00Z');
-    });
-});
-
-describe('RecipeData', function (): void {
-    it('creates from array', function (): void {
-        $data = RecipeData::from([
-            'id' => 1,
-            'key' => 'deploy-script',
-            'name' => 'Deploy',
-            'user' => 'forge',
-            'created_at' => '2024-01-01T00:00:00Z',
-        ]);
-
-        expect($data->id)->toBe(1);
-        expect($data->name)->toBe('Deploy');
-        expect($data->key)->toBe('deploy-script');
     });
 });
 

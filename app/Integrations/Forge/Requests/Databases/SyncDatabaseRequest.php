@@ -18,6 +18,6 @@ class SyncDatabaseRequest extends Request
 
     public function resolveEndpoint(): string
     {
-        return "/servers/{$this->serverId}/databases/sync";
+        return "/servers/{$this->serverId}/database/schemas/synchronizations";
     }
 }

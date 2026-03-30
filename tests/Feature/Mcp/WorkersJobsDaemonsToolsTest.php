@@ -13,7 +13,10 @@ use App\Integrations\Forge\Data\Daemons\{CreateDaemonData, DaemonCollectionData,
 use App\Integrations\Forge\Data\Workers\{CreateWorkerData, WorkerCollectionData, WorkerData};
 
 beforeEach(function (): void {
-    config(['services.forge.api_token' => 'test-token']);
+    config([
+        'services.forge.api_token' => 'test-token',
+        'services.forge.organization' => 'test-org',
+    ]);
 });
 
 function createMockWorker(int $id = 1): WorkerData

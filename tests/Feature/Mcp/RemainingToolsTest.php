@@ -4,11 +4,9 @@ declare(strict_types=1);
 
 use App\Integrations\Forge\ForgeClient;
 use App\Mcp\Servers\ForgeServer;
-use App\Mcp\Tools\Credentials\ListCredentialsTool;
 use App\Mcp\Tools\Git\{CreateDeployKeyTool, DestroyDeployKeyTool, DestroyGitRepositoryTool, InstallGitRepositoryTool, UpdateGitRepositoryTool};
 use App\Mcp\Tools\Php\{DisableOpcacheTool, EnableOpcacheTool, InstallPhpTool, ListPhpVersionsTool, UpdatePhpTool};
 use App\Mcp\Tools\Backups\{CreateBackupConfigurationTool, DeleteBackupConfigurationTool, DeleteBackupTool, GetBackupConfigurationTool, ListBackupConfigurationsTool, RestoreBackupTool, UpdateBackupConfigurationTool};
-use App\Mcp\Tools\Recipes\{CreateRecipeTool, DeleteRecipeTool, GetRecipeTool, ListRecipesTool, RunRecipeTool, UpdateRecipeTool};
 use App\Mcp\Tools\SSHKeys\{CreateSSHKeyTool, DeleteSSHKeyTool, GetSSHKeyTool, ListSSHKeysTool};
 use App\Mcp\Tools\Commands\{ExecuteSiteCommandTool, GetSiteCommandTool, ListCommandHistoryTool};
 use App\Mcp\Tools\Firewall\{CreateFirewallRuleTool, DeleteFirewallRuleTool, GetFirewallRuleTool, ListFirewallRulesTool};
@@ -18,9 +16,8 @@ use App\Mcp\Tools\Configuration\{GetEnvFileTool, GetNginxConfigTool, UpdateEnvFi
 use App\Mcp\Tools\RedirectRules\{CreateRedirectRuleTool, DeleteRedirectRuleTool, GetRedirectRuleTool, ListRedirectRulesTool};
 use App\Mcp\Tools\SecurityRules\{CreateSecurityRuleTool, DeleteSecurityRuleTool, GetSecurityRuleTool, ListSecurityRulesTool};
 use App\Mcp\Tools\NginxTemplates\{CreateNginxTemplateTool, DeleteNginxTemplateTool, GetNginxDefaultTemplateTool, GetNginxTemplateTool, ListNginxTemplatesTool, UpdateNginxTemplateTool};
-use App\Integrations\Forge\Resources\{BackupResource, CredentialResource, FirewallResource, MonitorResource, NginxTemplateResource, PhpResource, RecipeResource, RedirectRuleResource, RegionResource, SSHKeyResource, SecurityRuleResource, SiteResource, UserResource, WebhookResource};
+use App\Integrations\Forge\Resources\{BackupResource, FirewallResource, MonitorResource, NginxTemplateResource, PhpResource, RedirectRuleResource, SSHKeyResource, SecurityRuleResource, SiteResource, UserResource, WebhookResource};
 use App\Integrations\Forge\Data\Backups\{BackupConfigurationCollectionData, BackupConfigurationData};
-use App\Integrations\Forge\Data\Recipes\{RecipeCollectionData, RecipeData};
 use App\Integrations\Forge\Data\SSHKeys\{SSHKeyCollectionData, SSHKeyData};
 use App\Integrations\Forge\Data\Firewall\{FirewallRuleCollectionData, FirewallRuleData};
 use App\Integrations\Forge\Data\Monitors\{MonitorCollectionData, MonitorData};
@@ -28,11 +25,13 @@ use App\Integrations\Forge\Data\Webhooks\{WebhookCollectionData, WebhookData};
 use App\Integrations\Forge\Data\RedirectRules\{RedirectRuleCollectionData, RedirectRuleData};
 use App\Integrations\Forge\Data\SecurityRules\{SecurityRuleCollectionData, SecurityRuleData};
 use App\Integrations\Forge\Data\NginxTemplates\{NginxTemplateCollectionData, NginxTemplateData};
-use App\Mcp\Tools\Regions\ListRegionsTool;
 use App\Mcp\Tools\User\GetUserTool;
 
 beforeEach(function (): void {
-    config(['services.forge.api_token' => 'test-token']);
+    config([
+        'services.forge.api_token' => 'test-token',
+        'services.forge.organization' => 'test-org',
+    ]);
 });
 
 describe('ListFirewallRulesTool', function (): void {
@@ -165,25 +164,6 @@ describe('ListMonitorsTool', function (): void {
 
         $response = ForgeServer::tool(ListMonitorsTool::class, ['server_id' => 1]);
         $response->assertOk()->assertSee('disk');
-    });
-});
-
-describe('ListRecipesTool', function (): void {
-    it('lists recipes successfully', function (): void {
-        $mockRecipe = RecipeData::from([
-            'id' => 1, 'key' => null, 'name' => 'Deploy', 'user' => 'forge',
-            'created_at' => '2024-01-01T00:00:00Z',
-        ]);
-        $collection = new RecipeCollectionData(recipes: [$mockRecipe]);
-
-        $this->mock(ForgeClient::class, function ($mock) use ($collection): void {
-            $resource = Mockery::mock(RecipeResource::class);
-            $resource->shouldReceive('list')->once()->andReturn($collection);
-            $mock->shouldReceive('recipes')->once()->andReturn($resource);
-        });
-
-        $response = ForgeServer::tool(ListRecipesTool::class, []);
-        $response->assertOk()->assertSee('Deploy');
     });
 });
 
@@ -366,41 +346,6 @@ describe('ListPhpVersionsTool', function (): void {
     });
 });
 
-describe('ListRegionsTool', function (): void {
-    it('lists regions successfully', function (): void {
-        $this->mock(ForgeClient::class, function ($mock): void {
-            $resource = Mockery::mock(RegionResource::class);
-            $resource->shouldReceive('list')->once()->andReturn([
-                'ocean2' => ['nyc1' => 'New York 1', 'sfo1' => 'San Francisco 1'],
-            ]);
-            $mock->shouldReceive('regions')->once()->andReturn($resource);
-        });
-
-        $response = ForgeServer::tool(ListRegionsTool::class, []);
-        $response->assertOk()->assertSee('nyc1');
-    });
-});
-
-describe('ListCredentialsTool', function (): void {
-    it('lists credentials successfully', function (): void {
-        $mockCredential = App\Integrations\Forge\Data\Credentials\CredentialData::from([
-            'id' => 1, 'type' => 'ocean2', 'name' => 'DigitalOcean',
-        ]);
-        $collection = new App\Integrations\Forge\Data\Credentials\CredentialCollectionData(
-            credentials: [$mockCredential]
-        );
-
-        $this->mock(ForgeClient::class, function ($mock) use ($collection): void {
-            $resource = Mockery::mock(CredentialResource::class);
-            $resource->shouldReceive('list')->once()->andReturn($collection);
-            $mock->shouldReceive('credentials')->once()->andReturn($resource);
-        });
-
-        $response = ForgeServer::tool(ListCredentialsTool::class, []);
-        $response->assertOk()->assertSee('DigitalOcean');
-    });
-});
-
 describe('GetUserTool', function (): void {
     it('gets user information successfully', function (): void {
         $mockUser = App\Integrations\Forge\Data\User\UserData::from([
@@ -469,14 +414,6 @@ describe('Remaining Tools Structure', function (): void {
 
     it('all monitor tools can be instantiated', function (): void {
         $tools = [ListMonitorsTool::class, GetMonitorTool::class, CreateMonitorTool::class, DeleteMonitorTool::class];
-
-        foreach ($tools as $toolClass) {
-            expect(app($toolClass)->name())->toBeString()->not->toBeEmpty();
-        }
-    });
-
-    it('all recipe tools can be instantiated', function (): void {
-        $tools = [ListRecipesTool::class, GetRecipeTool::class, CreateRecipeTool::class, UpdateRecipeTool::class, DeleteRecipeTool::class, RunRecipeTool::class];
 
         foreach ($tools as $toolClass) {
             expect(app($toolClass)->name())->toBeString()->not->toBeEmpty();

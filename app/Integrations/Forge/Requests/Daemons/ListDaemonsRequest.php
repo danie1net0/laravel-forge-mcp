@@ -19,7 +19,7 @@ class ListDaemonsRequest extends Request
 
     public function resolveEndpoint(): string
     {
-        return "/servers/{$this->serverId}/daemons";
+        return "/servers/{$this->serverId}/background-processes";
     }
 
     public function createDtoFromResponse(Response $response): DaemonCollectionData
