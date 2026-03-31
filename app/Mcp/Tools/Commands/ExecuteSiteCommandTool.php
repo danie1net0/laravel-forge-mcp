@@ -67,6 +67,17 @@ class ExecuteSiteCommandTool extends Tool
         try {
             $commandData = ExecuteSiteCommandData::from(['command' => $command]);
             $commandArray = $client->sites()->executeCommand($serverId, $siteId, $commandData);
+
+            if ($commandArray === []) {
+                return Response::text((string) json_encode([
+                    'success' => true,
+                    'message' => 'Command queued for execution. Use list-command-history-tool to check status and get-site-command-tool to retrieve output.',
+                    'server_id' => $serverId,
+                    'site_id' => $siteId,
+                    'command' => $command,
+                ], JSON_PRETTY_PRINT));
+            }
+
             $siteCommand = SiteCommandData::from($commandArray);
 
             return Response::text((string) json_encode([
