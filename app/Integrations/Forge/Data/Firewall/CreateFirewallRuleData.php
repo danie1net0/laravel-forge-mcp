@@ -14,6 +14,7 @@ class CreateFirewallRuleData extends Data
     public function __construct(
         public string $name,
         public int|string $port,
+        public string $type = 'allow',
         public ?string $ipAddress = null,
     ) {
     }

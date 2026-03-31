@@ -14,7 +14,7 @@ class CreateRedirectRuleData extends Data
     public function __construct(
         public string $from,
         public string $to,
-        public ?string $type = null,
+        public string $type = 'redirect',
     ) {
     }
 }

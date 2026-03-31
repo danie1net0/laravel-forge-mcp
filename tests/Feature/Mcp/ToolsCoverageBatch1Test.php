@@ -1240,6 +1240,7 @@ describe('CreateDaemonTool (coverage)', function (): void {
 
         $response = ForgeServer::tool(CreateDaemonTool::class, [
             'server_id' => 1,
+            'name' => 'test-daemon',
             'command' => 'php artisan horizon',
             'directory' => '/home/forge/app',
         ]);
@@ -1264,6 +1265,7 @@ describe('CreateDaemonTool (coverage)', function (): void {
 
         $response = ForgeServer::tool(CreateDaemonTool::class, [
             'server_id' => 1,
+            'name' => 'test-daemon',
             'command' => 'php artisan horizon',
             'directory' => '/home/forge/app',
             'user' => 'forge',
@@ -1283,6 +1285,7 @@ describe('CreateDaemonTool (coverage)', function (): void {
 
         $response = ForgeServer::tool(CreateDaemonTool::class, [
             'server_id' => 1,
+            'name' => 'test-daemon',
             'command' => 'php artisan horizon',
             'directory' => '/home/forge/app',
         ]);

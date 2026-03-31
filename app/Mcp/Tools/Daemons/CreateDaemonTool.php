@@ -46,6 +46,7 @@ class CreateDaemonTool extends Tool
     {
         $request->validate([
             'server_id' => ['required', 'integer', 'min:1'],
+            'name' => ['required', 'string', 'max:255'],
             'command' => ['required', 'string'],
             'directory' => ['required', 'string'],
             'user' => ['nullable', 'string', 'max:255'],
@@ -55,6 +56,7 @@ class CreateDaemonTool extends Tool
 
         $serverId = $request->integer('server_id');
         $data = [
+            'name' => $request->string('name'),
             'command' => $request->string('command'),
             'directory' => $request->string('directory'),
         ];
@@ -102,6 +104,9 @@ class CreateDaemonTool extends Tool
             'server_id' => $schema->integer()
                 ->description('The unique ID of the Forge server')
                 ->min(1)
+                ->required(),
+            'name' => $schema->string()
+                ->description('A descriptive name for the background process')
                 ->required(),
             'command' => $schema->string()
                 ->description('The command to run (e.g., "php artisan horizon")')

@@ -50,6 +50,7 @@ class CreateRedirectRuleTool extends Tool
             'site_id' => $schema->integer()->min(1)->required(),
             'from' => $schema->string()->required(),
             'to' => $schema->string()->required(),
+            'type' => $schema->string()->description('Redirect type: "redirect" (302) or "permanent" (301). Defaults to "redirect"'),
         ];
     }
 

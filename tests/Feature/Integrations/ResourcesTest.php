@@ -985,6 +985,7 @@ describe('DaemonResource', function (): void {
 
         $resource = new DaemonResource($connector);
         $data = CreateDaemonData::from([
+            'name' => 'test-daemon',
             'command' => 'php artisan queue:work',
             'directory' => '/home/forge/test.com',
         ]);

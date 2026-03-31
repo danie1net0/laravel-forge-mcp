@@ -217,6 +217,7 @@ describe('Daemons', function (): void {
 
     it('creates CreateDaemonData from snake_case input', function (): void {
         $data = CreateDaemonData::from([
+            'name' => 'test-daemon',
             'command' => 'php artisan horizon',
             'directory' => '/home/forge/app',
             'user' => 'forge',
@@ -234,13 +235,14 @@ describe('Daemons', function (): void {
 
     it('creates CreateDaemonData with defaults', function (): void {
         $data = CreateDaemonData::from([
+            'name' => 'test-daemon',
             'command' => 'node app.js',
             'directory' => '/home/forge/node-app',
         ]);
 
         expect($data)
             ->user->toBe('forge')
-            ->processes->toBeNull()
+            ->processes->toBe(1)
             ->startsecs->toBeNull();
     });
 
@@ -693,7 +695,7 @@ describe('RedirectRules', function (): void {
             'to' => '/destination',
         ]);
 
-        expect($data->type)->toBeNull();
+        expect($data->type)->toBe('redirect');
     });
 
     it('creates RedirectRuleCollectionData with empty array', function (): void {

@@ -244,6 +244,7 @@ describe('CreateDaemonTool', function (): void {
 
         $response = ForgeServer::tool(CreateDaemonTool::class, [
             'server_id' => 1,
+            'name' => 'test-daemon',
             'command' => 'node server.js',
             'directory' => '/home/forge/app',
         ]);

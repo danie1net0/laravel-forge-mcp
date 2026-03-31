@@ -237,7 +237,7 @@ describe('Daemons', function (): void {
     });
 
     it('resolves CreateDaemonRequest endpoint and method', function (): void {
-        $data = CreateDaemonData::from(['command' => 'php artisan queue:work', 'directory' => '/home/forge/app']);
+        $data = CreateDaemonData::from(['name' => 'test-daemon', 'command' => 'php artisan queue:work', 'directory' => '/home/forge/app']);
         $request = new CreateDaemonRequest(1, $data);
 
         expect($request->resolveEndpoint())->toBe('/servers/1/background-processes')
@@ -245,15 +245,16 @@ describe('Daemons', function (): void {
     });
 
     it('builds CreateDaemonRequest body filtering nulls', function (): void {
-        $data = CreateDaemonData::from(['command' => 'php artisan queue:work', 'directory' => '/home/forge/app']);
+        $data = CreateDaemonData::from(['name' => 'test-daemon', 'command' => 'php artisan queue:work', 'directory' => '/home/forge/app']);
         $request = new CreateDaemonRequest(1, $data);
         $body = getDefaultBody($request);
 
         expect($body)
+            ->toHaveKey('name', 'test-daemon')
             ->toHaveKey('command', 'php artisan queue:work')
             ->toHaveKey('directory', '/home/forge/app')
             ->toHaveKey('user', 'forge')
-            ->not->toHaveKey('processes');
+            ->toHaveKey('processes', 1);
     });
 
     it('resolves RestartDaemonRequest endpoint and method', function (): void {
@@ -686,7 +687,7 @@ describe('RedirectRules', function (): void {
         expect($body)
             ->toHaveKey('from', '/old')
             ->toHaveKey('to', '/new')
-            ->not->toHaveKey('type');
+            ->toHaveKey('type', 'redirect');
     });
 
     it('resolves DeleteRedirectRuleRequest endpoint and method', function (): void {

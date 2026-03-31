@@ -12,10 +12,11 @@ use Spatie\LaravelData\Mappers\SnakeCaseMapper;
 class CreateDaemonData extends Data
 {
     public function __construct(
+        public string $name,
         public string $command,
         public string $directory,
         public string $user = 'forge',
-        public ?int $processes = null,
+        public int $processes = 1,
         public ?int $startsecs = null,
     ) {
     }

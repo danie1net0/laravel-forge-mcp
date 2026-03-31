@@ -57,6 +57,7 @@ class CreateFirewallRuleTool extends Tool
         $data = [
             'name' => $request->string('name'),
             'port' => $request->string('port'),
+            'type' => $request->has('type') ? $request->string('type')->value() : 'allow',
         ];
 
         if ($request->has('ip_address')) {
@@ -101,6 +102,8 @@ class CreateFirewallRuleTool extends Tool
             'port' => $schema->string()
                 ->description('The port number or range (e.g., "80", "443", "8000-9000")')
                 ->required(),
+            'type' => $schema->string()
+                ->description('Rule type: "allow" or "deny" (defaults to "allow")'),
             'ip_address' => $schema->string()
                 ->description('IP address to allow (defaults to 0.0.0.0/0 - all IPs). Use CIDR notation or specific IP'),
         ];
