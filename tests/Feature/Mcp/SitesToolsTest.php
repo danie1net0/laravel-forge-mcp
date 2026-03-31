@@ -5,7 +5,7 @@ declare(strict_types=1);
 use App\Integrations\Forge\ForgeClient;
 use App\Integrations\Forge\Resources\SiteResource;
 use App\Mcp\Servers\ForgeServer;
-use App\Mcp\Tools\Sites\{ChangePhpVersionTool, ClearSiteLogTool, CreateSiteTool, DeleteSiteTool, GetLoadBalancingTool, GetPackagesAuthTool, GetSiteLogTool, GetSiteTool, InstallPhpMyAdminTool, InstallWordPressTool, ListAliasesTool, ListSitesTool, UninstallPhpMyAdminTool, UninstallWordPressTool, UpdateAliasesTool, UpdateLoadBalancingTool, UpdatePackagesAuthTool, UpdateSiteTool};
+use App\Mcp\Tools\Sites\{ChangePhpVersionTool, CreateSiteTool, DeleteSiteTool, GetSiteTool, InstallPhpMyAdminTool, InstallWordPressTool, ListSitesTool, UninstallPhpMyAdminTool, UninstallWordPressTool, UpdateSiteTool};
 use App\Integrations\Forge\Data\Sites\{CreateSiteData, SiteCollectionData, SiteData, UpdateSiteData};
 
 beforeEach(function (): void {
@@ -229,52 +229,6 @@ describe('DeleteSiteTool', function (): void {
     });
 });
 
-describe('GetSiteLogTool', function (): void {
-    it('requires server_id and site_id parameters', function (): void {
-        $response = ForgeServer::tool(GetSiteLogTool::class, []);
-
-        $response->assertHasErrors();
-    });
-
-    it('gets site log successfully', function (): void {
-        $this->mock(ForgeClient::class, function ($mock): void {
-            $siteResource = Mockery::mock(SiteResource::class);
-            $siteResource->shouldReceive('log')->with(1, 1)->once()->andReturn(['content' => 'Log content']);
-            $mock->shouldReceive('sites')->once()->andReturn($siteResource);
-        });
-
-        $response = ForgeServer::tool(GetSiteLogTool::class, [
-            'server_id' => 1,
-            'site_id' => 1,
-        ]);
-
-        $response->assertOk()->assertSee('Log content');
-    });
-});
-
-describe('ClearSiteLogTool', function (): void {
-    it('requires server_id and site_id parameters', function (): void {
-        $response = ForgeServer::tool(ClearSiteLogTool::class, []);
-
-        $response->assertHasErrors();
-    });
-
-    it('clears site log successfully', function (): void {
-        $this->mock(ForgeClient::class, function ($mock): void {
-            $siteResource = Mockery::mock(SiteResource::class);
-            $siteResource->shouldReceive('clearLog')->with(1, 1)->once();
-            $mock->shouldReceive('sites')->once()->andReturn($siteResource);
-        });
-
-        $response = ForgeServer::tool(ClearSiteLogTool::class, [
-            'server_id' => 1,
-            'site_id' => 1,
-        ]);
-
-        $response->assertOk()->assertSee('"success": true');
-    });
-});
-
 describe('ChangePhpVersionTool', function (): void {
     it('requires all mandatory parameters', function (): void {
         $response = ForgeServer::tool(ChangePhpVersionTool::class, []);
@@ -302,102 +256,6 @@ describe('ChangePhpVersionTool', function (): void {
             'server_id' => 1,
             'site_id' => 1,
             'version' => 'php84',
-        ]);
-
-        $response->assertOk()->assertSee('"success": true');
-    });
-});
-
-describe('ListAliasesTool', function (): void {
-    it('requires server_id and site_id parameters', function (): void {
-        $response = ForgeServer::tool(ListAliasesTool::class, []);
-
-        $response->assertHasErrors();
-    });
-
-    it('lists aliases successfully', function (): void {
-        $this->mock(ForgeClient::class, function ($mock): void {
-            $siteResource = Mockery::mock(SiteResource::class);
-            $siteResource->shouldReceive('listAliases')->with(1, 1, null, 30)->once()->andReturn(['www.example.com', 'api.example.com']);
-            $mock->shouldReceive('sites')->once()->andReturn($siteResource);
-        });
-
-        $response = ForgeServer::tool(ListAliasesTool::class, [
-            'server_id' => 1,
-            'site_id' => 1,
-        ]);
-
-        $response->assertOk()->assertSee('www.example.com');
-    });
-});
-
-describe('UpdateAliasesTool', function (): void {
-    it('requires all parameters', function (): void {
-        $response = ForgeServer::tool(UpdateAliasesTool::class, []);
-
-        $response->assertHasErrors();
-    });
-
-    it('updates aliases successfully', function (): void {
-        $this->mock(ForgeClient::class, function ($mock): void {
-            $siteResource = Mockery::mock(SiteResource::class);
-            $siteResource->shouldReceive('updateAliases')->with(1, 1, ['www.example.com'])->once();
-            $mock->shouldReceive('sites')->once()->andReturn($siteResource);
-        });
-
-        $response = ForgeServer::tool(UpdateAliasesTool::class, [
-            'server_id' => 1,
-            'site_id' => 1,
-            'aliases' => ['www.example.com'],
-        ]);
-
-        $response->assertOk()->assertSee('"success": true');
-    });
-});
-
-describe('GetLoadBalancingTool', function (): void {
-    it('requires server_id and site_id parameters', function (): void {
-        $response = ForgeServer::tool(GetLoadBalancingTool::class, []);
-
-        $response->assertHasErrors();
-    });
-
-    it('gets load balancing config successfully', function (): void {
-        $this->mock(ForgeClient::class, function ($mock): void {
-            $siteResource = Mockery::mock(SiteResource::class);
-            $siteResource->shouldReceive('getLoadBalancing')->with(1, 1)->once()->andReturn([
-                'servers' => [['id' => 2, 'weight' => 5]],
-            ]);
-            $mock->shouldReceive('sites')->once()->andReturn($siteResource);
-        });
-
-        $response = ForgeServer::tool(GetLoadBalancingTool::class, [
-            'server_id' => 1,
-            'site_id' => 1,
-        ]);
-
-        $response->assertOk();
-    });
-});
-
-describe('UpdateLoadBalancingTool', function (): void {
-    it('requires all parameters', function (): void {
-        $response = ForgeServer::tool(UpdateLoadBalancingTool::class, []);
-
-        $response->assertHasErrors();
-    });
-
-    it('updates load balancing successfully', function (): void {
-        $this->mock(ForgeClient::class, function ($mock): void {
-            $siteResource = Mockery::mock(SiteResource::class);
-            $siteResource->shouldReceive('updateLoadBalancing')->with(1, 1, Mockery::any(), Mockery::any())->once();
-            $mock->shouldReceive('sites')->once()->andReturn($siteResource);
-        });
-
-        $response = ForgeServer::tool(UpdateLoadBalancingTool::class, [
-            'server_id' => 1,
-            'site_id' => 1,
-            'servers' => [['id' => 2, 'weight' => 5]],
         ]);
 
         $response->assertOk()->assertSee('"success": true');
@@ -498,53 +356,6 @@ describe('UninstallPhpMyAdminTool', function (): void {
     });
 });
 
-describe('GetPackagesAuthTool', function (): void {
-    it('requires server_id and site_id parameters', function (): void {
-        $response = ForgeServer::tool(GetPackagesAuthTool::class, []);
-
-        $response->assertHasErrors();
-    });
-
-    it('gets packages auth successfully', function (): void {
-        $this->mock(ForgeClient::class, function ($mock): void {
-            $siteResource = Mockery::mock(SiteResource::class);
-            $siteResource->shouldReceive('getPackagesAuth')->with(1, 1)->once()->andReturn(['auth' => []]);
-            $mock->shouldReceive('sites')->once()->andReturn($siteResource);
-        });
-
-        $response = ForgeServer::tool(GetPackagesAuthTool::class, [
-            'server_id' => 1,
-            'site_id' => 1,
-        ]);
-
-        $response->assertOk();
-    });
-});
-
-describe('UpdatePackagesAuthTool', function (): void {
-    it('requires all parameters', function (): void {
-        $response = ForgeServer::tool(UpdatePackagesAuthTool::class, []);
-
-        $response->assertHasErrors();
-    });
-
-    it('updates packages auth successfully', function (): void {
-        $this->mock(ForgeClient::class, function ($mock): void {
-            $siteResource = Mockery::mock(SiteResource::class);
-            $siteResource->shouldReceive('updatePackagesAuth')->with(1, 1, Mockery::any())->once();
-            $mock->shouldReceive('sites')->once()->andReturn($siteResource);
-        });
-
-        $response = ForgeServer::tool(UpdatePackagesAuthTool::class, [
-            'server_id' => 1,
-            'site_id' => 1,
-            'packages' => ['github-oauth' => ['github.com' => 'token']],
-        ]);
-
-        $response->assertOk()->assertSee('"success": true');
-    });
-});
-
 describe('Site Tools Structure', function (): void {
     it('all site tools can be instantiated', function (): void {
         $tools = [
@@ -553,19 +364,11 @@ describe('Site Tools Structure', function (): void {
             CreateSiteTool::class,
             UpdateSiteTool::class,
             DeleteSiteTool::class,
-            GetSiteLogTool::class,
-            ClearSiteLogTool::class,
             ChangePhpVersionTool::class,
-            ListAliasesTool::class,
-            UpdateAliasesTool::class,
-            GetLoadBalancingTool::class,
-            UpdateLoadBalancingTool::class,
             InstallWordPressTool::class,
             UninstallWordPressTool::class,
             InstallPhpMyAdminTool::class,
             UninstallPhpMyAdminTool::class,
-            GetPackagesAuthTool::class,
-            UpdatePackagesAuthTool::class,
         ];
 
         foreach ($tools as $toolClass) {

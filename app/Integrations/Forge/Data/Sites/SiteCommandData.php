@@ -13,12 +13,15 @@ class SiteCommandData extends Data
 {
     public function __construct(
         public int $id,
-        public int $serverId,
-        public int $siteId,
+        public ?int $serverId = null,
+        public ?int $siteId = null,
         public ?string $command = null,
         public ?string $status = null,
         public ?string $output = null,
+        public ?string $duration = null,
+        public ?int $userId = null,
         public ?string $createdAt = null,
+        public ?string $updatedAt = null,
     ) {
     }
 }

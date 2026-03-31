@@ -10,7 +10,6 @@ use App\Integrations\Forge\Requests\Servers\{
     CreateServerRequest,
     DeleteServerRequest,
     GetEventOutputRequest,
-    GetServerLogRequest,
     GetServerRequest,
     ListEventsRequest,
     ListServersRequest,
@@ -68,13 +67,6 @@ class ServerResource
     public function updateDatabasePassword(int $serverId, ?string $password = null): void
     {
         $this->connector->send(new UpdateDatabasePasswordRequest($serverId, $password));
-    }
-
-    public function getLog(int $serverId, string $logKey = 'auth'): string
-    {
-        $response = $this->connector->send(new GetServerLogRequest($serverId, $logKey));
-
-        return $response->json('content') ?? '';
     }
 
     /**

@@ -6,7 +6,7 @@ namespace App\Integrations\Forge\Resources;
 
 use App\Integrations\Forge\ForgeConnector;
 use App\Integrations\Forge\Data\Sites\{CreateSiteData, ExecuteSiteCommandData, InstallGitRepositoryData, SiteCollectionData, SiteData, UpdateGitRepositoryData, UpdateSiteData};
-use App\Integrations\Forge\Requests\Sites\{CreateDeployKeyRequest, CreateSiteRequest, DeleteDeployKeyRequest, DeleteSiteRequest, DeploySiteRequest, DestroyGitRepositoryRequest, DisableQuickDeployRequest, EnableQuickDeployRequest, ExecuteSiteCommandRequest, GetDeploymentHistoryDeploymentRequest, GetDeploymentHistoryOutputRequest, GetDeploymentHistoryRequest, GetDeploymentLogRequest, GetDeploymentScriptRequest, GetSiteCommandRequest, GetSiteLogRequest, GetSiteRequest, InstallGitRepositoryRequest, ListCommandHistoryRequest, ListSitesRequest, UpdateDeploymentScriptRequest, UpdateGitRepositoryRequest, UpdateSiteRequest};
+use App\Integrations\Forge\Requests\Sites\{CreateDeployKeyRequest, CreateSiteRequest, DeleteDeployKeyRequest, DeleteSiteRequest, DeploySiteRequest, DestroyGitRepositoryRequest, ExecuteSiteCommandRequest, GetDeploymentHistoryDeploymentRequest, GetDeploymentHistoryRequest, GetDeploymentScriptRequest, GetSiteCommandRequest, GetSiteRequest, InstallGitRepositoryRequest, ListCommandHistoryRequest, ListSitesRequest, UpdateDeploymentScriptRequest, UpdateGitRepositoryRequest, UpdateSiteRequest};
 
 class SiteResource
 {
@@ -69,31 +69,6 @@ class SiteResource
         $this->connector->send(new UpdateDeploymentScriptRequest($serverId, $siteId, $content));
     }
 
-    public function enableQuickDeploy(int $serverId, int $siteId): void
-    {
-        $this->connector->send(new EnableQuickDeployRequest($serverId, $siteId));
-    }
-
-    public function disableQuickDeploy(int $serverId, int $siteId): void
-    {
-        $this->connector->send(new DisableQuickDeployRequest($serverId, $siteId));
-    }
-
-    public function deploymentLog(int $serverId, int $siteId): ?string
-    {
-        $response = $this->connector->send(new GetDeploymentLogRequest($serverId, $siteId));
-        $body = $response->body();
-
-        return $body === '' ? null : $body;
-    }
-
-    public function log(int $serverId, int $siteId): array
-    {
-        $response = $this->connector->send(new GetSiteLogRequest($serverId, $siteId));
-
-        return $response->json();
-    }
-
     public function deploymentHistory(int $serverId, int $siteId): array
     {
         $response = $this->connector->send(new GetDeploymentHistoryRequest($serverId, $siteId));
@@ -106,13 +81,6 @@ class SiteResource
         $response = $this->connector->send(new GetDeploymentHistoryDeploymentRequest($serverId, $siteId, $deploymentId));
 
         return $response->json('deployment', []);
-    }
-
-    public function deploymentHistoryOutput(int $serverId, int $siteId, int $deploymentId): array
-    {
-        $response = $this->connector->send(new GetDeploymentHistoryOutputRequest($serverId, $siteId, $deploymentId));
-
-        return $response->json();
     }
 
     public function commandHistory(int $serverId, int $siteId, ?string $cursor = null, int $pageSize = 30): array
@@ -173,12 +141,6 @@ class SiteResource
         $this->connector->send($request);
     }
 
-    public function clearLog(int $serverId, int $siteId): void
-    {
-        $request = new \App\Integrations\Forge\Requests\Sites\ClearSiteLogRequest($serverId, $siteId);
-        $this->connector->send($request);
-    }
-
     public function getNginxConfig(int $serverId, int $siteId): string
     {
         $response = $this->connector->send(new \App\Integrations\Forge\Requests\Sites\GetNginxConfigRequest($serverId, $siteId));
@@ -203,30 +165,6 @@ class SiteResource
         $this->connector->send(new \App\Integrations\Forge\Requests\Sites\UpdateEnvFileRequest($serverId, $siteId, $content));
     }
 
-    public function listAliases(int $serverId, int $siteId, ?string $cursor = null, int $pageSize = 30): array
-    {
-        $response = $this->connector->send(new \App\Integrations\Forge\Requests\Sites\ListAliasesRequest($serverId, $siteId, $cursor, $pageSize));
-
-        return $response->json('aliases', []);
-    }
-
-    public function updateAliases(int $serverId, int $siteId, array $aliases): void
-    {
-        $this->connector->send(new \App\Integrations\Forge\Requests\Sites\UpdateAliasesRequest($serverId, $siteId, $aliases));
-    }
-
-    public function getLoadBalancing(int $serverId, int $siteId): array
-    {
-        $response = $this->connector->send(new \App\Integrations\Forge\Requests\Sites\GetLoadBalancingRequest($serverId, $siteId));
-
-        return $response->json();
-    }
-
-    public function updateLoadBalancing(int $serverId, int $siteId, array $servers, string $method = 'round_robin'): void
-    {
-        $this->connector->send(new \App\Integrations\Forge\Requests\Sites\UpdateLoadBalancingRequest($serverId, $siteId, $servers, $method));
-    }
-
     public function installWordPress(int $serverId, int $siteId, string $database, string $user, ?string $password = null): void
     {
         $this->connector->send(new \App\Integrations\Forge\Requests\Sites\InstallWordPressRequest($serverId, $siteId, $database, $user, $password));
@@ -245,36 +183,5 @@ class SiteResource
     public function uninstallPhpMyAdmin(int $serverId, int $siteId): void
     {
         $this->connector->send(new \App\Integrations\Forge\Requests\Sites\UninstallPhpMyAdminRequest($serverId, $siteId));
-    }
-
-    public function resetDeploymentState(int $serverId, int $siteId): void
-    {
-        $this->connector->send(new \App\Integrations\Forge\Requests\Sites\ResetDeploymentStateRequest($serverId, $siteId));
-    }
-
-    /**
-     * @param array<int, string> $emails
-     */
-    public function setDeploymentFailureEmails(int $serverId, int $siteId, array $emails): void
-    {
-        $this->connector->send(new \App\Integrations\Forge\Requests\Sites\SetDeploymentFailureEmailsRequest($serverId, $siteId, $emails));
-    }
-
-    /**
-     * @return array<string, mixed>
-     */
-    public function getPackagesAuth(int $serverId, int $siteId): array
-    {
-        $response = $this->connector->send(new \App\Integrations\Forge\Requests\Sites\GetPackagesAuthRequest($serverId, $siteId));
-
-        return $response->json('packages') ?? [];
-    }
-
-    /**
-     * @param array<string, mixed> $packages
-     */
-    public function updatePackagesAuth(int $serverId, int $siteId, array $packages): void
-    {
-        $this->connector->send(new \App\Integrations\Forge\Requests\Sites\UpdatePackagesAuthRequest($serverId, $siteId, $packages));
     }
 }

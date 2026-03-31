@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 use App\Integrations\Forge\Data\Certificates\CertificateData;
 use App\Integrations\Forge\Data\Databases\DatabaseData;
-use App\Integrations\Forge\Data\Workers\WorkerData;
 use App\Integrations\Forge\ForgeClient;
 use App\Mcp\Servers\ForgeServer;
 use App\Mcp\Tools\Certificates\ObtainLetsEncryptCertificateTool;
@@ -12,10 +11,9 @@ use App\Mcp\Tools\Databases\CreateDatabaseTool;
 use App\Mcp\Tools\Sites\{CreateSiteTool, GetSiteTool, ListSitesTool};
 use App\Mcp\Tools\Servers\{GetServerTool, ListServersTool};
 use App\Mcp\Tools\Deployments\{DeploySiteTool, GetDeploymentScriptTool};
-use App\Integrations\Forge\Resources\{CertificateResource, DatabaseResource, ServerResource, SiteResource, WorkerResource};
+use App\Integrations\Forge\Resources\{CertificateResource, DatabaseResource, ServerResource, SiteResource};
 use App\Integrations\Forge\Data\Sites\{SiteCollectionData, SiteData};
 use App\Integrations\Forge\Data\Servers\{ServerCollectionData, ServerData};
-use App\Mcp\Tools\Workers\CreateWorkerTool;
 
 beforeEach(function (): void {
     config([
@@ -76,25 +74,6 @@ function makeSiteData(array $overrides = []): SiteData
         'repository' => null,
         'app_type' => 'php',
         'tags' => [],
-    ], $overrides));
-}
-
-function makeWorkerData(array $overrides = []): WorkerData
-{
-    return WorkerData::from(array_merge([
-        'id' => 1,
-        'server_id' => 1,
-        'site_id' => 1,
-        'connection' => 'redis',
-        'command' => 'php artisan queue:work',
-        'queue' => 'default',
-        'timeout' => 60,
-        'sleep' => 3,
-        'tries' => 3,
-        'environment' => 'production',
-        'daemon' => 1,
-        'status' => 'running',
-        'created_at' => '2024-01-01T00:00:00Z',
     ], $overrides));
 }
 
@@ -239,29 +218,6 @@ describe('Complete Deployment Flow', function (): void {
     });
 });
 
-describe('Complete Worker Setup Flow', function (): void {
-    it('simulates queue worker setup', function (): void {
-        $mockWorker = makeWorkerData();
-
-        $this->mock(ForgeClient::class, function ($mock) use ($mockWorker): void {
-            $workerResource = Mockery::mock(WorkerResource::class);
-            $workerResource->shouldReceive('create')->andReturn($mockWorker);
-            $mock->shouldReceive('workers')->andReturn($workerResource);
-        });
-
-        $response = ForgeServer::tool(CreateWorkerTool::class, [
-            'server_id' => 1,
-            'site_id' => 1,
-            'connection' => 'redis',
-            'queue' => 'default',
-            'timeout' => 60,
-            'tries' => 3,
-        ]);
-
-        $response->assertOk()->assertSee('"success": true')->assertSee('running');
-    });
-});
-
 describe('Error Handling Scenarios', function (): void {
     it('handles API authentication failure', function (): void {
         $this->mock(ForgeClient::class, function ($mock): void {
@@ -328,7 +284,7 @@ describe('MCP Protocol Integration', function (): void {
             ->filter(fn ($file) => str_ends_with($file->getFilename(), 'Tool.php'))
             ->values();
 
-        expect($toolFiles->count())->toBe(168);
+        expect($toolFiles->count())->toBe(147);
     });
 
     it('validates all resources are discoverable', function (): void {
@@ -423,10 +379,9 @@ describe('Application Health Check', function (): void {
             'Commands' => 3,
             'Composite' => 5,
             'Configuration' => 4,
-            'Credentials' => 1,
             'Daemons' => 5,
             'Databases' => 10,
-            'Deployments' => 11,
+            'Deployments' => 5,
             'Firewall' => 4,
             'Git' => 5,
             'Integrations' => 21,
@@ -434,17 +389,14 @@ describe('Application Health Check', function (): void {
             'Monitors' => 4,
             'NginxTemplates' => 6,
             'Php' => 5,
-            'Recipes' => 6,
             'RedirectRules' => 4,
-            'Regions' => 1,
             'SecurityRules' => 4,
-            'Servers' => 10,
+            'Servers' => 9,
             'Services' => 15,
-            'Sites' => 18,
+            'Sites' => 10,
             'SSHKeys' => 4,
             'User' => 1,
             'Webhooks' => 4,
-            'Workers' => 6,
         ];
 
         foreach ($categories as $category => $expectedCount) {

@@ -56,14 +56,6 @@ class SiteStatusDashboardTool extends Tool
             } catch (Exception) {
             }
 
-            $workers = [];
-
-            try {
-                $workersCollection = $client->workers()->list($serverId, $siteId);
-                $workers = $workersCollection->workers;
-            } catch (Exception) {
-            }
-
             $jobs = [];
 
             try {
@@ -119,15 +111,6 @@ class SiteStatusDashboardTool extends Tool
                     'status' => $lastDeployment->status,
                     'ended_at' => $lastDeployment->endedAt,
                 ] : null,
-                'workers' => [
-                    'total' => count($workers),
-                    'list' => array_map(fn ($w) => [
-                        'id' => $w->id,
-                        'connection' => $w->connection,
-                        'queue' => $w->queue,
-                        'status' => $w->status,
-                    ], $workers),
-                ],
                 'scheduled_jobs' => [
                     'total' => count($siteJobs),
                 ],

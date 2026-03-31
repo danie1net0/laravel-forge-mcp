@@ -5,7 +5,7 @@ declare(strict_types=1);
 use App\Integrations\Forge\ForgeClient;
 use App\Integrations\Forge\Resources\SiteResource;
 use App\Mcp\Servers\ForgeServer;
-use App\Mcp\Tools\Deployments\{DeploySiteTool, DisableQuickDeployTool, EnableQuickDeployTool, GetDeploymentHistoryDeploymentTool, GetDeploymentHistoryOutputTool, GetDeploymentLogTool, GetDeploymentScriptTool, ListDeploymentHistoryTool, ResetDeploymentStateTool, SetDeploymentFailureEmailsTool, UpdateDeploymentScriptTool};
+use App\Mcp\Tools\Deployments\{DeploySiteTool, GetDeploymentHistoryDeploymentTool, GetDeploymentScriptTool, ListDeploymentHistoryTool, UpdateDeploymentScriptTool};
 
 beforeEach(function (): void {
     config([
@@ -49,29 +49,6 @@ describe('DeploySiteTool', function (): void {
         ]);
 
         $response->assertOk()->assertSee('"success": false');
-    });
-});
-
-describe('GetDeploymentLogTool', function (): void {
-    it('requires server_id and site_id parameters', function (): void {
-        $response = ForgeServer::tool(GetDeploymentLogTool::class, []);
-
-        $response->assertHasErrors();
-    });
-
-    it('gets deployment log successfully', function (): void {
-        $this->mock(ForgeClient::class, function ($mock): void {
-            $siteResource = Mockery::mock(SiteResource::class);
-            $siteResource->shouldReceive('deploymentLog')->with(1, 1)->once()->andReturn('Deployment log content');
-            $mock->shouldReceive('sites')->once()->andReturn($siteResource);
-        });
-
-        $response = ForgeServer::tool(GetDeploymentLogTool::class, [
-            'server_id' => 1,
-            'site_id' => 1,
-        ]);
-
-        $response->assertOk()->assertSee('Deployment log content');
     });
 });
 
@@ -125,52 +102,6 @@ describe('UpdateDeploymentScriptTool', function (): void {
             'server_id' => 1,
             'site_id' => 1,
             'content' => 'cd /home/forge/site && git pull && composer install',
-        ]);
-
-        $response->assertOk()->assertSee('"success": true');
-    });
-});
-
-describe('EnableQuickDeployTool', function (): void {
-    it('requires server_id and site_id parameters', function (): void {
-        $response = ForgeServer::tool(EnableQuickDeployTool::class, []);
-
-        $response->assertHasErrors();
-    });
-
-    it('enables quick deploy successfully', function (): void {
-        $this->mock(ForgeClient::class, function ($mock): void {
-            $siteResource = Mockery::mock(SiteResource::class);
-            $siteResource->shouldReceive('enableQuickDeploy')->with(1, 1)->once();
-            $mock->shouldReceive('sites')->once()->andReturn($siteResource);
-        });
-
-        $response = ForgeServer::tool(EnableQuickDeployTool::class, [
-            'server_id' => 1,
-            'site_id' => 1,
-        ]);
-
-        $response->assertOk()->assertSee('"success": true');
-    });
-});
-
-describe('DisableQuickDeployTool', function (): void {
-    it('requires server_id and site_id parameters', function (): void {
-        $response = ForgeServer::tool(DisableQuickDeployTool::class, []);
-
-        $response->assertHasErrors();
-    });
-
-    it('disables quick deploy successfully', function (): void {
-        $this->mock(ForgeClient::class, function ($mock): void {
-            $siteResource = Mockery::mock(SiteResource::class);
-            $siteResource->shouldReceive('disableQuickDeploy')->with(1, 1)->once();
-            $mock->shouldReceive('sites')->once()->andReturn($siteResource);
-        });
-
-        $response = ForgeServer::tool(DisableQuickDeployTool::class, [
-            'server_id' => 1,
-            'site_id' => 1,
         ]);
 
         $response->assertOk()->assertSee('"success": true');
@@ -248,91 +179,14 @@ describe('GetDeploymentHistoryDeploymentTool', function (): void {
     });
 });
 
-describe('GetDeploymentHistoryOutputTool', function (): void {
-    it('requires all mandatory parameters', function (): void {
-        $response = ForgeServer::tool(GetDeploymentHistoryOutputTool::class, []);
-
-        $response->assertHasErrors();
-    });
-
-    it('gets deployment output successfully', function (): void {
-        $this->mock(ForgeClient::class, function ($mock): void {
-            $siteResource = Mockery::mock(SiteResource::class);
-            $siteResource->shouldReceive('deploymentHistoryOutput')->with(1, 1, 1)->once()->andReturn(['output' => 'Deployment output']);
-            $mock->shouldReceive('sites')->once()->andReturn($siteResource);
-        });
-
-        $response = ForgeServer::tool(GetDeploymentHistoryOutputTool::class, [
-            'server_id' => 1,
-            'site_id' => 1,
-            'deployment_id' => 1,
-        ]);
-
-        $response->assertOk()->assertSee('Deployment output');
-    });
-});
-
-describe('ResetDeploymentStateTool', function (): void {
-    it('requires server_id and site_id parameters', function (): void {
-        $response = ForgeServer::tool(ResetDeploymentStateTool::class, []);
-
-        $response->assertHasErrors();
-    });
-
-    it('resets deployment state successfully', function (): void {
-        $this->mock(ForgeClient::class, function ($mock): void {
-            $siteResource = Mockery::mock(SiteResource::class);
-            $siteResource->shouldReceive('resetDeploymentState')->with(1, 1)->once();
-            $mock->shouldReceive('sites')->once()->andReturn($siteResource);
-        });
-
-        $response = ForgeServer::tool(ResetDeploymentStateTool::class, [
-            'server_id' => 1,
-            'site_id' => 1,
-        ]);
-
-        $response->assertOk()->assertSee('"success": true');
-    });
-});
-
-describe('SetDeploymentFailureEmailsTool', function (): void {
-    it('requires all mandatory parameters', function (): void {
-        $response = ForgeServer::tool(SetDeploymentFailureEmailsTool::class, []);
-
-        $response->assertHasErrors();
-    });
-
-    it('sets deployment failure emails successfully', function (): void {
-        $this->mock(ForgeClient::class, function ($mock): void {
-            $siteResource = Mockery::mock(SiteResource::class);
-            $siteResource->shouldReceive('setDeploymentFailureEmails')->with(1, 1, ['admin@example.com'])->once();
-            $mock->shouldReceive('sites')->once()->andReturn($siteResource);
-        });
-
-        $response = ForgeServer::tool(SetDeploymentFailureEmailsTool::class, [
-            'server_id' => 1,
-            'site_id' => 1,
-            'emails' => ['admin@example.com'],
-        ]);
-
-        $response->assertOk()->assertSee('"success": true');
-    });
-});
-
 describe('Deployment Tools Structure', function (): void {
     it('all deployment tools can be instantiated', function (): void {
         $tools = [
             DeploySiteTool::class,
-            GetDeploymentLogTool::class,
             GetDeploymentScriptTool::class,
             UpdateDeploymentScriptTool::class,
-            EnableQuickDeployTool::class,
-            DisableQuickDeployTool::class,
             ListDeploymentHistoryTool::class,
             GetDeploymentHistoryDeploymentTool::class,
-            GetDeploymentHistoryOutputTool::class,
-            ResetDeploymentStateTool::class,
-            SetDeploymentFailureEmailsTool::class,
         ];
 
         foreach ($tools as $toolClass) {

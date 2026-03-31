@@ -6,7 +6,7 @@ use App\Mcp\Servers\ForgeServer;
 use App\Mcp\Tools\Certificates\GetCertificateSigningRequestTool;
 use App\Mcp\Tools\Commands\{ExecuteSiteCommandTool, GetSiteCommandTool, ListCommandHistoryTool};
 use App\Mcp\Tools\Databases\{GetDatabaseUserTool, ListDatabaseUsersTool};
-use App\Mcp\Tools\Deployments\{GetDeploymentHistoryDeploymentTool, GetDeploymentHistoryOutputTool, ListDeploymentHistoryTool};
+use App\Mcp\Tools\Deployments\{GetDeploymentHistoryDeploymentTool, ListDeploymentHistoryTool};
 use App\Integrations\Forge\Data\Databases\DatabaseUserData;
 use App\Integrations\Forge\ForgeClient;
 use App\Integrations\Forge\Resources\{CertificateResource, DatabaseUserResource, SiteResource};
@@ -291,59 +291,6 @@ describe('GetDeploymentHistoryDeploymentTool', function (): void {
         });
 
         $response = ForgeServer::tool(GetDeploymentHistoryDeploymentTool::class, [
-            'server_id' => 1,
-            'site_id' => 1,
-            'deployment_id' => 999,
-        ]);
-
-        $response
-            ->assertOk()
-            ->assertSee('"success": false');
-    });
-});
-
-describe('GetDeploymentHistoryOutputTool', function (): void {
-    it('requires all parameters', function (): void {
-        $response = ForgeServer::tool(GetDeploymentHistoryOutputTool::class, []);
-
-        $response->assertHasErrors();
-    });
-
-    it('gets deployment output successfully', function (): void {
-        $mockOutput = ['output' => "Deploying...\nCompleted successfully"];
-
-        $this->mock(ForgeClient::class, function ($mock) use ($mockOutput): void {
-            $siteResource = Mockery::mock(SiteResource::class);
-            $siteResource->shouldReceive('deploymentHistoryOutput')
-                ->with(1, 1, 1)
-                ->once()
-                ->andReturn($mockOutput);
-            $mock->shouldReceive('sites')->once()->andReturn($siteResource);
-        });
-
-        $response = ForgeServer::tool(GetDeploymentHistoryOutputTool::class, [
-            'server_id' => 1,
-            'site_id' => 1,
-            'deployment_id' => 1,
-        ]);
-
-        $response
-            ->assertOk()
-            ->assertSee('"success": true')
-            ->assertSee('Deploying');
-    });
-
-    it('handles errors', function (): void {
-        $this->mock(ForgeClient::class, function ($mock): void {
-            $siteResource = Mockery::mock(SiteResource::class);
-            $siteResource->shouldReceive('deploymentHistoryOutput')
-                ->with(1, 1, 999)
-                ->once()
-                ->andThrow(new Exception('Deployment not found'));
-            $mock->shouldReceive('sites')->once()->andReturn($siteResource);
-        });
-
-        $response = ForgeServer::tool(GetDeploymentHistoryOutputTool::class, [
             'server_id' => 1,
             'site_id' => 1,
             'deployment_id' => 999,

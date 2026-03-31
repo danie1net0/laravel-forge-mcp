@@ -6,7 +6,6 @@ namespace App\Mcp\Tools\Composite;
 
 use App\Integrations\Forge\Data\Jobs\CreateJobData;
 use App\Integrations\Forge\Data\Sites\{CreateSiteData, InstallGitRepositoryData};
-use App\Integrations\Forge\Data\Workers\CreateWorkerData;
 use App\Integrations\Forge\ForgeClient;
 use Exception;
 use Illuminate\Contracts\JsonSchema\JsonSchema;
@@ -25,7 +24,6 @@ class CloneSiteTool extends Tool
         - `new_domain`: The domain for the new site
 
         **Optional Parameters:**
-        - `clone_workers`: Clone queue workers (default: true)
         - `clone_jobs`: Clone scheduled jobs (default: true)
         - `clone_ssl`: Obtain SSL certificate for new site (default: true)
     MARKDOWN;
@@ -37,7 +35,6 @@ class CloneSiteTool extends Tool
             'source_site_id' => ['required', 'integer', 'min:1'],
             'target_server_id' => ['required', 'integer', 'min:1'],
             'new_domain' => ['required', 'string'],
-            'clone_workers' => ['sometimes', 'boolean'],
             'clone_jobs' => ['sometimes', 'boolean'],
             'clone_ssl' => ['sometimes', 'boolean'],
         ]);
@@ -46,7 +43,6 @@ class CloneSiteTool extends Tool
         $sourceSiteId = $request->integer('source_site_id');
         $targetServerId = $request->integer('target_server_id');
         $newDomain = $request->string('new_domain')->value();
-        $cloneWorkers = $request->boolean('clone_workers', true);
         $cloneJobs = $request->boolean('clone_jobs', true);
         $cloneSsl = $request->boolean('clone_ssl', true);
 
@@ -88,27 +84,6 @@ class CloneSiteTool extends Tool
                 $steps[] = ['action' => 'copy_deployment_script', 'status' => 'success', 'message' => 'Deployment script copied and updated'];
             } catch (Exception $e) {
                 $steps[] = ['action' => 'copy_deployment_script', 'status' => 'failed', 'message' => $e->getMessage()];
-            }
-
-            if ($cloneWorkers) {
-                try {
-                    $workersCollection = $client->workers()->list($sourceServerId, $sourceSiteId);
-                    $workers = $workersCollection->workers;
-
-                    foreach ($workers as $worker) {
-                        $workerData = CreateWorkerData::from([
-                            'connection' => $worker->connection,
-                            'queue' => $worker->queue,
-                            'timeout' => $worker->timeout ?? 60,
-                            'sleep' => $worker->sleep ?? 3,
-                            'processes' => $worker->processes ?? 1,
-                        ]);
-                        $client->workers()->create($targetServerId, $newSite->id, $workerData);
-                    }
-                    $steps[] = ['action' => 'clone_workers', 'status' => 'success', 'message' => 'Cloned ' . count($workers) . ' workers'];
-                } catch (Exception $e) {
-                    $steps[] = ['action' => 'clone_workers', 'status' => 'failed', 'message' => $e->getMessage()];
-                }
             }
 
             if ($cloneJobs) {
@@ -194,9 +169,6 @@ class CloneSiteTool extends Tool
             'new_domain' => $schema->string()
                 ->description('The domain for the new site')
                 ->required(),
-            'clone_workers' => $schema->boolean()
-                ->description('Clone queue workers (default: true)')
-                ->default(true),
             'clone_jobs' => $schema->boolean()
                 ->description('Clone scheduled jobs (default: true)')
                 ->default(true),

@@ -6,13 +6,12 @@ use App\Integrations\Forge\Data\User\UserData;
 use App\Integrations\Forge\ForgeConnector;
 use Saloon\Http\Faking\{MockClient, MockResponse};
 use App\Integrations\Forge\Data\Jobs\{CreateJobData, JobCollectionData, JobData};
-use App\Integrations\Forge\Resources\{BackupResource, CertificateResource, DaemonResource, DatabaseResource, DatabaseUserResource, FirewallResource, IntegrationResource, JobResource, MonitorResource, NginxTemplateResource, PhpResource, RedirectRuleResource, SSHKeyResource, SecurityRuleResource, ServerResource, ServiceResource, SiteResource, UserResource, WebhookResource, WorkerResource};
+use App\Integrations\Forge\Resources\{BackupResource, CertificateResource, DaemonResource, DatabaseResource, DatabaseUserResource, FirewallResource, IntegrationResource, JobResource, MonitorResource, NginxTemplateResource, PhpResource, RedirectRuleResource, SSHKeyResource, SecurityRuleResource, ServerResource, ServiceResource, SiteResource, UserResource, WebhookResource};
 use App\Integrations\Forge\Data\Sites\{CreateSiteData, ExecuteSiteCommandData, InstallGitRepositoryData, SiteCollectionData, SiteData, UpdateGitRepositoryData, UpdateSiteData};
 use App\Integrations\Forge\Data\Backups\{BackupConfigurationCollectionData, BackupConfigurationData, CreateBackupConfigurationData, UpdateBackupConfigurationData};
 use App\Integrations\Forge\Data\Daemons\{CreateDaemonData, DaemonCollectionData, DaemonData};
 use App\Integrations\Forge\Data\SSHKeys\{CreateSSHKeyData, SSHKeyCollectionData, SSHKeyData};
 use App\Integrations\Forge\Data\Servers\{CreateServerData, ServerCollectionData, ServerData};
-use App\Integrations\Forge\Data\Workers\{CreateWorkerData, WorkerCollectionData, WorkerData};
 use App\Integrations\Forge\Data\Firewall\{CreateFirewallRuleData, FirewallRuleCollectionData, FirewallRuleData};
 use App\Integrations\Forge\Data\Monitors\{CreateMonitorData, MonitorCollectionData, MonitorData};
 use App\Integrations\Forge\Data\Webhooks\{CreateWebhookData, WebhookCollectionData, WebhookData};
@@ -169,25 +168,6 @@ function monitorMockData(array $overrides = []): array
         'minutes' => 5,
         'state' => 'OK',
         'state_changed_at' => '2024-01-01T00:00:00Z',
-    ], $overrides);
-}
-
-function workerMockData(array $overrides = []): array
-{
-    return array_merge([
-        'id' => 1,
-        'server_id' => 1,
-        'site_id' => 1,
-        'connection' => 'redis',
-        'command' => 'php artisan queue:work',
-        'queue' => 'default',
-        'timeout' => 60,
-        'sleep' => 3,
-        'tries' => 3,
-        'environment' => 'production',
-        'daemon' => 1,
-        'status' => 'installed',
-        'created_at' => '2024-01-01T00:00:00Z',
     ], $overrides);
 }
 
@@ -399,17 +379,6 @@ describe('ServerResource', function (): void {
         $mockClient->assertSentCount(1);
     });
 
-    it('gets server log', function (): void {
-        $connector = createMockedConnector([
-            MockResponse::make(['content' => 'auth log content']),
-        ]);
-
-        $resource = new ServerResource($connector);
-        $result = $resource->getLog(1);
-
-        expect($result)->toBe('auth log content');
-    });
-
     it('lists server events', function (): void {
         $connector = createMockedConnector([
             MockResponse::make(['events' => [['id' => 1, 'description' => 'deploy']]]),
@@ -538,63 +507,6 @@ describe('SiteResource', function (): void {
         $mockClient->assertSentCount(1);
     });
 
-    it('enables quick deploy', function (): void {
-        [$connector, $mockClient] = createMockedConnectorWithClient([
-            MockResponse::make([], 200),
-        ]);
-
-        $resource = new SiteResource($connector);
-        $resource->enableQuickDeploy(1, 1);
-
-        $mockClient->assertSentCount(1);
-    });
-
-    it('disables quick deploy', function (): void {
-        [$connector, $mockClient] = createMockedConnectorWithClient([
-            MockResponse::make([], 200),
-        ]);
-
-        $resource = new SiteResource($connector);
-        $resource->disableQuickDeploy(1, 1);
-
-        $mockClient->assertSentCount(1);
-    });
-
-    it('gets deployment log', function (): void {
-        $connector = createMockedConnector([
-            MockResponse::make('Deployment log content'),
-        ]);
-
-        $resource = new SiteResource($connector);
-        $result = $resource->deploymentLog(1, 1);
-
-        expect($result)->toBe('Deployment log content');
-    });
-
-    it('returns null for empty deployment log', function (): void {
-        $connector = createMockedConnector([
-            MockResponse::make(''),
-        ]);
-
-        $resource = new SiteResource($connector);
-        $result = $resource->deploymentLog(1, 1);
-
-        expect($result)->toBeNull();
-    });
-
-    it('gets site log', function (): void {
-        $connector = createMockedConnector([
-            MockResponse::make(['log' => 'site log content']),
-        ]);
-
-        $resource = new SiteResource($connector);
-        $result = $resource->log(1, 1);
-
-        expect($result)
-            ->toBeArray()
-            ->toHaveKey('log', 'site log content');
-    });
-
     it('gets deployment history', function (): void {
         $connector = createMockedConnector([
             MockResponse::make(['deployments' => [['id' => 1, 'status' => 'finished']]]),
@@ -619,19 +531,6 @@ describe('SiteResource', function (): void {
         expect($result)
             ->toBeArray()
             ->toHaveKey('status', 'finished');
-    });
-
-    it('gets deployment history output', function (): void {
-        $connector = createMockedConnector([
-            MockResponse::make(['output' => 'deployment output']),
-        ]);
-
-        $resource = new SiteResource($connector);
-        $result = $resource->deploymentHistoryOutput(1, 1, 1);
-
-        expect($result)
-            ->toBeArray()
-            ->toHaveKey('output', 'deployment output');
     });
 
     it('gets command history', function (): void {
@@ -749,17 +648,6 @@ describe('SiteResource', function (): void {
         $mockClient->assertSentCount(1);
     });
 
-    it('clears site log', function (): void {
-        [$connector, $mockClient] = createMockedConnectorWithClient([
-            MockResponse::make([], 200),
-        ]);
-
-        $resource = new SiteResource($connector);
-        $resource->clearLog(1, 1);
-
-        $mockClient->assertSentCount(1);
-    });
-
     it('gets nginx config', function (): void {
         $connector = createMockedConnector([
             MockResponse::make('server { listen 80; }'),
@@ -804,55 +692,6 @@ describe('SiteResource', function (): void {
         $mockClient->assertSentCount(1);
     });
 
-    it('lists aliases', function (): void {
-        $connector = createMockedConnector([
-            MockResponse::make(['aliases' => ['alias1.com', 'alias2.com']]),
-        ]);
-
-        $resource = new SiteResource($connector);
-        $result = $resource->listAliases(1, 1);
-
-        expect($result)
-            ->toBeArray()
-            ->toHaveCount(2)
-            ->toBe(['alias1.com', 'alias2.com']);
-    });
-
-    it('updates aliases', function (): void {
-        [$connector, $mockClient] = createMockedConnectorWithClient([
-            MockResponse::make([], 200),
-        ]);
-
-        $resource = new SiteResource($connector);
-        $resource->updateAliases(1, 1, ['alias1.com', 'alias2.com']);
-
-        $mockClient->assertSentCount(1);
-    });
-
-    it('gets load balancing', function (): void {
-        $connector = createMockedConnector([
-            MockResponse::make(['method' => 'round_robin', 'servers' => []]),
-        ]);
-
-        $resource = new SiteResource($connector);
-        $result = $resource->getLoadBalancing(1, 1);
-
-        expect($result)
-            ->toBeArray()
-            ->toHaveKey('method', 'round_robin');
-    });
-
-    it('updates load balancing', function (): void {
-        [$connector, $mockClient] = createMockedConnectorWithClient([
-            MockResponse::make([], 200),
-        ]);
-
-        $resource = new SiteResource($connector);
-        $resource->updateLoadBalancing(1, 1, [['id' => 2, 'weight' => 50]], 'round_robin');
-
-        $mockClient->assertSentCount(1);
-    });
-
     it('installs WordPress', function (): void {
         [$connector, $mockClient] = createMockedConnectorWithClient([
             MockResponse::make([], 200),
@@ -893,52 +732,6 @@ describe('SiteResource', function (): void {
 
         $resource = new SiteResource($connector);
         $resource->uninstallPhpMyAdmin(1, 1);
-
-        $mockClient->assertSentCount(1);
-    });
-
-    it('resets deployment state', function (): void {
-        [$connector, $mockClient] = createMockedConnectorWithClient([
-            MockResponse::make([], 200),
-        ]);
-
-        $resource = new SiteResource($connector);
-        $resource->resetDeploymentState(1, 1);
-
-        $mockClient->assertSentCount(1);
-    });
-
-    it('sets deployment failure emails', function (): void {
-        [$connector, $mockClient] = createMockedConnectorWithClient([
-            MockResponse::make([], 200),
-        ]);
-
-        $resource = new SiteResource($connector);
-        $resource->setDeploymentFailureEmails(1, 1, ['admin@test.com']);
-
-        $mockClient->assertSentCount(1);
-    });
-
-    it('gets packages auth', function (): void {
-        $connector = createMockedConnector([
-            MockResponse::make(['packages' => [['type' => 'composer', 'url' => 'https://repo.example.com']]]),
-        ]);
-
-        $resource = new SiteResource($connector);
-        $result = $resource->getPackagesAuth(1, 1);
-
-        expect($result)
-            ->toBeArray()
-            ->toHaveCount(1);
-    });
-
-    it('updates packages auth', function (): void {
-        [$connector, $mockClient] = createMockedConnectorWithClient([
-            MockResponse::make([], 200),
-        ]);
-
-        $resource = new SiteResource($connector);
-        $resource->updatePackagesAuth(1, 1, [['type' => 'composer', 'url' => 'https://repo.example.com']]);
 
         $mockClient->assertSentCount(1);
     });
@@ -1403,86 +1196,6 @@ describe('MonitorResource', function (): void {
         $resource->delete(1, 1);
 
         $mockClient->assertSentCount(1);
-    });
-});
-
-describe('WorkerResource', function (): void {
-    it('lists workers', function (): void {
-        $connector = createMockedConnector([
-            MockResponse::make(['workers' => [workerMockData()]]),
-        ]);
-
-        $resource = new WorkerResource($connector);
-        $result = $resource->list(1, 1);
-
-        expect($result)
-            ->toBeInstanceOf(WorkerCollectionData::class)
-            ->workers->toHaveCount(1);
-    });
-
-    it('gets a worker', function (): void {
-        $connector = createMockedConnector([
-            MockResponse::make(['worker' => workerMockData()]),
-        ]);
-
-        $resource = new WorkerResource($connector);
-        $result = $resource->get(1, 1, 1);
-
-        expect($result)
-            ->toBeInstanceOf(WorkerData::class)
-            ->id->toBe(1)
-            ->connection->toBe('redis')
-            ->queue->toBe('default');
-    });
-
-    it('creates a worker', function (): void {
-        $connector = createMockedConnector([
-            MockResponse::make(['worker' => workerMockData()]),
-        ]);
-
-        $resource = new WorkerResource($connector);
-        $data = CreateWorkerData::from([
-            'connection' => 'redis',
-            'queue' => 'default',
-        ]);
-        $result = $resource->create(1, 1, $data);
-
-        expect($result)
-            ->toBeInstanceOf(WorkerData::class)
-            ->connection->toBe('redis');
-    });
-
-    it('restarts a worker', function (): void {
-        [$connector, $mockClient] = createMockedConnectorWithClient([
-            MockResponse::make([], 200),
-        ]);
-
-        $resource = new WorkerResource($connector);
-        $resource->restart(1, 1, 1);
-
-        $mockClient->assertSentCount(1);
-    });
-
-    it('deletes a worker', function (): void {
-        [$connector, $mockClient] = createMockedConnectorWithClient([
-            MockResponse::make([], 200),
-        ]);
-
-        $resource = new WorkerResource($connector);
-        $resource->delete(1, 1, 1);
-
-        $mockClient->assertSentCount(1);
-    });
-
-    it('gets worker output', function (): void {
-        $connector = createMockedConnector([
-            MockResponse::make(['output' => 'Worker output content']),
-        ]);
-
-        $resource = new WorkerResource($connector);
-        $result = $resource->getOutput(1, 1, 1);
-
-        expect($result)->toBe('Worker output content');
     });
 });
 

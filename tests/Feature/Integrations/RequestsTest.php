@@ -14,12 +14,11 @@ use App\Integrations\Forge\Data\Servers\CreateServerData;
 use App\Integrations\Forge\Requests\Php\{InstallPhpRequest, UpdatePhpRequest};
 use App\Integrations\Forge\Requests\Jobs\{CreateJobRequest, DeleteJobRequest, GetJobOutputRequest, GetJobRequest, ListJobsRequest};
 use App\Integrations\Forge\Data\Databases\{CreateDatabaseData, CreateDatabaseUserData, UpdateDatabaseUserData};
-use App\Integrations\Forge\Requests\Sites\{ChangePhpVersionRequest, ClearSiteLogRequest, CreateDeployKeyRequest, CreateSiteRequest, DeleteDeployKeyRequest, DeleteSiteRequest, DeploySiteRequest, DestroyGitRepositoryRequest, DisableQuickDeployRequest, EnableQuickDeployRequest, ExecuteSiteCommandRequest, GetDeploymentHistoryDeploymentRequest, GetDeploymentHistoryOutputRequest, GetDeploymentHistoryRequest, GetDeploymentLogRequest, GetDeploymentScriptRequest, GetEnvFileRequest, GetLoadBalancingRequest, GetNginxConfigRequest, GetPackagesAuthRequest, GetSiteCommandRequest, GetSiteLogRequest, GetSiteRequest, InstallGitRepositoryRequest, InstallPhpMyAdminRequest, InstallWordPressRequest, ListAliasesRequest, ListCommandHistoryRequest, ListSitesRequest, ResetDeploymentStateRequest, SetDeploymentFailureEmailsRequest, UninstallPhpMyAdminRequest, UninstallWordPressRequest, UpdateAliasesRequest, UpdateDeploymentScriptRequest, UpdateEnvFileRequest, UpdateGitRepositoryRequest, UpdateLoadBalancingRequest, UpdateNginxConfigRequest, UpdatePackagesAuthRequest, UpdateSiteRequest};
+use App\Integrations\Forge\Requests\Sites\{ChangePhpVersionRequest, CreateDeployKeyRequest, CreateSiteRequest, DeleteDeployKeyRequest, DeleteSiteRequest, DeploySiteRequest, DestroyGitRepositoryRequest, ExecuteSiteCommandRequest, GetDeploymentHistoryDeploymentRequest, GetDeploymentHistoryRequest, GetDeploymentScriptRequest, GetEnvFileRequest, GetNginxConfigRequest, GetSiteCommandRequest, GetSiteRequest, InstallGitRepositoryRequest, InstallPhpMyAdminRequest, InstallWordPressRequest, ListCommandHistoryRequest, ListSitesRequest, UninstallPhpMyAdminRequest, UninstallWordPressRequest, UpdateDeploymentScriptRequest, UpdateEnvFileRequest, UpdateGitRepositoryRequest, UpdateNginxConfigRequest, UpdateSiteRequest};
 use App\Integrations\Forge\Requests\Backups\{CreateBackupConfigurationRequest, DeleteBackupConfigurationRequest, DeleteBackupRequest, GetBackupConfigurationRequest, ListBackupConfigurationsRequest, RestoreBackupRequest, UpdateBackupConfigurationRequest};
 use App\Integrations\Forge\Requests\Daemons\{CreateDaemonRequest, DeleteDaemonRequest, GetDaemonRequest, ListDaemonsRequest, RestartDaemonRequest};
 use App\Integrations\Forge\Requests\SSHKeys\{CreateSSHKeyRequest, DeleteSSHKeyRequest, GetSSHKeyRequest, ListSSHKeysRequest};
-use App\Integrations\Forge\Requests\Servers\{CreateServerRequest, DeleteServerRequest, GetEventOutputRequest, GetServerLogRequest, GetServerRequest, ListEventsRequest, ListServersRequest, PowerCycleServerRequest, RebootServerRequest, UpdateDatabasePasswordRequest};
-use App\Integrations\Forge\Requests\Workers\{CreateWorkerRequest, DeleteWorkerRequest, GetWorkerOutputRequest, GetWorkerRequest, ListWorkersRequest, RestartWorkerRequest};
+use App\Integrations\Forge\Requests\Servers\{CreateServerRequest, DeleteServerRequest, GetEventOutputRequest, GetServerRequest, ListEventsRequest, ListServersRequest, PowerCycleServerRequest, RebootServerRequest, UpdateDatabasePasswordRequest};
 use App\Integrations\Forge\Requests\Firewall\{CreateFirewallRuleRequest, DeleteFirewallRuleRequest, GetFirewallRuleRequest, ListFirewallRulesRequest};
 use App\Integrations\Forge\Requests\Monitors\{CreateMonitorRequest, DeleteMonitorRequest, GetMonitorRequest, ListMonitorsRequest};
 use App\Integrations\Forge\Requests\Services\{InstallBlackfireRequest, InstallPapertrailRequest, ManageServiceRequest};
@@ -33,7 +32,6 @@ use App\Integrations\Forge\Requests\SecurityRules\{CreateSecurityRuleRequest, De
 use App\Integrations\Forge\Requests\NginxTemplates\{CreateNginxTemplateRequest, DeleteNginxTemplateRequest, GetNginxDefaultTemplateRequest, GetNginxTemplateRequest, ListNginxTemplatesRequest, UpdateNginxTemplateRequest};
 use App\Integrations\Forge\Data\SSHKeys\CreateSSHKeyData;
 use App\Integrations\Forge\Data\Webhooks\CreateWebhookData;
-use App\Integrations\Forge\Data\Workers\CreateWorkerData;
 use App\Integrations\Forge\Requests\User\GetUserRequest;
 
 function getHttpMethod(object $request): string
@@ -823,19 +821,6 @@ describe('Servers', function (): void {
             ->and(getHttpMethod($request))->toBe('GET');
     });
 
-    it('resolves GetServerLogRequest endpoint and method', function (): void {
-        $request = new GetServerLogRequest(1);
-
-        expect($request->resolveEndpoint())->toBe('/servers/1/logs/auth')
-            ->and(getHttpMethod($request))->toBe('GET');
-    });
-
-    it('resolves GetServerLogRequest with custom log key', function (): void {
-        $request = new GetServerLogRequest(1, 'syslog');
-
-        expect($request->resolveEndpoint())->toBe('/servers/1/logs/syslog');
-    });
-
     it('resolves PowerCycleServerRequest endpoint and method', function (): void {
         $request = new PowerCycleServerRequest(1);
 
@@ -1008,20 +993,6 @@ describe('Sites', function (): void {
             ->and(getHttpMethod($request))->toBe('DELETE');
     });
 
-    it('resolves GetSiteLogRequest endpoint and method', function (): void {
-        $request = new GetSiteLogRequest(1, 2);
-
-        expect($request->resolveEndpoint())->toBe('/servers/1/sites/2/logs')
-            ->and(getHttpMethod($request))->toBe('GET');
-    });
-
-    it('resolves ClearSiteLogRequest endpoint and method', function (): void {
-        $request = new ClearSiteLogRequest(1, 2);
-
-        expect($request->resolveEndpoint())->toBe('/servers/1/sites/2/logs')
-            ->and(getHttpMethod($request))->toBe('DELETE');
-    });
-
     it('resolves ChangePhpVersionRequest endpoint and method', function (): void {
         $request = new ChangePhpVersionRequest(1, 2, 'php83');
 
@@ -1041,13 +1012,6 @@ describe('Sites', function (): void {
 
         expect($request->resolveEndpoint())->toBe('/servers/1/sites/2/deployments')
             ->and(getHttpMethod($request))->toBe('POST');
-    });
-
-    it('resolves GetDeploymentLogRequest endpoint and method', function (): void {
-        $request = new GetDeploymentLogRequest(1, 2);
-
-        expect($request->resolveEndpoint())->toBe('/servers/1/sites/2/deployment/log')
-            ->and(getHttpMethod($request))->toBe('GET');
     });
 
     it('resolves GetDeploymentScriptRequest endpoint and method', function (): void {
@@ -1071,20 +1035,6 @@ describe('Sites', function (): void {
         expect($body)->toBe(['content' => 'cd /home/forge && git pull']);
     });
 
-    it('resolves EnableQuickDeployRequest endpoint and method', function (): void {
-        $request = new EnableQuickDeployRequest(1, 2);
-
-        expect($request->resolveEndpoint())->toBe('/servers/1/sites/2/deployment')
-            ->and(getHttpMethod($request))->toBe('POST');
-    });
-
-    it('resolves DisableQuickDeployRequest endpoint and method', function (): void {
-        $request = new DisableQuickDeployRequest(1, 2);
-
-        expect($request->resolveEndpoint())->toBe('/servers/1/sites/2/deployment')
-            ->and(getHttpMethod($request))->toBe('DELETE');
-    });
-
     it('resolves GetDeploymentHistoryRequest endpoint and method', function (): void {
         $request = new GetDeploymentHistoryRequest(1, 2);
 
@@ -1097,20 +1047,6 @@ describe('Sites', function (): void {
 
         expect($request->resolveEndpoint())->toBe('/servers/1/sites/2/deployments/3')
             ->and(getHttpMethod($request))->toBe('GET');
-    });
-
-    it('resolves GetDeploymentHistoryOutputRequest endpoint and method', function (): void {
-        $request = new GetDeploymentHistoryOutputRequest(1, 2, 3);
-
-        expect($request->resolveEndpoint())->toBe('/servers/1/sites/2/deployment-history/3/output')
-            ->and(getHttpMethod($request))->toBe('GET');
-    });
-
-    it('resolves ResetDeploymentStateRequest endpoint and method', function (): void {
-        $request = new ResetDeploymentStateRequest(1, 2);
-
-        expect($request->resolveEndpoint())->toBe('/servers/1/sites/2/deployment/reset')
-            ->and(getHttpMethod($request))->toBe('POST');
     });
 
     it('resolves InstallGitRepositoryRequest endpoint and method', function (): void {
@@ -1294,99 +1230,6 @@ describe('Sites', function (): void {
         expect($request->resolveEndpoint())->toBe('/servers/1/sites/2/phpmyadmin')
             ->and(getHttpMethod($request))->toBe('DELETE');
     });
-
-    it('resolves GetPackagesAuthRequest endpoint and method', function (): void {
-        $request = new GetPackagesAuthRequest(1, 2);
-
-        expect($request->resolveEndpoint())->toBe('/servers/1/sites/2/packages')
-            ->and(getHttpMethod($request))->toBe('GET');
-    });
-
-    it('resolves UpdatePackagesAuthRequest endpoint and method', function (): void {
-        $request = new UpdatePackagesAuthRequest(1, 2, [['type' => 'composer', 'url' => 'https://repo.example.com']]);
-
-        expect($request->resolveEndpoint())->toBe('/servers/1/sites/2/packages')
-            ->and(getHttpMethod($request))->toBe('PUT');
-    });
-
-    it('builds UpdatePackagesAuthRequest body', function (): void {
-        $packages = [['type' => 'composer', 'url' => 'https://repo.example.com']];
-        $request = new UpdatePackagesAuthRequest(1, 2, $packages);
-        $body = getDefaultBody($request);
-
-        expect($body)->toBe(['packages' => $packages]);
-    });
-
-    it('resolves SetDeploymentFailureEmailsRequest endpoint and method', function (): void {
-        $request = new SetDeploymentFailureEmailsRequest(1, 2, ['admin@example.com']);
-
-        expect($request->resolveEndpoint())->toBe('/servers/1/sites/2/deployment-failure-emails')
-            ->and(getHttpMethod($request))->toBe('POST');
-    });
-
-    it('builds SetDeploymentFailureEmailsRequest body', function (): void {
-        $emails = ['admin@example.com', 'dev@example.com'];
-        $request = new SetDeploymentFailureEmailsRequest(1, 2, $emails);
-        $body = getDefaultBody($request);
-
-        expect($body)->toBe(['emails' => $emails]);
-    });
-
-    it('resolves ListAliasesRequest endpoint and method', function (): void {
-        $request = new ListAliasesRequest(1, 2);
-
-        expect($request->resolveEndpoint())->toBe('/servers/1/sites/2/aliases')
-            ->and(getHttpMethod($request))->toBe('GET');
-    });
-
-    it('resolves UpdateAliasesRequest endpoint and method', function (): void {
-        $request = new UpdateAliasesRequest(1, 2, ['www.example.com']);
-
-        expect($request->resolveEndpoint())->toBe('/servers/1/sites/2/aliases')
-            ->and(getHttpMethod($request))->toBe('PUT');
-    });
-
-    it('builds UpdateAliasesRequest body', function (): void {
-        $aliases = ['www.example.com', 'app.example.com'];
-        $request = new UpdateAliasesRequest(1, 2, $aliases);
-        $body = getDefaultBody($request);
-
-        expect($body)->toBe(['aliases' => $aliases]);
-    });
-
-    it('resolves GetLoadBalancingRequest endpoint and method', function (): void {
-        $request = new GetLoadBalancingRequest(1, 2);
-
-        expect($request->resolveEndpoint())->toBe('/servers/1/sites/2/balancing')
-            ->and(getHttpMethod($request))->toBe('GET');
-    });
-
-    it('resolves UpdateLoadBalancingRequest endpoint and method', function (): void {
-        $request = new UpdateLoadBalancingRequest(1, 2, [['id' => 10, 'weight' => 5]]);
-
-        expect($request->resolveEndpoint())->toBe('/servers/1/sites/2/balancing')
-            ->and(getHttpMethod($request))->toBe('PUT');
-    });
-
-    it('builds UpdateLoadBalancingRequest body with defaults', function (): void {
-        $servers = [['id' => 10, 'weight' => 5]];
-        $request = new UpdateLoadBalancingRequest(1, 2, $servers);
-        $body = getDefaultBody($request);
-
-        expect($body)
-            ->toHaveKey('servers', $servers)
-            ->toHaveKey('method', 'round_robin');
-    });
-
-    it('builds UpdateLoadBalancingRequest body with custom method', function (): void {
-        $servers = [['id' => 10, 'weight' => 5]];
-        $request = new UpdateLoadBalancingRequest(1, 2, $servers, 'least_conn');
-        $body = getDefaultBody($request);
-
-        expect($body)
-            ->toHaveKey('servers', $servers)
-            ->toHaveKey('method', 'least_conn');
-    });
 });
 
 describe('User', function (): void {
@@ -1437,62 +1280,6 @@ describe('Webhooks', function (): void {
     });
 });
 
-describe('Workers', function (): void {
-    it('resolves ListWorkersRequest endpoint and method', function (): void {
-        $request = new ListWorkersRequest(1, 2);
-
-        expect($request->resolveEndpoint())->toBe('/servers/1/sites/2/workers')
-            ->and(getHttpMethod($request))->toBe('GET');
-    });
-
-    it('resolves GetWorkerRequest endpoint and method', function (): void {
-        $request = new GetWorkerRequest(1, 2, 3);
-
-        expect($request->resolveEndpoint())->toBe('/servers/1/sites/2/workers/3')
-            ->and(getHttpMethod($request))->toBe('GET');
-    });
-
-    it('resolves CreateWorkerRequest endpoint and method', function (): void {
-        $data = CreateWorkerData::from(['connection' => 'redis', 'queue' => 'default']);
-        $request = new CreateWorkerRequest(1, 2, $data);
-
-        expect($request->resolveEndpoint())->toBe('/servers/1/sites/2/workers')
-            ->and(getHttpMethod($request))->toBe('POST');
-    });
-
-    it('builds CreateWorkerRequest body filtering nulls', function (): void {
-        $data = CreateWorkerData::from(['connection' => 'redis', 'queue' => 'default']);
-        $request = new CreateWorkerRequest(1, 2, $data);
-        $body = getDefaultBody($request);
-
-        expect($body)
-            ->toHaveKey('connection', 'redis')
-            ->toHaveKey('queue', 'default')
-            ->not->toHaveKey('timeout');
-    });
-
-    it('resolves RestartWorkerRequest endpoint and method', function (): void {
-        $request = new RestartWorkerRequest(1, 2, 3);
-
-        expect($request->resolveEndpoint())->toBe('/servers/1/sites/2/workers/3/restart')
-            ->and(getHttpMethod($request))->toBe('POST');
-    });
-
-    it('resolves DeleteWorkerRequest endpoint and method', function (): void {
-        $request = new DeleteWorkerRequest(1, 2, 3);
-
-        expect($request->resolveEndpoint())->toBe('/servers/1/sites/2/workers/3')
-            ->and(getHttpMethod($request))->toBe('DELETE');
-    });
-
-    it('resolves GetWorkerOutputRequest endpoint and method', function (): void {
-        $request = new GetWorkerOutputRequest(1, 2, 3);
-
-        expect($request->resolveEndpoint())->toBe('/servers/1/sites/2/workers/3/output')
-            ->and(getHttpMethod($request))->toBe('GET');
-    });
-});
-
 describe('Cursor Pagination', function (): void {
     it('includes cursor in query when provided', function (object $request): void {
         $query = getDefaultQuery($request);
@@ -1511,7 +1298,6 @@ describe('Cursor Pagination', function (): void {
         'ListFirewallRulesRequest' => [fn (): ListFirewallRulesRequest => new ListFirewallRulesRequest(1, 'abc123', 10)],
         'ListJobsRequest' => [fn (): ListJobsRequest => new ListJobsRequest(1, 'abc123', 10)],
         'ListMonitorsRequest' => [fn (): ListMonitorsRequest => new ListMonitorsRequest(1, 'abc123', 10)],
-        'ListWorkersRequest' => [fn (): ListWorkersRequest => new ListWorkersRequest(1, 1, 'abc123', 10)],
         'ListWebhooksRequest' => [fn (): ListWebhooksRequest => new ListWebhooksRequest(1, 1, 'abc123', 10)],
         'ListSSHKeysRequest' => [fn (): ListSSHKeysRequest => new ListSSHKeysRequest(1, 'abc123', 10)],
         'ListSecurityRulesRequest' => [fn (): ListSecurityRulesRequest => new ListSecurityRulesRequest(1, 1, 'abc123', 10)],
@@ -1519,7 +1305,6 @@ describe('Cursor Pagination', function (): void {
         'ListNginxTemplatesRequest' => [fn (): ListNginxTemplatesRequest => new ListNginxTemplatesRequest(1, 'abc123', 10)],
         'ListEventsRequest' => [fn (): ListEventsRequest => new ListEventsRequest(1, 'abc123', 10)],
         'ListCommandHistoryRequest' => [fn (): ListCommandHistoryRequest => new ListCommandHistoryRequest(1, 1, 'abc123', 10)],
-        'ListAliasesRequest' => [fn (): ListAliasesRequest => new ListAliasesRequest(1, 1, 'abc123', 10)],
     ]);
 
     it('omits cursor from query when null', function (object $request): void {

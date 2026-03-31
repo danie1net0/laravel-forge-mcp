@@ -3,7 +3,7 @@
 declare(strict_types=1);
 
 use App\Integrations\Forge\{ForgeClient, ForgeConnector};
-use App\Integrations\Forge\Resources\{BackupResource, CertificateResource, DaemonResource, DatabaseResource, DatabaseUserResource, FirewallResource, IntegrationResource, JobResource, MonitorResource, NginxTemplateResource, PhpResource, RedirectRuleResource, SSHKeyResource, SecurityRuleResource, ServerResource, ServiceResource, SiteResource, UserResource, WebhookResource, WorkerResource};
+use App\Integrations\Forge\Resources\{BackupResource, CertificateResource, DaemonResource, DatabaseResource, DatabaseUserResource, FirewallResource, IntegrationResource, JobResource, MonitorResource, NginxTemplateResource, PhpResource, RedirectRuleResource, SSHKeyResource, SecurityRuleResource, ServerResource, ServiceResource, SiteResource, UserResource, WebhookResource};
 use Illuminate\Support\Facades\Http;
 use Saloon\Http\Auth\TokenAuthenticator;
 
@@ -124,7 +124,6 @@ describe('ForgeClient', function (): void {
         'jobs' => ['jobs', JobResource::class],
         'daemons' => ['daemons', DaemonResource::class],
         'firewall' => ['firewall', FirewallResource::class],
-        'workers' => ['workers', WorkerResource::class],
         'webhooks' => ['webhooks', WebhookResource::class],
         'securityRules' => ['securityRules', SecurityRuleResource::class],
         'sshKeys' => ['sshKeys', SSHKeyResource::class],

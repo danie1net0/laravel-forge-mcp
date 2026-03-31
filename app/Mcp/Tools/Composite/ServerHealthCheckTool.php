@@ -68,14 +68,6 @@ class ServerHealthCheckTool extends Tool
             } catch (Exception) {
             }
 
-            $workers = [];
-
-            try {
-                $workersCollection = $client->workers()->list($serverId, 0);
-                $workers = $workersCollection->workers;
-            } catch (Exception) {
-            }
-
             $health = [
                 'status' => 'healthy',
                 'issues' => [],
@@ -122,7 +114,6 @@ class ServerHealthCheckTool extends Tool
                     'active_sites' => $activeSites,
                     'total_monitors' => count($monitors),
                     'total_daemons' => count($daemons),
-                    'total_workers' => count($workers),
                     'recent_events' => count($events),
                 ],
                 'issues' => $health['issues'],

@@ -9,7 +9,6 @@ use App\Integrations\Forge\Data\Backups\{BackupConfigurationCollectionData, Back
 use App\Integrations\Forge\Data\Daemons\{CreateDaemonData, DaemonCollectionData, DaemonData};
 use App\Integrations\Forge\Data\SSHKeys\{CreateSSHKeyData, SSHKeyCollectionData, SSHKeyData};
 use App\Integrations\Forge\Data\Servers\{CreateServerData, EventData, ServerCollectionData, ServerData};
-use App\Integrations\Forge\Data\Workers\{CreateWorkerData, WorkerCollectionData, WorkerData};
 use App\Integrations\Forge\Data\Firewall\{CreateFirewallRuleData, FirewallRuleCollectionData, FirewallRuleData};
 use App\Integrations\Forge\Data\Monitors\{CreateMonitorData, MonitorCollectionData, MonitorData};
 use App\Integrations\Forge\Data\Webhooks\{CreateWebhookData, WebhookCollectionData, WebhookData};
@@ -1142,109 +1141,5 @@ describe('Webhooks', function (): void {
         ]);
 
         expect($data->webhooks)->toBeEmpty();
-    });
-});
-
-describe('Workers', function (): void {
-    it('creates WorkerData from snake_case input', function (): void {
-        $data = WorkerData::from([
-            'id' => 1,
-            'server_id' => 2,
-            'site_id' => 3,
-            'connection' => 'redis',
-            'command' => 'php8.2 artisan queue:work',
-            'queue' => 'default',
-            'timeout' => 60,
-            'sleep' => 3,
-            'tries' => 3,
-            'environment' => 'production',
-            'daemon' => 1,
-            'status' => 'running',
-            'created_at' => '2024-01-01T00:00:00Z',
-        ]);
-
-        expect($data)
-            ->id->toBe(1)
-            ->serverId->toBe(2)
-            ->siteId->toBe(3)
-            ->connection->toBe('redis')
-            ->command->toBe('php8.2 artisan queue:work')
-            ->queue->toBe('default')
-            ->timeout->toBe(60)
-            ->sleep->toBe(3)
-            ->tries->toBe(3)
-            ->environment->toBe('production')
-            ->daemon->toBe(1);
-    });
-
-    it('creates CreateWorkerData from snake_case input with defaults', function (): void {
-        $data = CreateWorkerData::from([
-            'connection' => 'sqs',
-            'queue' => 'high,default',
-        ]);
-
-        expect($data)
-            ->connection->toBe('sqs')
-            ->queue->toBe('high,default')
-            ->timeout->toBeNull()
-            ->sleep->toBeNull()
-            ->tries->toBeNull()
-            ->daemon->toBeNull()
-            ->force->toBeNull();
-    });
-
-    it('creates CreateWorkerData with all optional fields', function (): void {
-        $data = CreateWorkerData::from([
-            'connection' => 'redis',
-            'queue' => 'default',
-            'timeout' => 300,
-            'sleep' => 5,
-            'tries' => 5,
-            'daemon' => true,
-            'force' => true,
-        ]);
-
-        expect($data)
-            ->timeout->toBe(300)
-            ->sleep->toBe(5)
-            ->tries->toBe(5)
-            ->daemon->toBeTrue()
-            ->force->toBeTrue();
-    });
-
-    it('creates WorkerCollectionData with empty array', function (): void {
-        $data = WorkerCollectionData::from([
-            'workers' => [],
-        ]);
-
-        expect($data->workers)->toBeEmpty();
-    });
-
-    it('creates WorkerCollectionData via fromResponse', function (): void {
-        $data = WorkerCollectionData::fromResponse([
-            'workers' => [
-                [
-                    'id' => 1,
-                    'server_id' => 1,
-                    'site_id' => 1,
-                    'connection' => 'redis',
-                    'command' => 'php artisan queue:work',
-                    'queue' => 'default',
-                    'timeout' => 60,
-                    'sleep' => 3,
-                    'tries' => 1,
-                    'environment' => 'production',
-                    'daemon' => 1,
-                    'status' => 'running',
-                    'created_at' => '2024-01-01T00:00:00Z',
-                ],
-            ],
-        ]);
-
-        expect($data->workers)
-            ->toHaveCount(1)
-            ->and($data->workers[0])
-            ->toBeInstanceOf(WorkerData::class)
-            ->connection->toBe('redis');
     });
 });

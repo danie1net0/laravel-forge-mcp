@@ -8,7 +8,6 @@ use App\Integrations\Forge\Data\Sites\{CreateSiteData, SiteData};
 use App\Integrations\Forge\Data\Daemons\{DaemonData};
 use App\Integrations\Forge\Data\SSHKeys\{SSHKeyData};
 use App\Integrations\Forge\Data\Servers\{CreateServerData, EventData, ServerData};
-use App\Integrations\Forge\Data\Workers\{CreateWorkerData, WorkerData};
 use App\Integrations\Forge\Data\Firewall\{FirewallRuleData};
 use App\Integrations\Forge\Data\Monitors\{MonitorData};
 use App\Integrations\Forge\Data\Webhooks\{WebhookData};
@@ -244,59 +243,6 @@ describe('CertificateData', function (): void {
     });
 });
 
-describe('WorkerData', function (): void {
-    it('creates from array', function (): void {
-        $data = WorkerData::from([
-            'id' => 1,
-            'server_id' => 1,
-            'site_id' => 1,
-            'connection' => 'redis',
-            'command' => 'php artisan queue:work',
-            'queue' => 'default',
-            'timeout' => 60,
-            'sleep' => 3,
-            'tries' => 1,
-            'environment' => 'production',
-            'daemon' => 1,
-            'status' => 'running',
-            'created_at' => '2024-01-01T00:00:00Z',
-        ]);
-
-        expect($data->id)->toBe(1);
-        expect($data->connection)->toBe('redis');
-        expect($data->timeout)->toBe(60);
-        expect($data->command)->toBe('php artisan queue:work');
-        expect($data->environment)->toBe('production');
-    });
-});
-
-describe('CreateWorkerData', function (): void {
-    it('creates with required fields', function (): void {
-        $data = CreateWorkerData::from([
-            'connection' => 'redis',
-            'queue' => 'default',
-        ]);
-
-        expect($data->connection)->toBe('redis');
-        expect($data->queue)->toBe('default');
-    });
-
-    it('includes optional fields', function (): void {
-        $data = CreateWorkerData::from([
-            'connection' => 'redis',
-            'queue' => 'high,default,low',
-            'timeout' => 300,
-            'sleep' => 5,
-            'tries' => 3,
-            'daemon' => true,
-            'force' => true,
-        ]);
-
-        expect($data->timeout)->toBe(300);
-        expect($data->tries)->toBe(3);
-    });
-});
-
 describe('JobData', function (): void {
     it('creates from array', function (): void {
         $data = JobData::from([
@@ -469,7 +415,7 @@ describe('Data Objects Structure Validation', function (): void {
             ->filter(fn ($file) => str_ends_with($file->getFilename(), 'Data.php'))
             ->values();
 
-        expect($dataFiles->count())->toBeGreaterThan(58);
+        expect($dataFiles->count())->toBeGreaterThan(55);
 
         foreach ($dataFiles as $file) {
             $relativePath = str_replace(

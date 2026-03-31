@@ -3,16 +3,14 @@
 declare(strict_types=1);
 
 use App\Integrations\Forge\ForgeClient;
-use App\Integrations\Forge\Resources\{CertificateResource, DatabaseResource, JobResource, ServerResource, ServiceResource, SiteResource, WorkerResource};
+use App\Integrations\Forge\Resources\{CertificateResource, DatabaseResource, JobResource, ServerResource, ServiceResource, SiteResource};
 use App\Mcp\Servers\ForgeServer;
 use App\Mcp\Tools\Certificates\ActivateCertificateTool;
 use App\Mcp\Tools\Databases\SyncDatabaseTool;
-use App\Mcp\Tools\Deployments\{ResetDeploymentStateTool, SetDeploymentFailureEmailsTool};
 use App\Mcp\Tools\Jobs\GetJobOutputTool;
-use App\Mcp\Tools\Servers\{GetEventOutputTool, GetServerLogTool, ListEventsTool, UpdateDatabasePasswordTool};
+use App\Mcp\Tools\Servers\{GetEventOutputTool, ListEventsTool, UpdateDatabasePasswordTool};
 use App\Mcp\Tools\Services\{RestartServiceTool, StartServiceTool, StopServiceTool};
-use App\Mcp\Tools\Sites\{GetPackagesAuthTool, InstallPhpMyAdminTool, InstallWordPressTool, UninstallPhpMyAdminTool, UninstallWordPressTool, UpdatePackagesAuthTool};
-use App\Mcp\Tools\Workers\GetWorkerOutputTool;
+use App\Mcp\Tools\Sites\{InstallPhpMyAdminTool, InstallWordPressTool, UninstallPhpMyAdminTool, UninstallWordPressTool};
 
 beforeEach(function (): void {
     config([
@@ -63,36 +61,6 @@ describe('UpdateDatabasePasswordTool', function (): void {
         $response
             ->assertOk()
             ->assertSee('"success": false');
-    });
-});
-
-describe('GetServerLogTool', function (): void {
-    it('requires server_id parameter', function (): void {
-        $response = ForgeServer::tool(GetServerLogTool::class, []);
-        $response->assertHasErrors();
-    });
-
-    it('gets server log successfully', function (): void {
-        $mockLog = "Jan 1 00:00:00 server sshd[1234]: Accepted publickey for forge";
-
-        $this->mock(ForgeClient::class, function (Mockery\MockInterface $mock) use ($mockLog): void {
-            $serverResource = Mockery::mock(ServerResource::class);
-            $serverResource->shouldReceive('getLog')
-                ->with(1, 'auth')
-                ->once()
-                ->andReturn($mockLog);
-            $mock->shouldReceive('servers')->once()->andReturn($serverResource);
-        });
-
-        $response = ForgeServer::tool(GetServerLogTool::class, [
-            'server_id' => 1,
-            'file' => 'auth',
-        ]);
-
-        $response
-            ->assertOk()
-            ->assertSee('"success": true')
-            ->assertSee('sshd');
     });
 });
 
@@ -267,121 +235,6 @@ describe('UninstallPhpMyAdminTool', function (): void {
     });
 });
 
-describe('GetPackagesAuthTool', function (): void {
-    it('requires all parameters', function (): void {
-        $response = ForgeServer::tool(GetPackagesAuthTool::class, []);
-        $response->assertHasErrors();
-    });
-
-    it('gets packages auth successfully', function (): void {
-        $mockPackages = [
-            'github-oauth' => ['github.com' => 'token123'],
-        ];
-
-        $this->mock(ForgeClient::class, function (Mockery\MockInterface $mock) use ($mockPackages): void {
-            $siteResource = Mockery::mock(SiteResource::class);
-            $siteResource->shouldReceive('getPackagesAuth')
-                ->with(1, 1)
-                ->once()
-                ->andReturn($mockPackages);
-            $mock->shouldReceive('sites')->once()->andReturn($siteResource);
-        });
-
-        $response = ForgeServer::tool(GetPackagesAuthTool::class, [
-            'server_id' => 1,
-            'site_id' => 1,
-        ]);
-
-        $response
-            ->assertOk()
-            ->assertSee('"success": true')
-            ->assertSee('github-oauth');
-    });
-});
-
-describe('UpdatePackagesAuthTool', function (): void {
-    it('requires all parameters', function (): void {
-        $response = ForgeServer::tool(UpdatePackagesAuthTool::class, []);
-        $response->assertHasErrors();
-    });
-
-    it('updates packages auth successfully', function (): void {
-        $this->mock(ForgeClient::class, function (Mockery\MockInterface $mock): void {
-            $siteResource = Mockery::mock(SiteResource::class);
-            $siteResource->shouldReceive('updatePackagesAuth')
-                ->with(1, 1, Mockery::type('array'))
-                ->once();
-            $mock->shouldReceive('sites')->once()->andReturn($siteResource);
-        });
-
-        $response = ForgeServer::tool(UpdatePackagesAuthTool::class, [
-            'server_id' => 1,
-            'site_id' => 1,
-            'packages' => ['github-oauth' => ['github.com' => 'new-token']],
-        ]);
-
-        $response
-            ->assertOk()
-            ->assertSee('"success": true')
-            ->assertSee('updated');
-    });
-});
-
-describe('ResetDeploymentStateTool', function (): void {
-    it('requires all parameters', function (): void {
-        $response = ForgeServer::tool(ResetDeploymentStateTool::class, []);
-        $response->assertHasErrors();
-    });
-
-    it('resets deployment state successfully', function (): void {
-        $this->mock(ForgeClient::class, function (Mockery\MockInterface $mock): void {
-            $siteResource = Mockery::mock(SiteResource::class);
-            $siteResource->shouldReceive('resetDeploymentState')
-                ->with(1, 1)
-                ->once();
-            $mock->shouldReceive('sites')->once()->andReturn($siteResource);
-        });
-
-        $response = ForgeServer::tool(ResetDeploymentStateTool::class, [
-            'server_id' => 1,
-            'site_id' => 1,
-        ]);
-
-        $response
-            ->assertOk()
-            ->assertSee('"success": true')
-            ->assertSee('reset');
-    });
-});
-
-describe('SetDeploymentFailureEmailsTool', function (): void {
-    it('requires all parameters', function (): void {
-        $response = ForgeServer::tool(SetDeploymentFailureEmailsTool::class, []);
-        $response->assertHasErrors();
-    });
-
-    it('sets deployment failure emails successfully', function (): void {
-        $this->mock(ForgeClient::class, function (Mockery\MockInterface $mock): void {
-            $siteResource = Mockery::mock(SiteResource::class);
-            $siteResource->shouldReceive('setDeploymentFailureEmails')
-                ->with(1, 1, ['dev@example.com', 'ops@example.com'])
-                ->once();
-            $mock->shouldReceive('sites')->once()->andReturn($siteResource);
-        });
-
-        $response = ForgeServer::tool(SetDeploymentFailureEmailsTool::class, [
-            'server_id' => 1,
-            'site_id' => 1,
-            'emails' => ['dev@example.com', 'ops@example.com'],
-        ]);
-
-        $response
-            ->assertOk()
-            ->assertSee('"success": true')
-            ->assertSee('dev@example.com');
-    });
-});
-
 describe('StartServiceTool', function (): void {
     it('requires all parameters', function (): void {
         $response = ForgeServer::tool(StartServiceTool::class, []);
@@ -493,37 +346,6 @@ describe('GetJobOutputTool', function (): void {
             ->assertOk()
             ->assertSee('"success": true')
             ->assertSee('scheduled task');
-    });
-});
-
-describe('GetWorkerOutputTool', function (): void {
-    it('requires all parameters', function (): void {
-        $response = ForgeServer::tool(GetWorkerOutputTool::class, []);
-        $response->assertHasErrors();
-    });
-
-    it('gets worker output successfully', function (): void {
-        $mockOutput = "Processing: App\\Jobs\\SendEmail\nProcessed";
-
-        $this->mock(ForgeClient::class, function (Mockery\MockInterface $mock) use ($mockOutput): void {
-            $workerResource = Mockery::mock(WorkerResource::class);
-            $workerResource->shouldReceive('getOutput')
-                ->with(1, 1, 1)
-                ->once()
-                ->andReturn($mockOutput);
-            $mock->shouldReceive('workers')->once()->andReturn($workerResource);
-        });
-
-        $response = ForgeServer::tool(GetWorkerOutputTool::class, [
-            'server_id' => 1,
-            'site_id' => 1,
-            'worker_id' => 1,
-        ]);
-
-        $response
-            ->assertOk()
-            ->assertSee('"success": true')
-            ->assertSee('SendEmail');
     });
 });
 

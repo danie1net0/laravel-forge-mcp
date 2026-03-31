@@ -5,21 +5,19 @@ declare(strict_types=1);
 use App\Integrations\Forge\Data\Deployments\DeploymentData;
 use App\Integrations\Forge\ForgeClient;
 use App\Mcp\Servers\ForgeServer;
-use App\Mcp\Tools\Sites\{ChangePhpVersionTool, ClearSiteLogTool, CreateSiteTool, DeleteSiteTool, GetLoadBalancingTool, GetPackagesAuthTool, GetSiteLogTool, InstallPhpMyAdminTool, InstallWordPressTool, ListAliasesTool, ListSitesTool, UninstallPhpMyAdminTool, UninstallWordPressTool, UpdateAliasesTool, UpdateLoadBalancingTool, UpdatePackagesAuthTool, UpdateSiteTool};
-use App\Mcp\Tools\Servers\{CreateServerTool, DeleteServerTool, GetEventOutputTool, GetServerLogTool, ListEventsTool, RebootServerTool, UpdateDatabasePasswordTool};
+use App\Mcp\Tools\Sites\{ChangePhpVersionTool, CreateSiteTool, DeleteSiteTool, InstallPhpMyAdminTool, InstallWordPressTool, ListSitesTool, UninstallPhpMyAdminTool, UninstallWordPressTool, UpdateSiteTool};
+use App\Mcp\Tools\Servers\{CreateServerTool, DeleteServerTool, GetEventOutputTool, ListEventsTool, RebootServerTool, UpdateDatabasePasswordTool};
 use App\Mcp\Tools\Services\{InstallBlackfireTool, InstallPapertrailTool, RebootMysqlTool, RebootNginxTool, RebootPhpTool, RebootPostgresTool, RemoveBlackfireTool, RemovePapertrailTool, RestartServiceTool, StartServiceTool, StopMysqlTool, StopNginxTool, StopPostgresTool, StopServiceTool, TestNginxTool};
 use App\Mcp\Tools\Composite\{BulkDeployTool, CloneSiteTool, SSLExpirationCheckTool, ServerHealthCheckTool, SiteStatusDashboardTool};
 use App\Mcp\Tools\Integrations\{DisableHorizonTool, DisableInertiaTool, DisableMaintenanceTool, DisableOctaneTool, DisablePulseTool, DisableReverbTool, DisableSchedulerTool, EnableHorizonTool, EnableInertiaTool, EnableMaintenanceTool, EnableOctaneTool, EnablePulseTool, EnableReverbTool, EnableSchedulerTool, GetHorizonTool, GetInertiaTool, GetMaintenanceTool, GetOctaneTool, GetPulseTool, GetReverbTool, GetSchedulerTool};
 use App\Integrations\Forge\Data\Jobs\{JobCollectionData, JobData};
-use App\Integrations\Forge\Resources\{CertificateResource, DaemonResource, IntegrationResource, JobResource, MonitorResource, ServerResource, ServiceResource, SiteResource, WorkerResource};
+use App\Integrations\Forge\Resources\{CertificateResource, DaemonResource, IntegrationResource, JobResource, MonitorResource, ServerResource, ServiceResource, SiteResource};
 use App\Integrations\Forge\Data\Sites\{SiteCollectionData, SiteData};
 use App\Integrations\Forge\Data\Daemons\{DaemonCollectionData};
 use App\Integrations\Forge\Data\Servers\{ServerCollectionData, ServerData};
-use App\Integrations\Forge\Data\Workers\{WorkerCollectionData, WorkerData};
 use App\Integrations\Forge\Data\Monitors\{MonitorCollectionData};
 use App\Integrations\Forge\Data\Certificates\{CertificateCollectionData, CertificateData};
 use App\Mcp\Tools\Certificates\InstallCertificateTool;
-use App\Mcp\Tools\Workers\GetWorkerOutputTool;
 use App\Integrations\Forge\Data\Sites\{CreateSiteData, UpdateSiteData};
 use App\Integrations\Forge\Data\Servers\CreateServerData;
 
@@ -546,18 +544,6 @@ describe('Server tools error paths', function (): void {
         $response->assertOk()->assertSee('"success": false')->assertSee('Password update failed');
     });
 
-    it('handles GetServerLogTool API errors', function (): void {
-        $this->mock(ForgeClient::class, function (Mockery\MockInterface $mock): void {
-            $serverResource = Mockery::mock(ServerResource::class);
-            $serverResource->shouldReceive('getLog')->once()->andThrow(new Exception('Log not available'));
-            $mock->shouldReceive('servers')->once()->andReturn($serverResource);
-        });
-
-        $response = ForgeServer::tool(GetServerLogTool::class, ['server_id' => 1]);
-
-        $response->assertOk()->assertSee('"success": false')->assertSee('Log not available');
-    });
-
     it('handles ListEventsTool API errors', function (): void {
         $this->mock(ForgeClient::class, function (Mockery\MockInterface $mock): void {
             $serverResource = Mockery::mock(ServerResource::class);
@@ -852,36 +838,6 @@ describe('Site tools error paths', function (): void {
         $response->assertOk()->assertSee('"success": false')->assertSee('Site not found');
     });
 
-    it('handles GetSiteLogTool API errors', function (): void {
-        $this->mock(ForgeClient::class, function (Mockery\MockInterface $mock): void {
-            $siteResource = Mockery::mock(SiteResource::class);
-            $siteResource->shouldReceive('log')->once()->andThrow(new Exception('Log unavailable'));
-            $mock->shouldReceive('sites')->once()->andReturn($siteResource);
-        });
-
-        $response = ForgeServer::tool(GetSiteLogTool::class, [
-            'server_id' => 1,
-            'site_id' => 1,
-        ]);
-
-        $response->assertOk()->assertSee('"success": false')->assertSee('Log unavailable');
-    });
-
-    it('handles ClearSiteLogTool API errors', function (): void {
-        $this->mock(ForgeClient::class, function (Mockery\MockInterface $mock): void {
-            $siteResource = Mockery::mock(SiteResource::class);
-            $siteResource->shouldReceive('clearLog')->once()->andThrow(new Exception('Clear log failed'));
-            $mock->shouldReceive('sites')->once()->andReturn($siteResource);
-        });
-
-        $response = ForgeServer::tool(ClearSiteLogTool::class, [
-            'server_id' => 1,
-            'site_id' => 1,
-        ]);
-
-        $response->assertOk()->assertSee('"success": false')->assertSee('Clear log failed');
-    });
-
     it('handles ChangePhpVersionTool API errors', function (): void {
         $this->mock(ForgeClient::class, function (Mockery\MockInterface $mock): void {
             $siteResource = Mockery::mock(SiteResource::class);
@@ -896,99 +852,6 @@ describe('Site tools error paths', function (): void {
         ]);
 
         $response->assertOk()->assertSee('"success": false')->assertSee('PHP version change failed');
-    });
-
-    it('handles ListAliasesTool API errors', function (): void {
-        $this->mock(ForgeClient::class, function (Mockery\MockInterface $mock): void {
-            $siteResource = Mockery::mock(SiteResource::class);
-            $siteResource->shouldReceive('listAliases')->once()->andThrow(new Exception('Aliases fetch failed'));
-            $mock->shouldReceive('sites')->once()->andReturn($siteResource);
-        });
-
-        $response = ForgeServer::tool(ListAliasesTool::class, [
-            'server_id' => 1,
-            'site_id' => 1,
-        ]);
-
-        $response->assertOk()->assertSee('"success": false')->assertSee('Aliases fetch failed');
-    });
-
-    it('handles UpdateAliasesTool API errors', function (): void {
-        $this->mock(ForgeClient::class, function (Mockery\MockInterface $mock): void {
-            $siteResource = Mockery::mock(SiteResource::class);
-            $siteResource->shouldReceive('updateAliases')->once()->andThrow(new Exception('Aliases update failed'));
-            $mock->shouldReceive('sites')->once()->andReturn($siteResource);
-        });
-
-        $response = ForgeServer::tool(UpdateAliasesTool::class, [
-            'server_id' => 1,
-            'site_id' => 1,
-            'aliases' => ['www.example.com'],
-        ]);
-
-        $response->assertOk()->assertSee('"success": false')->assertSee('Aliases update failed');
-    });
-
-    it('handles GetLoadBalancingTool API errors', function (): void {
-        $this->mock(ForgeClient::class, function (Mockery\MockInterface $mock): void {
-            $siteResource = Mockery::mock(SiteResource::class);
-            $siteResource->shouldReceive('getLoadBalancing')->once()->andThrow(new Exception('Load balancing fetch failed'));
-            $mock->shouldReceive('sites')->once()->andReturn($siteResource);
-        });
-
-        $response = ForgeServer::tool(GetLoadBalancingTool::class, [
-            'server_id' => 1,
-            'site_id' => 1,
-        ]);
-
-        $response->assertOk()->assertSee('"success": false')->assertSee('Load balancing fetch failed');
-    });
-
-    it('handles UpdateLoadBalancingTool API errors', function (): void {
-        $this->mock(ForgeClient::class, function (Mockery\MockInterface $mock): void {
-            $siteResource = Mockery::mock(SiteResource::class);
-            $siteResource->shouldReceive('updateLoadBalancing')->once()->andThrow(new Exception('Load balancing update failed'));
-            $mock->shouldReceive('sites')->once()->andReturn($siteResource);
-        });
-
-        $response = ForgeServer::tool(UpdateLoadBalancingTool::class, [
-            'server_id' => 1,
-            'site_id' => 1,
-            'servers' => [['id' => 2, 'weight' => 5]],
-        ]);
-
-        $response->assertOk()->assertSee('"success": false')->assertSee('Load balancing update failed');
-    });
-
-    it('handles GetPackagesAuthTool API errors', function (): void {
-        $this->mock(ForgeClient::class, function (Mockery\MockInterface $mock): void {
-            $siteResource = Mockery::mock(SiteResource::class);
-            $siteResource->shouldReceive('getPackagesAuth')->once()->andThrow(new Exception('Packages auth fetch failed'));
-            $mock->shouldReceive('sites')->once()->andReturn($siteResource);
-        });
-
-        $response = ForgeServer::tool(GetPackagesAuthTool::class, [
-            'server_id' => 1,
-            'site_id' => 1,
-        ]);
-
-        $response->assertOk()->assertSee('"success": false')->assertSee('Packages auth fetch failed');
-    });
-
-    it('handles UpdatePackagesAuthTool API errors', function (): void {
-        $this->mock(ForgeClient::class, function (Mockery\MockInterface $mock): void {
-            $siteResource = Mockery::mock(SiteResource::class);
-            $siteResource->shouldReceive('updatePackagesAuth')->once()->andThrow(new Exception('Packages auth update failed'));
-            $mock->shouldReceive('sites')->once()->andReturn($siteResource);
-        });
-
-        $response = ForgeServer::tool(UpdatePackagesAuthTool::class, [
-            'server_id' => 1,
-            'site_id' => 1,
-            'packages' => ['github-oauth' => ['github.com' => 'token']],
-        ]);
-
-        $response->assertOk()->assertSee('"success": false')->assertSee('Packages auth update failed');
     });
 
     it('handles InstallWordPressTool API errors', function (): void {
@@ -1055,28 +918,6 @@ describe('Site tools error paths', function (): void {
 });
 
 // ============================================================================
-// WORKERS - Error path for GetWorkerOutputTool (others already covered)
-// ============================================================================
-
-describe('Worker tools error paths', function (): void {
-    it('handles GetWorkerOutputTool API errors', function (): void {
-        $this->mock(ForgeClient::class, function (Mockery\MockInterface $mock): void {
-            $workerResource = Mockery::mock(WorkerResource::class);
-            $workerResource->shouldReceive('getOutput')->once()->andThrow(new Exception('Worker output not available'));
-            $mock->shouldReceive('workers')->once()->andReturn($workerResource);
-        });
-
-        $response = ForgeServer::tool(GetWorkerOutputTool::class, [
-            'server_id' => 1,
-            'site_id' => 1,
-            'worker_id' => 1,
-        ]);
-
-        $response->assertOk()->assertSee('"success": false')->assertSee('Worker output not available');
-    });
-});
-
-// ============================================================================
 // COMPOSITE - Error paths + uncovered branches
 // ============================================================================
 
@@ -1116,16 +957,10 @@ describe('ServerHealthCheckTool error paths', function (): void {
                 DaemonCollectionData::from(['daemons' => []])
             );
 
-            $workerResource = Mockery::mock(WorkerResource::class);
-            $workerResource->shouldReceive('list')->with(1, 0)->once()->andReturn(
-                WorkerCollectionData::from(['workers' => []])
-            );
-
             $mock->shouldReceive('servers')->andReturn($serverResource);
             $mock->shouldReceive('monitors')->andReturn($monitorResource);
             $mock->shouldReceive('sites')->andReturn($siteResource);
             $mock->shouldReceive('daemons')->andReturn($daemonResource);
-            $mock->shouldReceive('workers')->andReturn($workerResource);
         });
 
         $response = ForgeServer::tool(ServerHealthCheckTool::class, ['server_id' => 1]);
@@ -1169,16 +1004,10 @@ describe('ServerHealthCheckTool error paths', function (): void {
                 DaemonCollectionData::from(['daemons' => []])
             );
 
-            $workerResource = Mockery::mock(WorkerResource::class);
-            $workerResource->shouldReceive('list')->with(1, 0)->once()->andReturn(
-                WorkerCollectionData::from(['workers' => []])
-            );
-
             $mock->shouldReceive('servers')->andReturn($serverResource);
             $mock->shouldReceive('monitors')->andReturn($monitorResource);
             $mock->shouldReceive('sites')->andReturn($siteResource);
             $mock->shouldReceive('daemons')->andReturn($daemonResource);
-            $mock->shouldReceive('workers')->andReturn($workerResource);
         });
 
         $response = ForgeServer::tool(ServerHealthCheckTool::class, ['server_id' => 1]);
@@ -1203,14 +1032,10 @@ describe('ServerHealthCheckTool error paths', function (): void {
             $daemonResource = Mockery::mock(DaemonResource::class);
             $daemonResource->shouldReceive('list')->with(1)->once()->andThrow(new Exception('Daemons error'));
 
-            $workerResource = Mockery::mock(WorkerResource::class);
-            $workerResource->shouldReceive('list')->with(1, 0)->once()->andThrow(new Exception('Workers error'));
-
             $mock->shouldReceive('servers')->andReturn($serverResource);
             $mock->shouldReceive('monitors')->andReturn($monitorResource);
             $mock->shouldReceive('sites')->andReturn($siteResource);
             $mock->shouldReceive('daemons')->andReturn($daemonResource);
-            $mock->shouldReceive('workers')->andReturn($workerResource);
         });
 
         $response = ForgeServer::tool(ServerHealthCheckTool::class, ['server_id' => 1]);
@@ -1248,15 +1073,11 @@ describe('SiteStatusDashboardTool error paths', function (): void {
             $certResource = Mockery::mock(CertificateResource::class);
             $certResource->shouldReceive('list')->with(1, 1)->once()->andThrow(new Exception('Certificates error'));
 
-            $workerResource = Mockery::mock(WorkerResource::class);
-            $workerResource->shouldReceive('list')->with(1, 1)->once()->andThrow(new Exception('Workers error'));
-
             $jobResource = Mockery::mock(JobResource::class);
             $jobResource->shouldReceive('list')->with(1)->once()->andThrow(new Exception('Jobs error'));
 
             $mock->shouldReceive('sites')->andReturn($siteResource);
             $mock->shouldReceive('certificates')->andReturn($certResource);
-            $mock->shouldReceive('workers')->andReturn($workerResource);
             $mock->shouldReceive('jobs')->andReturn($jobResource);
         });
 
@@ -1292,22 +1113,6 @@ describe('SiteStatusDashboardTool error paths', function (): void {
             'created_at' => '2024-01-01T00:00:00Z',
         ]);
 
-        $mockWorker = WorkerData::from([
-            'id' => 1,
-            'server_id' => 1,
-            'site_id' => 1,
-            'connection' => 'redis',
-            'command' => 'php artisan queue:work',
-            'queue' => 'default',
-            'timeout' => 60,
-            'sleep' => 3,
-            'tries' => 1,
-            'environment' => 'production',
-            'daemon' => 1,
-            'status' => 'installed',
-            'created_at' => '2024-01-01T00:00:00Z',
-        ]);
-
         $mockJob = JobData::from([
             'id' => 1,
             'server_id' => 1,
@@ -1319,7 +1124,7 @@ describe('SiteStatusDashboardTool error paths', function (): void {
             'created_at' => '2024-01-01T00:00:00Z',
         ]);
 
-        $this->mock(ForgeClient::class, function (Mockery\MockInterface $mock) use ($mockSite, $mockCert, $mockDeployment, $mockWorker, $mockJob): void {
+        $this->mock(ForgeClient::class, function (Mockery\MockInterface $mock) use ($mockSite, $mockCert, $mockDeployment, $mockJob): void {
             $siteResource = Mockery::mock(SiteResource::class);
             $siteResource->shouldReceive('get')->with(1, 1)->once()->andReturn($mockSite);
             $siteResource->shouldReceive('deploymentHistory')->with(1, 1)->once()->andReturn([$mockDeployment]);
@@ -1329,11 +1134,6 @@ describe('SiteStatusDashboardTool error paths', function (): void {
                 CertificateCollectionData::from(['certificates' => [$mockCert->toArray()]])
             );
 
-            $workerResource = Mockery::mock(WorkerResource::class);
-            $workerResource->shouldReceive('list')->with(1, 1)->once()->andReturn(
-                new WorkerCollectionData(workers: [$mockWorker])
-            );
-
             $jobResource = Mockery::mock(JobResource::class);
             $jobResource->shouldReceive('list')->with(1)->once()->andReturn(
                 new JobCollectionData(jobs: [$mockJob])
@@ -1341,7 +1141,6 @@ describe('SiteStatusDashboardTool error paths', function (): void {
 
             $mock->shouldReceive('sites')->andReturn($siteResource);
             $mock->shouldReceive('certificates')->andReturn($certResource);
-            $mock->shouldReceive('workers')->andReturn($workerResource);
             $mock->shouldReceive('jobs')->andReturn($jobResource);
         });
 
@@ -1354,8 +1153,7 @@ describe('SiteStatusDashboardTool error paths', function (): void {
             ->assertOk()
             ->assertSee('"success": true')
             ->assertSee('active')
-            ->assertSee('finished')
-            ->assertSee('redis');
+            ->assertSee('finished');
     });
 });
 
@@ -1658,9 +1456,6 @@ describe('CloneSiteTool error paths', function (): void {
             $siteResource->shouldReceive('installGitRepository')->once()->andThrow(new Exception('Git install failed'));
             $siteResource->shouldReceive('deploymentScript')->once()->andThrow(new Exception('Script fetch failed'));
 
-            $workerResource = Mockery::mock(WorkerResource::class);
-            $workerResource->shouldReceive('list')->once()->andThrow(new Exception('Workers fetch failed'));
-
             $jobResource = Mockery::mock(JobResource::class);
             $jobResource->shouldReceive('list')->once()->andThrow(new Exception('Jobs fetch failed'));
 
@@ -1668,7 +1463,6 @@ describe('CloneSiteTool error paths', function (): void {
             $certResource->shouldReceive('list')->once()->andThrow(new Exception('SSL failed'));
 
             $mock->shouldReceive('sites')->andReturn($siteResource);
-            $mock->shouldReceive('workers')->andReturn($workerResource);
             $mock->shouldReceive('jobs')->andReturn($jobResource);
             $mock->shouldReceive('certificates')->andReturn($certResource);
         });
@@ -1685,12 +1479,11 @@ describe('CloneSiteTool error paths', function (): void {
             ->assertSee('"success": false')
             ->assertSee('Git install failed')
             ->assertSee('Script fetch failed')
-            ->assertSee('Workers fetch failed')
             ->assertSee('Jobs fetch failed')
             ->assertSee('SSL failed');
     });
 
-    it('clones workers and jobs from source site', function (): void {
+    it('clones jobs from source site', function (): void {
         $mockSourceSite = makeMockSiteData([
             'id' => 1,
             'name' => 'source.com',
@@ -1700,22 +1493,6 @@ describe('CloneSiteTool error paths', function (): void {
         $mockNewSite = makeMockSiteData([
             'id' => 2,
             'name' => 'clone.com',
-        ]);
-
-        $mockWorker = WorkerData::from([
-            'id' => 1,
-            'server_id' => 1,
-            'site_id' => 1,
-            'connection' => 'redis',
-            'command' => 'php artisan queue:work',
-            'queue' => 'default',
-            'timeout' => 60,
-            'sleep' => 3,
-            'tries' => 1,
-            'environment' => 'production',
-            'daemon' => 1,
-            'status' => 'installed',
-            'created_at' => '2024-01-01T00:00:00Z',
         ]);
 
         $mockJob = JobData::from([
@@ -1729,18 +1506,12 @@ describe('CloneSiteTool error paths', function (): void {
             'created_at' => '2024-01-01T00:00:00Z',
         ]);
 
-        $this->mock(ForgeClient::class, function (Mockery\MockInterface $mock) use ($mockSourceSite, $mockNewSite, $mockWorker, $mockJob): void {
+        $this->mock(ForgeClient::class, function (Mockery\MockInterface $mock) use ($mockSourceSite, $mockNewSite, $mockJob): void {
             $siteResource = Mockery::mock(SiteResource::class);
             $siteResource->shouldReceive('get')->with(1, 1)->once()->andReturn($mockSourceSite);
             $siteResource->shouldReceive('create')->with(2, Mockery::any())->once()->andReturn($mockNewSite);
             $siteResource->shouldReceive('deploymentScript')->with(1, 1)->once()->andReturn('cd /home/forge/source.com');
             $siteResource->shouldReceive('updateDeploymentScript')->with(2, 2, 'cd /home/forge/clone.com')->once();
-
-            $workerResource = Mockery::mock(WorkerResource::class);
-            $workerResource->shouldReceive('list')->with(1, 1)->once()->andReturn(
-                new WorkerCollectionData(workers: [$mockWorker])
-            );
-            $workerResource->shouldReceive('create')->with(2, 2, Mockery::any())->once();
 
             $jobResource = Mockery::mock(JobResource::class);
             $jobResource->shouldReceive('list')->with(1)->once()->andReturn(
@@ -1756,7 +1527,6 @@ describe('CloneSiteTool error paths', function (): void {
             $certResource->shouldReceive('obtainLetsEncrypt')->with(2, 2, 10)->once();
 
             $mock->shouldReceive('sites')->andReturn($siteResource);
-            $mock->shouldReceive('workers')->andReturn($workerResource);
             $mock->shouldReceive('jobs')->andReturn($jobResource);
             $mock->shouldReceive('certificates')->andReturn($certResource);
         });
@@ -1771,7 +1541,6 @@ describe('CloneSiteTool error paths', function (): void {
         $response
             ->assertOk()
             ->assertSee('"success": true')
-            ->assertSee('Cloned 1 workers')
             ->assertSee('Cloned 1 scheduled jobs');
     });
 });

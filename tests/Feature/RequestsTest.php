@@ -12,7 +12,7 @@ describe('Saloon Requests Structure', function (): void {
             ->filter(fn (Symfony\Component\Finder\SplFileInfo $file): bool => str_ends_with($file->getFilename(), 'Request.php'))
             ->values();
 
-        expect($requestFiles->count())->toBeGreaterThan(125);
+        expect($requestFiles->count())->toBeGreaterThan(100);
 
         $failures = [];
 
@@ -186,13 +186,12 @@ describe('Request Categories Coverage', function (): void {
         'Php' => ['InstallPhp', 'UpdatePhp'],
         'RedirectRules' => ['ListRedirectRules', 'GetRedirectRule', 'CreateRedirectRule', 'DeleteRedirectRule'],
         'SecurityRules' => ['ListSecurityRules', 'GetSecurityRule', 'CreateSecurityRule', 'DeleteSecurityRule'],
-        'Servers' => ['ListServers', 'GetServer', 'CreateServer', 'DeleteServer', 'RebootServer', 'PowerCycleServer', 'ListEvents', 'GetEventOutput', 'GetServerLog', 'UpdateDatabasePassword'],
+        'Servers' => ['ListServers', 'GetServer', 'CreateServer', 'DeleteServer', 'RebootServer', 'PowerCycleServer', 'ListEvents', 'GetEventOutput', 'UpdateDatabasePassword'],
         'Services' => ['InstallBlackfire', 'InstallPapertrail', 'ManageService'],
-        'Sites' => ['ListSites', 'GetSite', 'CreateSite', 'UpdateSite', 'DeleteSite', 'GetSiteLog', 'ClearSiteLog', 'ChangePhpVersion', 'DeploySite', 'GetDeploymentLog', 'GetDeploymentScript', 'UpdateDeploymentScript', 'EnableQuickDeploy', 'DisableQuickDeploy', 'GetDeploymentHistory', 'GetDeploymentHistoryDeployment', 'GetDeploymentHistoryOutput', 'ResetDeploymentState', 'InstallGitRepository', 'UpdateGitRepository', 'DestroyGitRepository', 'CreateDeployKey', 'DeleteDeployKey', 'GetEnvFile', 'UpdateEnvFile', 'GetNginxConfig', 'UpdateNginxConfig', 'ExecuteSiteCommand', 'GetSiteCommand', 'ListCommandHistory', 'InstallWordPress', 'UninstallWordPress', 'InstallPhpMyAdmin', 'UninstallPhpMyAdmin', 'GetPackagesAuth', 'UpdatePackagesAuth', 'SetDeploymentFailureEmails', 'ListAliases', 'UpdateAliases', 'GetLoadBalancing', 'UpdateLoadBalancing'],
+        'Sites' => ['ListSites', 'GetSite', 'CreateSite', 'UpdateSite', 'DeleteSite', 'ChangePhpVersion', 'DeploySite', 'GetDeploymentScript', 'UpdateDeploymentScript', 'GetDeploymentHistory', 'GetDeploymentHistoryDeployment', 'InstallGitRepository', 'UpdateGitRepository', 'DestroyGitRepository', 'CreateDeployKey', 'DeleteDeployKey', 'GetEnvFile', 'UpdateEnvFile', 'GetNginxConfig', 'UpdateNginxConfig', 'ExecuteSiteCommand', 'GetSiteCommand', 'ListCommandHistory', 'InstallWordPress', 'UninstallWordPress', 'InstallPhpMyAdmin', 'UninstallPhpMyAdmin'],
         'SSHKeys' => ['ListSSHKeys', 'GetSSHKey', 'CreateSSHKey', 'DeleteSSHKey'],
         'User' => ['GetUser'],
         'Webhooks' => ['ListWebhooks', 'GetWebhook', 'CreateWebhook', 'DeleteWebhook'],
-        'Workers' => ['ListWorkers', 'GetWorker', 'CreateWorker', 'RestartWorker', 'DeleteWorker', 'GetWorkerOutput'],
     ];
 
     foreach ($categories as $category => $requests) {

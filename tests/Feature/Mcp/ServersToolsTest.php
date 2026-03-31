@@ -5,7 +5,7 @@ declare(strict_types=1);
 use App\Integrations\Forge\ForgeClient;
 use App\Integrations\Forge\Resources\ServerResource;
 use App\Mcp\Servers\ForgeServer;
-use App\Mcp\Tools\Servers\{CreateServerTool, DeleteServerTool, GetEventOutputTool, GetServerLogTool, GetServerTool, ListEventsTool, ListServersTool, PowerCycleServerTool, RebootServerTool, UpdateDatabasePasswordTool};
+use App\Mcp\Tools\Servers\{CreateServerTool, DeleteServerTool, GetEventOutputTool, GetServerTool, ListEventsTool, ListServersTool, PowerCycleServerTool, RebootServerTool, UpdateDatabasePasswordTool};
 use App\Integrations\Forge\Data\Servers\{ServerCollectionData, ServerData};
 
 beforeEach(function (): void {
@@ -240,41 +240,6 @@ describe('PowerCycleServerTool', function (): void {
     });
 });
 
-describe('GetServerLogTool', function (): void {
-    it('requires server_id parameter', function (): void {
-        $response = ForgeServer::tool(GetServerLogTool::class, []);
-
-        $response->assertHasErrors();
-    });
-
-    it('uses default auth file when file not provided', function (): void {
-        $this->mock(ForgeClient::class, function (Mockery\MockInterface $mock): void {
-            $serverResource = Mockery::mock(ServerResource::class);
-            $serverResource->shouldReceive('getLog')->with(1, 'auth')->once()->andReturn('auth log content');
-            $mock->shouldReceive('servers')->once()->andReturn($serverResource);
-        });
-
-        $response = ForgeServer::tool(GetServerLogTool::class, ['server_id' => 1]);
-
-        $response->assertOk()->assertSee('auth log content');
-    });
-
-    it('gets server log successfully', function (): void {
-        $this->mock(ForgeClient::class, function (Mockery\MockInterface $mock): void {
-            $serverResource = Mockery::mock(ServerResource::class);
-            $serverResource->shouldReceive('getLog')->with(1, 'syslog')->once()->andReturn('syslog content here');
-            $mock->shouldReceive('servers')->once()->andReturn($serverResource);
-        });
-
-        $response = ForgeServer::tool(GetServerLogTool::class, [
-            'server_id' => 1,
-            'file' => 'syslog',
-        ]);
-
-        $response->assertOk()->assertSee('syslog content');
-    });
-});
-
 describe('ListEventsTool', function (): void {
     it('requires server_id parameter', function (): void {
         $response = ForgeServer::tool(ListEventsTool::class, []);
@@ -357,7 +322,6 @@ describe('Server Tools Structure', function (): void {
             DeleteServerTool::class,
             RebootServerTool::class,
             PowerCycleServerTool::class,
-            GetServerLogTool::class,
             ListEventsTool::class,
             GetEventOutputTool::class,
             UpdateDatabasePasswordTool::class,

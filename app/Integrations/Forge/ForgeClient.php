@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace App\Integrations\Forge;
 
-use App\Integrations\Forge\Resources\{BackupResource, CertificateResource, DaemonResource, DatabaseResource, DatabaseUserResource, FirewallResource, IntegrationResource, JobResource, MonitorResource, NginxTemplateResource, PhpResource, RedirectRuleResource, SSHKeyResource, SecurityRuleResource, ServerResource, ServiceResource, SiteResource, UserResource, WebhookResource, WorkerResource};
+use App\Integrations\Forge\Resources\{BackupResource, CertificateResource, DaemonResource, DatabaseResource, DatabaseUserResource, FirewallResource, IntegrationResource, JobResource, MonitorResource, NginxTemplateResource, PhpResource, RedirectRuleResource, SSHKeyResource, SecurityRuleResource, ServerResource, ServiceResource, SiteResource, UserResource, WebhookResource};
 use Illuminate\Http\Client\ConnectionException;
 use Illuminate\Support\Facades\Http;
 use RuntimeException;
@@ -70,11 +70,6 @@ class ForgeClient
     public function firewall(): FirewallResource
     {
         return new FirewallResource($this->connector);
-    }
-
-    public function workers(): WorkerResource
-    {
-        return new WorkerResource($this->connector);
     }
 
     public function webhooks(): WebhookResource

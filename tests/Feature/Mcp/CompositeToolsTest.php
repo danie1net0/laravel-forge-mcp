@@ -5,11 +5,10 @@ declare(strict_types=1);
 use App\Integrations\Forge\Data\Daemons\DaemonCollectionData;
 use App\Integrations\Forge\Data\Jobs\JobCollectionData;
 use App\Integrations\Forge\Data\Monitors\MonitorCollectionData;
-use App\Integrations\Forge\Data\Workers\WorkerCollectionData;
 use App\Integrations\Forge\ForgeClient;
 use App\Mcp\Servers\ForgeServer;
 use App\Mcp\Tools\Composite\{BulkDeployTool, CloneSiteTool, SSLExpirationCheckTool, ServerHealthCheckTool, SiteStatusDashboardTool};
-use App\Integrations\Forge\Resources\{CertificateResource, DaemonResource, JobResource, MonitorResource, ServerResource, SiteResource, WorkerResource};
+use App\Integrations\Forge\Resources\{CertificateResource, DaemonResource, JobResource, MonitorResource, ServerResource, SiteResource};
 use App\Integrations\Forge\Data\Sites\{SiteCollectionData, SiteData};
 use App\Integrations\Forge\Data\Servers\{ServerCollectionData, ServerData};
 use App\Integrations\Forge\Data\Certificates\{CertificateCollectionData, CertificateData};
@@ -168,11 +167,6 @@ describe('SiteStatusDashboardTool', function (): void {
                 CertificateCollectionData::from(['certificates' => []])
             );
 
-            $workerResource = Mockery::mock(WorkerResource::class);
-            $workerResource->shouldReceive('list')->with(1, 1)->once()->andReturn(
-                WorkerCollectionData::from(['workers' => []])
-            );
-
             $jobResource = Mockery::mock(JobResource::class);
             $jobResource->shouldReceive('list')->with(1)->once()->andReturn(
                 JobCollectionData::from(['jobs' => []])
@@ -180,7 +174,6 @@ describe('SiteStatusDashboardTool', function (): void {
 
             $mock->shouldReceive('sites')->andReturn($siteResource);
             $mock->shouldReceive('certificates')->andReturn($certResource);
-            $mock->shouldReceive('workers')->andReturn($workerResource);
             $mock->shouldReceive('jobs')->andReturn($jobResource);
         });
 
@@ -367,11 +360,6 @@ describe('CloneSiteTool', function (): void {
             $siteResource->shouldReceive('deploymentScript')->with(1, 1)->once()->andReturn('cd /home/forge/source.com && git pull');
             $siteResource->shouldReceive('updateDeploymentScript')->with(2, 2, Mockery::any())->once();
 
-            $workerResource = Mockery::mock(WorkerResource::class);
-            $workerResource->shouldReceive('list')->with(1, 1)->once()->andReturn(
-                WorkerCollectionData::from(['workers' => []])
-            );
-
             $jobResource = Mockery::mock(JobResource::class);
             $jobResource->shouldReceive('list')->with(1)->once()->andReturn(
                 JobCollectionData::from(['jobs' => []])
@@ -385,7 +373,6 @@ describe('CloneSiteTool', function (): void {
             $certResource->shouldReceive('obtainLetsEncrypt')->with(2, 2, 10)->once();
 
             $mock->shouldReceive('sites')->andReturn($siteResource);
-            $mock->shouldReceive('workers')->andReturn($workerResource);
             $mock->shouldReceive('jobs')->andReturn($jobResource);
             $mock->shouldReceive('certificates')->andReturn($certResource);
         });
